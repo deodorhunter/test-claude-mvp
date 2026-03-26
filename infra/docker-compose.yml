@@ -1,0 +1,112 @@
+version: "3.9"
+
+networks:
+  ai-platform:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-platform-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aiplatform}
+      POSTGRES_USER: ${POSTGRES_USER:-aiplatform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ai-platform
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aiplatform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-platform-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-platform
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.9.2
+    container_name: ai-platform-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - ai-platform
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.backend
+    container_name: ai-platform-api
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aiplatform}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aiplatform}
+      REDIS_URL: redis://redis:6379/0
+      QDRANT_URL: http://qdrant:6333
+      PLONE_BASE_URL: http://plone:8080
+    ports:
+      - "8000:8000"
+    networks:
+      - ai-platform
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  plone:
+    image: plone/plone-backend:6.0.12
+    container_name: ai-platform-plone
+    environment:
+      SITE: Plone
+      PROFILES: "plone.restapi:default"
+    networks:
+      - ai-platform
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/@@ok || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+  volto:
+    image: plone/plone-frontend:18.0.0
+    container_name: ai-platform-volto
+    environment:
+      RAZZLE_INTERNAL_API_PATH: http://plone:8080/Plone
+      RAZZLE_DEV_PROXY_API_PATH: http://plone:8080/Plone
+    ports:
+      - "3000:3000"
+    networks:
+      - ai-platform
+    depends_on:
+      - plone
+    restart: unless-stopped

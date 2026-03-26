@@ -1,0 +1,20 @@
+# Stage 1: build dependencies
+FROM python:3.11-slim AS builder
+WORKDIR /build
+COPY backend/pyproject.toml .
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir hatchling \
+    && pip install --no-cache-dir ".[dev]" --target /build/deps
+
+# Stage 2: runtime image
+FROM python:3.11-slim AS runtime
+RUN groupadd --gid 1001 appgroup \
+    && useradd --uid 1001 --gid appgroup --no-create-home appuser
+WORKDIR /app
+COPY --from=builder /build/deps /usr/local/lib/python3.11/site-packages/
+COPY backend/ .
+USER appuser
+EXPOSE 8000
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

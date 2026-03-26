@@ -1,0 +1,5 @@
+id: document_import
+version: "0.1.0"
+capabilities: []
+entrypoint: plugin.py
+description: "Placeholder — not yet implemented"
