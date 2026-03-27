@@ -71,6 +71,8 @@ services:
       PLONE_BASE_URL: http://plone:8080/Plone
     ports:
       - "8000:8000"
+    volumes:
+      - ../plugins:/app/plugins
     networks:
       - ai-platform
     depends_on:

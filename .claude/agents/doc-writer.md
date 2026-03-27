@@ -41,9 +41,19 @@ You operate in two distinct modes. You will always be told which mode to use in 
 
 [Explicit list of anything that was NOT implemented, is incomplete, or may break under certain conditions. Include severity: CRITICAL / HIGH / MEDIUM / LOW.]
 
-## How to verify this works
+## Manual test instructions (for user)
 
-[Step-by-step manual verification commands — make targets, curl commands, expected output.]
+[Step-by-step commands the user can copy-paste to verify this US manually.
+Requirements:
+- Must be fully self-contained and replicable from a clean shell
+- Use exact docker exec / curl / make commands with expected output
+- Include setup steps if needed (e.g. make up)
+- Group by scenario: happy path first, then edge cases
+- Show expected output for each command]
+
+## How to verify this works (automated)
+
+[Automated test commands — make targets, pytest commands, expected output.]
 ```
 
 **Rules:**

@@ -2,6 +2,27 @@
 
 > Fasi da seguire in ordine. Il Tech Lead NON passa alla fase successiva senza approvazione esplicita dell'utente.
 > Aggiornato post-retrospettiva Phase 1: sub-fasi atomiche, mini-gate, smoke test obbligatori.
+> Aggiornato 2026-03-27: git branching per US + manual test instructions obbligatorie.
+
+## Git Branching Strategy
+
+- Ogni US ha il proprio branch: `us/US-NNN-short-title` (es. `us/US-010-plugin-manager`)
+- Il branch viene creato dal Tech Lead **prima** di delegare la US all'agente
+- L'agente committa sul branch della US
+- Dopo smoke test + QA validation + approvazione utente: merge su `main`
+- Nessun commit diretto su `main` durante lo sviluppo di una US
+
+## QA Engineer — Ruolo Per-US (Mode A)
+
+Il QA Engineer viene spawnato **dopo ogni US**, non solo a fine fase. Esegue i comandi di test manuale dall'handoff doc contro l'ambiente Docker live.
+
+- **Modello:** haiku (task semplice: run commands, compare output)
+- **Input:** `docs/handoffs/US-NNN-handoff.md` sezione "Manual Test Instructions"
+- **Output:** pass/fail report con output reale vs atteso
+- **Se fail:** Tech Lead ri-delega la US all'agente implementatore con il report QA — NON presenta all'utente
+- **Se pass:** Tech Lead presenta risultati all'utente per approvazione finale
+
+Questo intercetta errori di integrazione (es. path non montati, env vars mancanti) prima che l'utente debba testare manualmente.
 
 ---
 

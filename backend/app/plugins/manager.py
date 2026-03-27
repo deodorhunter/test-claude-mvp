@@ -7,7 +7,10 @@ No external calls, no DB session creation. All DB operations passed in from call
 import uuid
 from pathlib import Path
 from pydantic import BaseModel, ConfigDict
-import yaml
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.plugins.loaders import PluginLoader
 
 
 class PluginManifest(BaseModel):
@@ -27,55 +30,53 @@ class PluginManager:
     Manages plugin lifecycle at runtime.
 
     State: _manifests dict loaded once at init. Get active plugins per tenant from DB.
+    Can be initialized with a list of PluginLoaders to search multiple sources.
     """
 
-    def __init__(self):
+    def __init__(self, loaders: list["PluginLoader"] | None = None):
+        """
+        Initialize PluginManager with optional loaders.
+
+        Args:
+            loaders: Optional list of PluginLoader instances. If None, no loaders
+                     are registered. Call load_manifests() without arguments to use
+                     registered loaders, or pass a single FSPluginLoader for
+                     backward compatibility.
+        """
+        self._loaders = loaders or []
         self._manifests: dict[str, PluginManifest] = {}
 
-    def load_manifests(self, plugins_dir: Path) -> dict[str, PluginManifest]:
+    def load_manifests(
+        self, plugins_dir: Path | None = None
+    ) -> dict[str, PluginManifest]:
         """
-        Scan plugins_dir/*/manifest.yaml and load into memory.
+        Load manifests from registered loaders or filesystem.
 
-        Each manifest must have: id, version, capabilities (list), entrypoint.
-        Raises ValueError on malformed manifest.
+        Args:
+            plugins_dir: Optional Path for backward compatibility. If provided,
+                         creates a temporary FSPluginLoader for this directory.
+                         If None, uses loaders registered in __init__.
+
+        Precedence on duplicate plugin_id: loaders are processed in order,
+        later loaders override earlier ones. For filesystem precedence over packages,
+        register FSPluginLoader last.
 
         Returns:
             dict[plugin_id -> PluginManifest]
         """
         self._manifests.clear()
 
-        if not plugins_dir.exists():
-            # If plugins dir doesn't exist, return empty. No error.
-            return {}
+        # Handle backward compatibility: plugins_dir argument
+        loaders_to_use = self._loaders
+        if plugins_dir is not None:
+            from app.plugins.loaders import FSPluginLoader
 
-        for plugin_subdir in plugins_dir.iterdir():
-            if not plugin_subdir.is_dir():
-                continue
+            loaders_to_use = [FSPluginLoader(plugins_dir)]
 
-            manifest_path = plugin_subdir / "manifest.yaml"
-            if not manifest_path.exists():
-                # Skip subdirs without manifest.yaml
-                continue
-
-            try:
-                with open(manifest_path, "r") as f:
-                    data = yaml.safe_load(f)
-
-                if data is None:
-                    raise ValueError(f"Manifest is empty: {manifest_path}")
-
-                # Pydantic validation will catch missing fields
-                manifest = PluginManifest(**data)
-                self._manifests[manifest.id] = manifest
-
-            except yaml.YAMLError as e:
-                raise ValueError(
-                    f"Invalid YAML in {manifest_path}: {e}"
-                ) from e
-            except ValueError as e:
-                raise ValueError(
-                    f"Invalid manifest in {manifest_path}: {e}"
-                ) from e
+        # Load from all loaders and merge
+        for loader in loaders_to_use:
+            loader_manifests = loader.load()
+            self._manifests.update(loader_manifests)
 
         return self._manifests
 

@@ -60,6 +60,14 @@ Your job is to **plan**, **break down work into User Stories**, and **delegate t
 4. Assign each US to the correct subagent (see routing rules below). If the task is straightforward and does not need reasoning capabilities, delegate to a lower spec non-reasoning model to save costs.
 5. **STOP — show the full plan and US list to the user and wait for explicit approval before delegating anything**
 
+### Git Branching (mandatory per ogni US)
+
+- Prima di delegare una US: crea branch `us/US-NNN-short-title` da `main`
+- L'agente committa sul branch della US
+- Dopo smoke test superato: merge su `main` (o sul branch di fase corrente)
+- **Naming:** `us/US-010-plugin-manager`, `us/US-011-plugin-runtime`, ecc.
+- Il branch va creato dal Tech Lead prima di spawnare l'agente, e indicato nel prompt
+
 ### Phase 2 — Delegation
 
 - Use the **Agent tool** to spawn subagents
@@ -75,15 +83,20 @@ Your job is to **plan**, **break down work into User Stories**, and **delegate t
 After each US is completed by a subagent:
 
 1. Read the completion output against acceptance criteria in `docs/backlog/US-NNN.md`
-2. **Run smoke test** — see Smoke Test Checklist below
-3. Present smoke test results to the user
-4. **STOP — wait for user confirmation before proceeding to the next US**
-5. If user approves: spawn **DocWriter** in Mode A (handoff doc)
-6. Update status in `docs/backlog/US-NNN.md` to `✅ Done`
-7. Update `docs/backlog/BACKLOG.md` status table
-8. Flag any cross-domain conflicts (schema changes, shared interfaces)
+2. **Run automated smoke test** — see Smoke Test Checklist below
+3. Spawn **DocWriter** in Mode A (handoff doc) — must include "Manual Test Instructions" section
+4. Spawn **QA Engineer** in **Per-US Validation Mode** (haiku model) — runs manual test commands from the handoff doc against the running environment
+   - If QA finds failures → **STOP**: re-delegate US to implementing agent with QA failure report. Do NOT present to user until fixed.
+   - If QA passes → proceed
+5. Present smoke test results + QA validation results to the user
+6. **STOP — wait for user confirmation before proceeding to the next US**
+7. If user approves: merge branch `us/US-NNN-*` to `main`
+8. Update status in `docs/backlog/US-NNN.md` to `✅ Done`
+9. Update `docs/backlog/BACKLOG.md` status table
+10. Flag any cross-domain conflicts (schema changes, shared interfaces)
 
-> ⚠️ Do NOT proceed to the next US without explicit user confirmation after step 4.
+> ⚠️ Do NOT proceed to the next US without explicit user confirmation after step 6.
+> ⚠️ QA validation (step 4) is mandatory — never skip it even if smoke test passes.
 
 ### Phase 4 — Phase Gate
 

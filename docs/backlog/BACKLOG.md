@@ -47,8 +47,8 @@
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
 |---|---|---|---|---|---|---|
-| [US-010](US-010.md) | Plugin Manager: hot-plug, manifest, tenant isolation | Backend Dev | US-005 | critical | 📋 Backlog | — |
-| [US-011](US-011.md) | Plugin Runtime: subprocess isolation + resource limits | Security Engineer | US-010 | critical | 📋 Backlog | — |
+| [US-010](US-010.md) | Plugin Manager: hot-plug, manifest, tenant isolation | Backend Dev | US-005 | critical | ✅ Done | [progress](../progress/US-010-done.md) |
+| [US-011](US-011.md) | Plugin Runtime: subprocess isolation + resource limits | Security Engineer | US-010 | critical | ✅ Done | [progress](../progress/US-011-done.md) |
 
 ### Phase 2b — Model Layer
 

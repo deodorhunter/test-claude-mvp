@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 from app.plugins.manager import PluginManager, PluginManifest
+from app.plugins.loaders import FSPluginLoader, PackagePluginLoader
 from app.db.models.tenant import TenantPlugin
 
 
@@ -616,3 +617,201 @@ async def test_get_active_plugins_tenant_isolation():
 
     # Verify execute was called with a query that filters by tenant_a
     mock_db.execute.assert_called_once()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PluginLoader pattern tests
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def test_fs_plugin_loader_single_plugin():
+    """FSPluginLoader can load a single plugin from filesystem."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plugins_dir = Path(tmpdir)
+        plugin_dir = plugins_dir / "test_plugin"
+        plugin_dir.mkdir()
+
+        manifest_data = {
+            "id": "test_plugin",
+            "version": "0.1.0",
+            "capabilities": ["read"],
+            "entrypoint": "plugin.py",
+            "description": "Test",
+        }
+        with open(plugin_dir / "manifest.yaml", "w") as f:
+            yaml.dump(manifest_data, f)
+
+        loader = FSPluginLoader(plugins_dir)
+        result = loader.load()
+
+        assert "test_plugin" in result
+        assert result["test_plugin"].id == "test_plugin"
+        assert result["test_plugin"].version == "0.1.0"
+
+
+def test_fs_plugin_loader_multiple_plugins():
+    """FSPluginLoader can load multiple plugins."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plugins_dir = Path(tmpdir)
+
+        for plugin_id in ["plugin_a", "plugin_b", "plugin_c"]:
+            plugin_dir = plugins_dir / plugin_id
+            plugin_dir.mkdir()
+            manifest_data = {
+                "id": plugin_id,
+                "version": "0.1.0",
+                "capabilities": [],
+                "entrypoint": "plugin.py",
+            }
+            with open(plugin_dir / "manifest.yaml", "w") as f:
+                yaml.dump(manifest_data, f)
+
+        loader = FSPluginLoader(plugins_dir)
+        result = loader.load()
+
+        assert len(result) == 3
+        assert "plugin_a" in result
+        assert "plugin_b" in result
+        assert "plugin_c" in result
+
+
+def test_fs_plugin_loader_empty_dir():
+    """FSPluginLoader on empty dir returns empty dict."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        loader = FSPluginLoader(Path(tmpdir))
+        result = loader.load()
+        assert result == {}
+
+
+def test_fs_plugin_loader_nonexistent_dir():
+    """FSPluginLoader on nonexistent dir returns empty dict."""
+    loader = FSPluginLoader(Path("/nonexistent/plugins"))
+    result = loader.load()
+    assert result == {}
+
+
+def test_package_plugin_loader_stub():
+    """PackagePluginLoader stub returns empty dict (MVP only)."""
+    loader = PackagePluginLoader()
+    result = loader.load()
+    assert result == {}
+
+
+def test_plugin_manager_with_fs_loader():
+    """PluginManager initialized with FSPluginLoader works correctly."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plugins_dir = Path(tmpdir)
+        plugin_dir = plugins_dir / "test_plugin"
+        plugin_dir.mkdir()
+
+        manifest_data = {
+            "id": "test_plugin",
+            "version": "0.1.0",
+            "capabilities": ["read"],
+            "entrypoint": "plugin.py",
+        }
+        with open(plugin_dir / "manifest.yaml", "w") as f:
+            yaml.dump(manifest_data, f)
+
+        loader = FSPluginLoader(plugins_dir)
+        manager = PluginManager(loaders=[loader])
+        result = manager.load_manifests()
+
+        assert "test_plugin" in result
+        assert result["test_plugin"].id == "test_plugin"
+
+
+def test_plugin_manager_merge_multiple_loaders():
+    """PluginManager merges manifests from multiple loaders."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plugins_dir = Path(tmpdir)
+        plugin_dir = plugins_dir / "fs_plugin"
+        plugin_dir.mkdir()
+
+        manifest_data = {
+            "id": "fs_plugin",
+            "version": "0.1.0",
+            "capabilities": [],
+            "entrypoint": "plugin.py",
+        }
+        with open(plugin_dir / "manifest.yaml", "w") as f:
+            yaml.dump(manifest_data, f)
+
+        fs_loader = FSPluginLoader(plugins_dir)
+        pkg_loader = PackagePluginLoader()
+
+        manager = PluginManager(loaders=[fs_loader, pkg_loader])
+        result = manager.load_manifests()
+
+        # Should have the FS plugin (pkg_loader returns empty)
+        assert "fs_plugin" in result
+        assert len(result) == 1
+
+
+def test_plugin_manager_loader_precedence():
+    """Later loaders override earlier ones for duplicate plugin_id."""
+    with tempfile.TemporaryDirectory() as tmpdir1:
+        with tempfile.TemporaryDirectory() as tmpdir2:
+            # First loader has plugin_shared
+            dir1 = Path(tmpdir1)
+            plugin_dir1 = dir1 / "plugin_shared"
+            plugin_dir1.mkdir()
+            with open(plugin_dir1 / "manifest.yaml", "w") as f:
+                yaml.dump(
+                    {
+                        "id": "plugin_shared",
+                        "version": "1.0.0",
+                        "capabilities": [],
+                        "entrypoint": "v1.py",
+                    },
+                    f,
+                )
+
+            # Second loader also has plugin_shared (different version)
+            dir2 = Path(tmpdir2)
+            plugin_dir2 = dir2 / "plugin_shared"
+            plugin_dir2.mkdir()
+            with open(plugin_dir2 / "manifest.yaml", "w") as f:
+                yaml.dump(
+                    {
+                        "id": "plugin_shared",
+                        "version": "2.0.0",
+                        "capabilities": [],
+                        "entrypoint": "v2.py",
+                    },
+                    f,
+                )
+
+            loader1 = FSPluginLoader(dir1)
+            loader2 = FSPluginLoader(dir2)
+
+            manager = PluginManager(loaders=[loader1, loader2])
+            result = manager.load_manifests()
+
+            # Later loader (loader2) should win
+            assert result["plugin_shared"].version == "2.0.0"
+            assert result["plugin_shared"].entrypoint == "v2.py"
+
+
+def test_plugin_manager_backward_compat_plugins_dir_arg():
+    """PluginManager.load_manifests(plugins_dir) still works for backward compat."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plugins_dir = Path(tmpdir)
+        plugin_dir = plugins_dir / "test_plugin"
+        plugin_dir.mkdir()
+
+        manifest_data = {
+            "id": "test_plugin",
+            "version": "0.1.0",
+            "capabilities": ["read"],
+            "entrypoint": "plugin.py",
+        }
+        with open(plugin_dir / "manifest.yaml", "w") as f:
+            yaml.dump(manifest_data, f)
+
+        # Create manager without loaders, use plugins_dir arg
+        manager = PluginManager()
+        result = manager.load_manifests(plugins_dir)
+
+        assert "test_plugin" in result
+        assert result["test_plugin"].id == "test_plugin"
