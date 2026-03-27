@@ -73,6 +73,7 @@ services:
       - "8000:8000"
     volumes:
       - ../plugins:/app/plugins
+      - ../ai:/app/ai
     networks:
       - ai-platform
     depends_on:

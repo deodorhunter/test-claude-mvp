@@ -56,7 +56,7 @@
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
 |---|---|---|---|---|---|---|
-| [US-012](US-012.md) | Model Layer: Ollama + Claude adapters, generate() interface | AI/ML Engineer | US-002 | critical | 📋 Backlog | — |
+| [US-012](US-012.md) | Model Layer: Ollama + Claude adapters, generate() interface | AI/ML Engineer | US-002 | critical | ✅ Done | [progress](../progress/US-012-done.md) |
 | [US-013](US-013.md) | Cost-aware Planner + multi-model fallback | AI/ML Engineer | US-012 | critical | 📋 Backlog | — |
 
 ### Phase 2c — MCP + RAG

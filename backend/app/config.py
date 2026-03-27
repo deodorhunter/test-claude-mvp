@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # AI provider settings
+    AI_MODE: str = "demo"                    # "demo" = Ollama | "demo-api" = Claude
+    OLLAMA_URL: str = "http://ollama:11434"
+    OLLAMA_MODEL: str = "llama3"
+    ANTHROPIC_API_KEY: str = ""             # empty if AI_MODE != "demo-api"
+
 
 @lru_cache
 def get_settings() -> Settings:
