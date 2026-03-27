@@ -1,80 +1,225 @@
 # MVP Workflow
 
 > Fasi da seguire in ordine. Il Tech Lead NON passa alla fase successiva senza approvazione esplicita dell'utente.
+> Aggiornato post-retrospettiva Phase 1: sub-fasi atomiche, mini-gate, smoke test obbligatori.
 
 ---
 
-## FASE 1 — Foundation (tutto bloccante per le fasi successive)
+## FASE 1 — Foundation (completata)
 
 **Obiettivo:** struttura progetto, DB, auth base, infra locale funzionante.
+**Status:** ✅ Completata — Phase Gate 1 approvato (2026-03-26)
 
-| US | Titolo | Agente | Dipendenze | Parallelismo |
+| US | Titolo | Agente | Dipendenze | Stato |
 |---|---|---|---|---|
-| US-001 | Project scaffold (Python backend + TS frontend) | Backend Dev | nessuna | — |
-| US-002 | Database schema: tenants, users, plugins, quota | Backend Dev | US-001 | serie dopo US-001 |
-| US-003 | Docker Compose locale (Postgres, Redis, Qdrant, API) | DevOps/Infra | US-001 | parallelo con US-002 |
-| US-004 | JWT auth + refresh token (backend) | Security Engineer | US-002 | serie dopo US-002 |
-| US-005 | RBAC middleware: permission enforcement per tenant | Security Engineer | US-004 | serie dopo US-004 |
-| US-006 | Audit logging service | Security Engineer | US-004 | parallelo con US-005 |
-| US-007 | Test coverage: auth + RBAC + schema | QA Engineer | US-005, US-006 | dopo US-005+006 |
+| US-001 | Project scaffold (Python backend + TS frontend) | Backend Dev | nessuna | ✅ Done |
+| US-002 | Database schema: tenants, users, plugins, quota | Backend Dev | US-001 | ✅ Done |
+| US-003 | Docker Compose locale (Postgres, Redis, Qdrant, Plone, Volto) | DevOps/Infra | US-001 | ✅ Done |
+| US-004 | JWT auth + Plone bridge + refresh token | Security Engineer | US-002 | ✅ Done |
+| US-005 | RBAC middleware: permission enforcement per tenant | Security Engineer | US-004 | ✅ Done |
+| US-006 | Audit logging service | Security Engineer | US-004 | ✅ Done |
+| US-007 | Test coverage: auth + RBAC + schema | QA Engineer | US-005, US-006 | ✅ Done |
 
-**Phase Gate 1:** schema stabile, auth funzionante, RBAC enforced, Docker locale up. QA + Security sign-off richiesti.
+**Residual risks aperti:** vedere `docs/backlog/BACKLOG.md` sezione "Residual Risks da Phase 1".
 
 ---
 
-## FASE 2 — Core Platform (features principali)
+## FASE 2 — Core Platform
 
 **Obiettivo:** plugin system, model layer, planner, MCP, RAG pipeline.
+**Status:** 📋 Backlog — in attesa di approvazione avvio Phase 2
+**Prerequisito:** Phase Gate 1 approvato ✅
 
-| US | Titolo | Agente | Dipendenze | Parallelismo |
-|---|---|---|---|---|
-| US-010 | Plugin manager: hot-plug, manifest, tenant isolation | Backend Dev | US-005 | — |
-| US-011 | Plugin runtime: subprocess isolation + resource limits | Security Engineer | US-010 | serie dopo US-010 |
-| US-012 | Model layer: Claude + Copilot adapters, generate() interface | AI/ML Engineer | US-002 | parallelo con US-010 |
-| US-013 | Cost-aware planner + multi-model fallback | AI/ML Engineer | US-012 | serie dopo US-012 |
-| US-014 | MCP Registry + trust scoring | AI/ML Engineer | US-005 | parallelo con US-012 |
-| US-015 | Context builder: MCP query, filter, source attribution | AI/ML Engineer | US-014 | serie dopo US-014 |
-| US-016 | RAG pipeline: Qdrant embeddings + retrieval | AI/ML Engineer | US-014 | parallelo con US-015 |
-| US-017 | Token quota tracking + rate limiting (Redis) | Backend Dev | US-012 | parallelo con US-013 |
-| US-018 | Security review: plugin isolation + MCP sanitization | Security Engineer | US-011, US-015 | dopo US-011+015 |
-| US-019 | Test coverage: planner, MCP, RAG, plugin lifecycle | QA Engineer | US-013, US-016, US-018 | dopo tutto sopra |
+Phase 2 è divisa in **4 sub-fasi atomiche**, ciascuna con mini-gate e approvazione utente.
 
-**Phase Gate 2:** plugin system funzionante, planner operativo, RAG pipeline testata, MCP con trust scoring. QA + Security sign-off richiesti.
+---
+
+### Phase 2a — Plugin System
+
+**Obiettivo:** plugin manager funzionante, subprocess isolation, tenant isolation verificata.
+
+| US | Titolo | Agente | Dipendenze | Parallelismo | Stato |
+|---|---|---|---|---|---|
+| US-010 | Plugin manager: hot-plug, manifest, tenant isolation | Backend Dev | US-005 | — | 📋 Backlog |
+| US-011 | Plugin runtime: subprocess isolation + resource limits | Security Engineer | US-010 | serie dopo US-010 | 📋 Backlog |
+
+**Smoke test post US-010:**
+```bash
+make test backend/tests/test_plugin_manager.py  # tutti verdi
+# Verificare che manifest.yaml venga caricato: check logs
+```
+
+**Smoke test post US-011:**
+```bash
+make test backend/tests/test_plugin_runtime.py  # tutti verdi
+# Verificare timeout enforcement: check test output
+```
+
+**Mini-gate 2a:**
+- [ ] Plugin caricabile da manifest YAML
+- [ ] Enable/disable per tenant funzionante (no restart)
+- [ ] Subprocess isolation verificata: cross-tenant test passa
+- [ ] Timeout 10s enforcement testato
+- [ ] Approvazione utente → avviare Phase 2b
+
+---
+
+### Phase 2b — Model Layer
+
+**Obiettivo:** Ollama adapter funzionante nel container, Claude adapter testato con mock, interfaccia generate() stabile.
+
+| US | Titolo | Agente | Dipendenze | Parallelismo | Stato |
+|---|---|---|---|---|---|
+| US-012 | Model layer: Ollama + Claude adapters, generate() interface | AI/ML Engineer | US-002 | parallelo con US-010 | 📋 Backlog |
+| US-013 | Cost-aware planner + multi-model fallback | AI/ML Engineer | US-012 | serie dopo US-012 | 📋 Backlog |
+
+**Nota MVP:** US-012 implementa Ollama (demo mode) e Claude API (demo-api mode). GitHub Copilot è rimosso dall'MVP.
+
+**Smoke test post US-012:**
+```bash
+make test backend/tests/test_models.py          # tutti verdi
+# Verifica manuale Ollama (se make up è attivo):
+# docker exec -it <api-container> python -c "from ai.models.factory import get_model_adapter; ..."
+```
+
+**Smoke test post US-013:**
+```bash
+make test backend/tests/test_planner.py         # tutti verdi
+```
+
+**Mini-gate 2b:**
+- [ ] `OllamaAdapter.generate()` funzionante (integrazione container Ollama)
+- [ ] `ClaudeAdapter.generate()` testato con mock (nessuna chiamata reale)
+- [ ] Planner seleziona modello corretto in base a quota e disponibilità
+- [ ] Fallback Ollama → Claude funzionante (con mock)
+- [ ] Approvazione utente → avviare Phase 2c
+
+---
+
+### Phase 2c — MCP + RAG
+
+**Obiettivo:** RAG query con source attribution, MCP trust scoring, sanitizzazione prompt injection.
+
+| US | Titolo | Agente | Dipendenze | Parallelismo | Stato |
+|---|---|---|---|---|---|
+| US-014 | MCP Registry + trust scoring | AI/ML Engineer | US-005 | parallelo con US-012 | 📋 Backlog |
+| US-015 | Context builder: MCP query, filter, source attribution | AI/ML Engineer | US-014 | serie dopo US-014 | 📋 Backlog |
+| US-016 | RAG pipeline: Qdrant embeddings + retrieval | AI/ML Engineer | US-014 | parallelo con US-015 | 📋 Backlog |
+
+**Smoke test post US-014:**
+```bash
+make test backend/tests/test_mcp.py             # tutti verdi
+```
+
+**Smoke test post US-015:**
+```bash
+make test backend/tests/test_context_builder.py # tutti verdi
+# Verificare formato output: [Fonte: X | confidence: Y]
+```
+
+**Smoke test post US-016:**
+```bash
+make test backend/tests/test_rag.py             # tutti verdi
+# Verificare che Qdrant risponda: curl http://localhost:6333/health
+```
+
+**Mini-gate 2c:**
+- [ ] RAG query ritorna risultati con source attribution formattata
+- [ ] MCP trust scoring filtra risultati sotto soglia
+- [ ] Prompt injection patterns bloccati (test dimostrano)
+- [ ] Cross-tenant isolation RAG testata (documento tenant A non appare in search tenant B)
+- [ ] Approvazione utente → avviare Phase 2d
+
+---
+
+### Phase 2d — Quota, Planner Integration, Security Review, Tests
+
+**Obiettivo:** rate limiting funzionante, audit log completo, security review Phase 2, test coverage ≥ 80%.
+
+| US | Titolo | Agente | Dipendenze | Parallelismo | Stato |
+|---|---|---|---|---|---|
+| US-017 | Token quota tracking + rate limiting (Redis) | Backend Dev | US-012 | parallelo con US-013 | 📋 Backlog |
+| US-018 | Security review: plugin isolation + MCP sanitization + audit integration | Security Engineer | US-011, US-015 | dopo US-011+015 | 📋 Backlog |
+| US-019 | Test coverage Phase 2: planner, MCP, RAG, plugin lifecycle | QA Engineer | US-013, US-016, US-018 | dopo tutto sopra | 📋 Backlog |
+
+**Smoke test post US-017:**
+```bash
+make test backend/tests/test_quota.py           # tutti verdi
+# Verificare Redis: docker exec <redis> redis-cli ping → PONG
+```
+
+**Smoke test post US-018:**
+```bash
+make test backend/tests/test_security_review.py # tutti verdi
+# Verificare audit log entries: docker exec <postgres> psql -U ... -c "SELECT * FROM audit_logs LIMIT 5"
+```
+
+**Smoke test post US-019:**
+```bash
+make test                                        # TUTTI i test del progetto verdi
+# Coverage report: make coverage (output in terminal)
+```
+
+**Mini-gate 2d (= Phase Gate 2):**
+- [ ] Rate limiting blocca richieste in eccesso
+- [ ] Quota mensile enforced (tenant senza quota → 429)
+- [ ] Audit log integrato: login, denial, quota_exceeded, mcp_query, model_query
+- [ ] Refresh token rotation implementata
+- [ ] Test suite completa: ≥ 80% coverage su moduli Phase 2
+- [ ] Full Service Verification (vedi CLAUDE.md) eseguita e passata
+
+**Phase Gate 2:**
+```
+make down && make up && make migrate
+# Attendi 30s
+curl http://localhost:8000/health    → 200
+curl http://localhost:8080            → Plone up
+curl http://localhost:6333/health    → Qdrant up
+make test                             → tutti verdi
+make logs | grep -i error             → nessun errore critico
+```
+
+QA sign-off ✅ + Security sign-off ✅ → presentare summary all'utente → approvazione → DocWriter Mode B
 
 ---
 
 ## FASE 3 — API & Frontend
 
-**Obiettivo:** API REST completa, UI funzionante, flussi tenant-aware end-to-end.
+**Obiettivo:** API REST completa, UI Volto funzionante, flussi tenant-aware end-to-end.
+**Status:** 📋 Backlog — non iniziata
+**Prerequisito:** Phase Gate 2 approvato
 
-| US | Titolo | Agente | Dipendenze | Parallelismo |
-|---|---|---|---|---|
-| US-020 | API REST: query endpoint (assembla contesto, esegue planner) | Backend Dev | US-013, US-015 | — |
-| US-021 | API REST: plugin management endpoints (enable/disable) | Backend Dev | US-010 | parallelo con US-020 |
-| US-022 | API REST: tenant admin (quota, user management) | Backend Dev | US-017 | parallelo con US-020 |
-| US-023 | Frontend scaffold: React + TS + routing + auth client | Frontend Dev | US-004 | parallelo con US-020 |
-| US-024 | Frontend: login/token flow, RBAC-aware navigation | Frontend Dev | US-023 | serie dopo US-023 |
-| US-025 | Frontend: query UI con source attribution e confidence | Frontend Dev | US-024, US-020 | serie dopo US-024+020 |
-| US-026 | Frontend: plugin management panel (per tenant admin) | Frontend Dev | US-024, US-021 | serie dopo US-024+021 |
-| US-027 | Response format: source, confidence, fallback indication | Backend Dev | US-020 | serie dopo US-020 |
-| US-028 | Security review: API endpoints, input validation, output format | Security Engineer | US-020–022, US-027 | dopo US-020–027 |
-| US-029 | E2E test: flusso completo query → risposta con attribution | QA Engineer | US-025, US-028 | dopo tutto sopra |
+| US | Titolo | Agente | Dipendenze | Parallelismo | Stato |
+|---|---|---|---|---|---|
+| US-020 | API REST: query endpoint (assembla contesto, esegue planner) | Backend Dev | US-013, US-015 | — | 📋 Backlog |
+| US-021 | API REST: plugin management endpoints (enable/disable) | Backend Dev | US-010 | parallelo con US-020 | 📋 Backlog |
+| US-022 | API REST: tenant admin (quota, user management) | Backend Dev | US-017 | parallelo con US-020 | 📋 Backlog |
+| US-023 | Frontend scaffold: Volto addon + routing + auth client | Frontend Dev | US-004 | parallelo con US-020 | 📋 Backlog |
+| US-024 | Frontend: login/token flow, RBAC-aware navigation | Frontend Dev | US-023 | serie dopo US-023 | 📋 Backlog |
+| US-025 | Frontend: query UI con source attribution e confidence | Frontend Dev | US-024, US-020 | serie dopo US-024+020 | 📋 Backlog |
+| US-026 | Frontend: plugin management panel (per tenant admin) | Frontend Dev | US-024, US-021 | serie dopo US-024+021 | 📋 Backlog |
+| US-027 | Response format: source, confidence, fallback indication | Backend Dev | US-020 | serie dopo US-020 | 📋 Backlog |
+| US-028 | Security review: API endpoints, input validation, output format | Security Engineer | US-020–022, US-027 | dopo US-020–027 | 📋 Backlog |
+| US-029 | E2E test: flusso completo query → risposta con attribution | QA Engineer | US-025, US-028 | dopo tutto sopra | 📋 Backlog |
 
-**Phase Gate 3:** API completa, UI funzionante end-to-end, response format con attribution. QA + Security sign-off richiesti.
+**Phase Gate 3:** API completa, UI Volto funzionante end-to-end, demo scenario 1 (block builder) testato manualmente. QA + Security sign-off.
 
 ---
 
 ## FASE 4 — Production Infra
 
-**Obiettivo:** K8s deployment, resource limits per tenant, CI/CD, hardening.
+**Obiettivo:** Docker hardening, CI/CD, secrets management. K8s manifest come placeholder roadmap.
+**Status:** 📋 Backlog — non iniziata
+**Prerequisito:** Phase Gate 3 approvato
+**Nota MVP:** K8s non è in scope per il demo MVP. US-033 produce placeholder per roadmap.
 
-| US | Titolo | Agente | Dipendenze | Parallelismo |
-|---|---|---|---|---|
-| US-030 | K8s manifests: tutti i services (API, Worker, Redis, Postgres, Qdrant) | DevOps/Infra | US-003 | — |
-| US-031 | Resource limits per tenant (CPU/memory) in K8s | DevOps/Infra | US-030 | serie dopo US-030 |
-| US-032 | CI/CD pipeline (build, test, deploy) | DevOps/Infra | US-030 | parallelo con US-031 |
-| US-033 | Secrets management (no secrets in code, env injection) | Security Engineer | US-030 | serie dopo US-030 |
-| US-034 | Docker hardening + K8s security policies | Security Engineer | US-033 | serie dopo US-033 |
-| US-035 | Load + smoke test su staging | QA Engineer | US-031, US-034 | dopo US-031+034 |
+| US | Titolo | Agente | Dipendenze | Parallelismo | Stato |
+|---|---|---|---|---|---|
+| US-030 | Docker hardening: non-root, health checks, resource limits | DevOps/Infra | US-003 | — | 📋 Backlog |
+| US-031 | CI/CD pipeline: build → test → deploy | DevOps/Infra | US-030 | parallelo con US-032 | 📋 Backlog |
+| US-032 | Secrets management: env injection completo, no secrets in code | Security Engineer | US-030 | parallelo con US-031 | 📋 Backlog |
+| US-033 | K8s manifests (placeholder roadmap) | DevOps/Infra | US-030 | parallelo con US-031 | 📋 Backlog |
+| US-034 | Docker security policies + hardening finale | Security Engineer | US-032 | serie dopo US-032 | 📋 Backlog |
+| US-035 | Load + smoke test su staging | QA Engineer | US-031, US-034 | dopo US-031+034 | 📋 Backlog |
 
-**Phase Gate 4 (MVP Done):** deploy su staging funzionante, tutti i test verdi, security hardening completato. Approvazione finale richiesta.
+**Phase Gate 4 (MVP Done):** deploy su Docker Compose staging funzionante, tutti i test verdi, i 3 demo scenario dimostrabili. Approvazione finale.

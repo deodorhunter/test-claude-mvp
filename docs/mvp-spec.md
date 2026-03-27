@@ -147,15 +147,20 @@ Challenges: this has to integrate with virtually any third party auth. For the m
 
 ## 8. Model Layer
 
-- Supported providers:
+**MVP providers (implementati):**
+- **Ollama** (demo mode): modello locale nel container Docker (`http://ollama:11434`). Nessuna API key richiesta. Attivo di default. Modello: `llama3` (configurabile).
+- **Anthropic Claude** (demo-api mode): `claude-haiku-4-5-20251001` via Anthropic API. Richiede `ANTHROPIC_API_KEY` nel `.env`. Attivato da `AI_MODE=demo-api`.
 
-  - Anthropic Claude
-  - GitHub Copilot / Enterprise models
-- Each model must implement `generate(prompt, context)`
-- Multi-model fallback:
+**Roadmap (non implementati nell'MVP):**
+- GitHub Copilot / Enterprise models — mockato nell'MVP
+- Altri provider OpenAI-compatibili
 
-  - Primary model chosen per tenant and request
-  - Fallback model automatically selected if primary unavailable, over budget, or rate-limited
+Ogni adapter implementa `generate(prompt, context) → ModelResponse`.
+
+**Multi-model fallback:**
+- Primary: Ollama (demo) o Claude (demo-api)
+- Fallback: se Ollama non risponde entro 5s → tenta Claude (se API key disponibile) → errore 503
+- Fallback registrato in `ModelResponse.fallback: bool`
 
 ---
 
@@ -264,17 +269,28 @@ class DocsMCP(MCPServer):
 
 ---
 
-## 16. Docker & Kubernetes Deployment
+## 16. Docker Deployment (MVP) & Kubernetes (Roadmap)
 
-- Services:
+**MVP — Docker Compose:**
 
-  - API server
-  - Worker / Orchestrator
-  - Redis
-  - PostgreSQL
-  - Qdrant
-- Resource limits per tenant for CPU/memory
-- Supports hot-plug plugins and tenant-aware orchestration
+Tutti i servizi girano su Docker Compose per il demo locale:
+- `api` (FastAPI, porta 8000)
+- `postgres:16-alpine` (database)
+- `redis:7-alpine` (rate limiting, quota cache)
+- `qdrant:v1.9.2` (vector DB per RAG)
+- `ollama` (modello locale)
+- `plone:6.0.12` (CMS backend, porta 8080)
+- `volto:18.0.0` (frontend, porta 3000)
+
+Resource limits applicati a livello Docker Compose (CPU/memory per container).
+
+**Roadmap Enterprise — Kubernetes:**
+
+Manifest K8s presenti come placeholder in `infra/k8s/` ma non in scope per l'MVP demo. Includeranno:
+- ResourceQuota per tenant namespace
+- LimitRange anti-starvation
+- NetworkPolicy cross-tenant isolation
+- K8s Secrets per credenziali
 
 ---
 
@@ -284,6 +300,33 @@ class DocsMCP(MCPServer):
 - Fine-tuning of models
 - Advanced agent loops
 - Full MCP ecosystem beyond trusted sources
+
+---
+
+## 21. Configurazione Ambiente
+
+Il sistema supporta due modalità operative configurate via `.env`:
+
+**Demo mode** (`AI_MODE=demo`):
+- Usa Ollama locale nel container (`http://ollama:11434`, modello `llama3`)
+- Nessuna API key richiesta
+- Funziona out-of-the-box con `make up`
+- Ideale per sviluppo locale e demo offline
+
+**Demo-API mode** (`AI_MODE=demo-api`):
+- Usa Claude API di Anthropic (`claude-haiku-4-5-20251001`)
+- Richiede `ANTHROPIC_API_KEY` in `.env`
+- Fallback automatico su Ollama se Claude non risponde
+- Ideale per demo con risposte di qualità più alta
+
+**Avvio rapido:**
+```bash
+cp .env.example .env
+# Per demo-api: aggiungere ANTHROPIC_API_KEY=sk-ant-...
+make up
+make migrate
+# Aprire http://localhost:3000 (Volto) e http://localhost:8080 (Plone)
+```
 
 ---
 
