@@ -6,6 +6,7 @@ No running PostgreSQL or Plone instance required:
   - DB session mocked with unittest.mock.AsyncMock
   - AuditService mocked via FastAPI dependency_overrides
 """
+
 import uuid
 import pytest
 import respx
@@ -14,7 +15,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from httpx import AsyncClient, ASGITransport, Response as HttpxResponse
 from jose import jwt, JWTError
 
-from app.auth.jwt import create_access_token, create_refresh_token, verify_token, ALGORITHM
+from app.auth.jwt import (
+    create_access_token,
+    create_refresh_token,
+    verify_token,
+    ALGORITHM,
+)
 from app.config import get_settings
 
 
@@ -22,9 +28,12 @@ from app.config import get_settings
 # JWT unit tests — no HTTP, no DB
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def test_create_access_token_contains_required_claims():
     settings = get_settings()
-    token = create_access_token({"sub": "user-1", "tenant_id": "tenant-1", "roles": ["Member"]})
+    token = create_access_token(
+        {"sub": "user-1", "tenant_id": "tenant-1", "roles": ["Member"]}
+    )
     payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
     assert payload["sub"] == "user-1"
     assert payload["tenant_id"] == "tenant-1"
@@ -101,18 +110,22 @@ def test_verify_token_rejects_expired_token():
 # get_current_user dependency tests
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_get_current_user_with_valid_cookie():
     user_id = str(uuid.uuid4())
     tenant_id = str(uuid.uuid4())
-    token = create_access_token({
-        "sub": user_id,
-        "tenant_id": tenant_id,
-        "roles": ["Member"],
-        "plone_user": "alice",
-    })
+    token = create_access_token(
+        {
+            "sub": user_id,
+            "tenant_id": tenant_id,
+            "roles": ["Member"],
+            "plone_user": "alice",
+        }
+    )
 
     from app.auth.dependencies import get_current_user
+
     result = await get_current_user(ai_platform_token=token)
     assert str(result.id) == user_id
     assert str(result.tenant_id) == tenant_id
@@ -124,6 +137,7 @@ async def test_get_current_user_with_valid_cookie():
 async def test_get_current_user_raises_401_with_no_cookie():
     from app.auth.dependencies import get_current_user
     from fastapi import HTTPException
+
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user(ai_platform_token=None)
     assert exc_info.value.status_code == 401
@@ -148,6 +162,7 @@ async def test_get_current_user_raises_401_with_expired_token():
     )
     from app.auth.dependencies import get_current_user
     from fastapi import HTTPException
+
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user(ai_platform_token=expired_token)
     assert exc_info.value.status_code == 401
@@ -157,6 +172,7 @@ async def test_get_current_user_raises_401_with_expired_token():
 async def test_get_current_user_raises_401_with_garbage_token():
     from app.auth.dependencies import get_current_user
     from fastapi import HTTPException
+
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user(ai_platform_token="not.a.jwt")
     assert exc_info.value.status_code == 401
@@ -180,6 +196,7 @@ async def test_get_current_user_raises_401_with_missing_sub():
     )
     from app.auth.dependencies import get_current_user
     from fastapi import HTTPException
+
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user(ai_platform_token=token_no_sub)
     assert exc_info.value.status_code == 401
@@ -203,6 +220,7 @@ async def test_get_current_user_raises_401_with_missing_tenant_id():
     )
     from app.auth.dependencies import get_current_user
     from fastapi import HTTPException
+
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user(ai_platform_token=token_no_tenant)
     assert exc_info.value.status_code == 401
@@ -211,6 +229,7 @@ async def test_get_current_user_raises_401_with_missing_tenant_id():
 # ──────────────────────────────────────────────────────────────────────────────
 # plone-login endpoint tests (mocked Plone + DB)
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def _make_app_with_mocks(mock_db_session, mock_audit):
     """
@@ -241,23 +260,30 @@ def _make_app_with_mocks(mock_db_session, mock_audit):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_plone_login_success(test_tenant_id, test_user_id, mock_audit_service):
+async def test_plone_login_success(
+    test_tenant_id, test_user_id, mock_audit_service
+):
     """Valid Plone token returns httpOnly cookies and 200."""
     from sqlalchemy import select
     from app.db.models.user import User
 
     # Mock Plone response
     respx.get("http://localhost:8080/@users/@current").mock(
-        return_value=HttpxResponse(200, json={
-            "username": "alice",
-            "id": "alice",
-            "roles": ["Member"],
-        })
+        return_value=HttpxResponse(
+            200,
+            json={
+                "username": "alice",
+                "id": "alice",
+                "roles": ["Member"],
+            },
+        )
     )
 
     # Mock DB: first query returns None (user not found), then refresh sets attrs
     mock_result = MagicMock()
-    mock_result.scalar_one_or_none.return_value = None  # user doesn't exist yet
+    mock_result.scalar_one_or_none.return_value = (
+        None  # user doesn't exist yet
+    )
 
     mock_db = AsyncMock()
     mock_db.execute = AsyncMock(return_value=mock_result)
@@ -275,11 +301,16 @@ async def test_plone_login_success(test_tenant_id, test_user_id, mock_audit_serv
 
     # Patch module-level _audit_service for the non-Depends call path
     with patch("app.audit.service._audit_service", mock_audit_service):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            resp = await client.post("/api/v1/auth/plone-login", json={
-                "plone_token": "valid-plone-token",
-                "tenant_id": str(test_tenant_id),
-            })
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/v1/auth/plone-login",
+                json={
+                    "plone_token": "valid-plone-token",
+                    "tenant_id": str(test_tenant_id),
+                },
+            )
 
     assert resp.status_code == 200
     assert "ai_platform_token" in resp.cookies
@@ -288,7 +319,9 @@ async def test_plone_login_success(test_tenant_id, test_user_id, mock_audit_serv
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_plone_login_invalid_token_returns_401(test_tenant_id, mock_audit_service):
+async def test_plone_login_invalid_token_returns_401(
+    test_tenant_id, mock_audit_service
+):
     """Plone rejects the token → platform returns 401, no cookies set."""
     respx.get("http://localhost:8080/@users/@current").mock(
         return_value=HttpxResponse(401)
@@ -297,11 +330,16 @@ async def test_plone_login_invalid_token_returns_401(test_tenant_id, mock_audit_
     app = _make_app_with_mocks(mock_db, mock_audit_service)
 
     with patch("app.audit.service._audit_service", mock_audit_service):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            resp = await client.post("/api/v1/auth/plone-login", json={
-                "plone_token": "bad-token",
-                "tenant_id": str(test_tenant_id),
-            })
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/v1/auth/plone-login",
+                json={
+                    "plone_token": "bad-token",
+                    "tenant_id": str(test_tenant_id),
+                },
+            )
 
     assert resp.status_code == 401
     assert "ai_platform_token" not in resp.cookies
@@ -309,9 +347,12 @@ async def test_plone_login_invalid_token_returns_401(test_tenant_id, mock_audit_
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_plone_login_plone_unreachable_returns_503(test_tenant_id, mock_audit_service):
+async def test_plone_login_plone_unreachable_returns_503(
+    test_tenant_id, mock_audit_service
+):
     """Plone connection refused → platform returns 503."""
     import httpx as httpx_module
+
     respx.get("http://localhost:8080/@users/@current").mock(
         side_effect=httpx_module.ConnectError("Connection refused")
     )
@@ -319,20 +360,28 @@ async def test_plone_login_plone_unreachable_returns_503(test_tenant_id, mock_au
     app = _make_app_with_mocks(mock_db, mock_audit_service)
 
     with patch("app.audit.service._audit_service", mock_audit_service):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            resp = await client.post("/api/v1/auth/plone-login", json={
-                "plone_token": "any-token",
-                "tenant_id": str(test_tenant_id),
-            })
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/v1/auth/plone-login",
+                json={
+                    "plone_token": "any-token",
+                    "tenant_id": str(test_tenant_id),
+                },
+            )
 
     assert resp.status_code == 503
 
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_plone_login_plone_timeout_returns_503(test_tenant_id, mock_audit_service):
+async def test_plone_login_plone_timeout_returns_503(
+    test_tenant_id, mock_audit_service
+):
     """Plone timeout → platform returns 503 (TimeoutException branch)."""
     import httpx as httpx_module
+
     respx.get("http://localhost:8080/@users/@current").mock(
         side_effect=httpx_module.TimeoutException("Timed out")
     )
@@ -340,18 +389,25 @@ async def test_plone_login_plone_timeout_returns_503(test_tenant_id, mock_audit_
     app = _make_app_with_mocks(mock_db, mock_audit_service)
 
     with patch("app.audit.service._audit_service", mock_audit_service):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            resp = await client.post("/api/v1/auth/plone-login", json={
-                "plone_token": "any-token",
-                "tenant_id": str(test_tenant_id),
-            })
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/v1/auth/plone-login",
+                json={
+                    "plone_token": "any-token",
+                    "tenant_id": str(test_tenant_id),
+                },
+            )
 
     assert resp.status_code == 503
 
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_plone_login_audit_logged_on_failure(test_tenant_id, mock_audit_service):
+async def test_plone_login_audit_logged_on_failure(
+    test_tenant_id, mock_audit_service
+):
     """Login failure must trigger an audit log entry with action 'login_failure'."""
     respx.get("http://localhost:8080/@users/@current").mock(
         return_value=HttpxResponse(401)
@@ -360,31 +416,43 @@ async def test_plone_login_audit_logged_on_failure(test_tenant_id, mock_audit_se
     app = _make_app_with_mocks(mock_db, mock_audit_service)
 
     with patch("app.audit.service._audit_service", mock_audit_service):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            await client.post("/api/v1/auth/plone-login", json={
-                "plone_token": "bad",
-                "tenant_id": str(test_tenant_id),
-            })
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            await client.post(
+                "/api/v1/auth/plone-login",
+                json={
+                    "plone_token": "bad",
+                    "tenant_id": str(test_tenant_id),
+                },
+            )
 
     mock_audit_service.log.assert_called()
     # Verify the action argument contains "login_failure"
     call_args = mock_audit_service.log.call_args
     first_positional_or_keyword = (
-        call_args.args[0] if call_args.args else call_args.kwargs.get("action", "")
+        call_args.args[0]
+        if call_args.args
+        else call_args.kwargs.get("action", "")
     )
     assert "login_failure" in str(first_positional_or_keyword)
 
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_plone_login_audit_logged_on_success(test_tenant_id, test_user_id, mock_audit_service):
+async def test_plone_login_audit_logged_on_success(
+    test_tenant_id, test_user_id, mock_audit_service
+):
     """Successful login must trigger an audit log entry with action 'login_success'."""
     respx.get("http://localhost:8080/@users/@current").mock(
-        return_value=HttpxResponse(200, json={
-            "username": "bob",
-            "id": "bob",
-            "roles": ["Manager"],
-        })
+        return_value=HttpxResponse(
+            200,
+            json={
+                "username": "bob",
+                "id": "bob",
+                "roles": ["Manager"],
+            },
+        )
     )
 
     mock_result = MagicMock()
@@ -404,11 +472,16 @@ async def test_plone_login_audit_logged_on_success(test_tenant_id, test_user_id,
     app = _make_app_with_mocks(mock_db, mock_audit_service)
 
     with patch("app.audit.service._audit_service", mock_audit_service):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            resp = await client.post("/api/v1/auth/plone-login", json={
-                "plone_token": "valid-token",
-                "tenant_id": str(test_tenant_id),
-            })
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/v1/auth/plone-login",
+                json={
+                    "plone_token": "valid-token",
+                    "tenant_id": str(test_tenant_id),
+                },
+            )
 
     assert resp.status_code == 200
     mock_audit_service.log.assert_called()

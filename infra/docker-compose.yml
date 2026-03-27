@@ -68,7 +68,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aiplatform}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aiplatform}
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
-      PLONE_BASE_URL: http://plone:8080
+      PLONE_BASE_URL: http://plone:8080/Plone
     ports:
       - "8000:8000"
     networks:
@@ -103,6 +103,8 @@ services:
     environment:
       RAZZLE_INTERNAL_API_PATH: http://plone:8080/Plone
       RAZZLE_DEV_PROXY_API_PATH: http://plone:8080/Plone
+      # Workaround: corepack in this image has outdated signing keys
+      COREPACK_INTEGRITY_KEYS: "0"
     ports:
       - "3000:3000"
     networks:

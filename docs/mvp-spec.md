@@ -14,6 +14,8 @@ This is an **enterprise-grade AI orchestration platform MVP** designed for multi
 
 This system is designed to be modular, extensible, and future-proof for enterprise adoption.
 
+For MVP purposes, the system will interact with a Ollama inside the container for demo mode. External providers should be nonetheless mocked and potentially usable. We restrict the providers to Claude with optional API key configuration for demo-api mode.
+
 The system must integrate a working demo with a Plone 6 backend and Volto frontend on the same docker network. Use cookiecutter for this.
 
 The demo mvp is considered complete when:

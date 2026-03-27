@@ -31,7 +31,9 @@ class AuditService:
     (enforced at DB role level — see US-002 completion note).
     """
 
-    def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
+    def __init__(
+        self, session_factory: async_sessionmaker[AsyncSession]
+    ) -> None:
         self._session_factory = session_factory
 
     async def log(
@@ -65,7 +67,10 @@ class AuditService:
         metadata: dict[str, Any],
     ) -> None:
         try:
-            from ..db.models.audit import AuditLog  # avoid circular import at module level
+            from ..db.models.audit import (
+                AuditLog,
+            )  # avoid circular import at module level
+
             async with self._session_factory() as session:
                 entry = AuditLog(
                     user_id=user_id,
@@ -73,20 +78,27 @@ class AuditService:
                     action=action,
                     resource=resource,
                     timestamp=datetime.now(timezone.utc),
-                    metadata=metadata,
+                    log_metadata=metadata,
                 )
                 session.add(entry)
                 await session.commit()
         except Exception as exc:  # noqa: BLE001
             # Never propagate — log to stderr for observability
-            logger.error("Audit write failed (action=%s user=%s): %s", action, user_id, exc)
+            logger.error(
+                "Audit write failed (action=%s user=%s): %s",
+                action,
+                user_id,
+                exc,
+            )
 
 
 # Module-level singleton — set during app lifespan startup
 _audit_service: AuditService | None = None
 
 
-def init_audit_service(session_factory: async_sessionmaker[AsyncSession]) -> AuditService:
+def init_audit_service(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> AuditService:
     global _audit_service
     _audit_service = AuditService(session_factory)
     return _audit_service
@@ -95,5 +107,7 @@ def init_audit_service(session_factory: async_sessionmaker[AsyncSession]) -> Aud
 def get_audit_service() -> AuditService:
     """FastAPI dependency. Returns the singleton AuditService."""
     if _audit_service is None:
-        raise RuntimeError("AuditService not initialized. Call init_audit_service() in app lifespan.")
+        raise RuntimeError(
+            "AuditService not initialized. Call init_audit_service() in app lifespan."
+        )
     return _audit_service

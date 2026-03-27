@@ -22,7 +22,7 @@ The platform auth bridge (US-004) depends on:
 
 Verify after `make up`:
 ```bash
-curl -s -X POST http://localhost:8080/@login \
+curl -s -X POST http://localhost:8080/Plone/@login \
   -H "Content-Type: application/json" \
   -d '{"login":"admin","password":"admin"}' | python3 -m json.tool
 ```
