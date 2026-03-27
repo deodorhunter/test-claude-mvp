@@ -4,7 +4,7 @@ WORKDIR /build
 COPY backend/pyproject.toml .
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir hatchling \
-    && pip install --no-cache-dir "."
+    && pip install --no-cache-dir ".[dev]"
 
 # Stage 2: runtime image
 FROM python:3.11-slim AS runtime
