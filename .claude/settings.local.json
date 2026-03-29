@@ -13,7 +13,8 @@
       "WebFetch(domain:claudelog.com)",
       "WebFetch(domain:github.com)",
       "Bash(for f:*)",
-      "Bash(do head:*)"
+      "Bash(do head:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
