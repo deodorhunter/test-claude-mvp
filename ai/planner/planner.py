@@ -61,9 +61,9 @@ class Planner:
         # Step 3 — resolve primary adapter
         primary = _primary_adapter if _primary_adapter is not None else get_model_adapter(settings)
 
-        # Step 4 — probe primary adapter availability (5s timeout)
+        # Step 4 — probe primary adapter availability (30s timeout, matches OllamaAdapter httpx timeout)
         try:
-            probe_response = await asyncio.wait_for(primary.generate("ping", ""), timeout=5.0)
+            probe_response = await asyncio.wait_for(primary.generate("ping", ""), timeout=30.0)
             return ExecutionPlan(
                 adapter=primary,
                 model_used=probe_response.model_used,
@@ -79,7 +79,7 @@ class Planner:
             try:
                 fallback_adapter = ClaudeAdapter(settings)
                 probe = await asyncio.wait_for(
-                    fallback_adapter.generate("ping", ""), timeout=5.0
+                    fallback_adapter.generate("ping", ""), timeout=30.0
                 )
                 return ExecutionPlan(
                     adapter=fallback_adapter,

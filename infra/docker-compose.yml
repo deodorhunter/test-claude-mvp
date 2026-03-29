@@ -8,6 +8,7 @@ volumes:
   postgres_data:
   redis_data:
   qdrant_data:
+  ollama_data:
 
 services:
   postgres:
@@ -54,6 +55,22 @@ services:
       test: ["CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1"]
       interval: 15s
       timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-platform-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - ai-platform
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
       retries: 5
     restart: unless-stopped
 
