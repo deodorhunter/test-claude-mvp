@@ -48,6 +48,17 @@ If a test environment command fails (not an app bug — those are reported as fa
 2. Attempt 2: apply the fix and re-run
 3. If still failing: **STOP IMMEDIATELY.** Report as a blocker with root cause.
 
+**NO MULTILINE PYTHON IN BASH -C.** When running integration tests or QA scenarios via `docker exec`:
+- ❌ Never embed multi-line Python inside `bash -c "..."` — breaks on shell quoting and indentation
+- ✅ Write the script to a temp file in the **mounted project workspace**, execute via docker exec, then delete from host:
+  ```bash
+  # 1. Write tool → backend/tests/.temp_qa_script.py  (volume-mounted at /app/tests/)
+  # 2. docker exec ai-platform-api python3 tests/.temp_qa_script.py
+  # 3. rm backend/tests/.temp_qa_script.py   (Bash tool on host)
+  ```
+- ⚠️ **Never write to `/tmp/`** — it is NOT volume-mounted in the container
+- **Why:** Multiline bash -c scripts fail silently on Docker escaping; debugging burns 10–15,000 tokens
+
 ---
 
 ## Operating Modes

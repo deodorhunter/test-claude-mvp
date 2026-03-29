@@ -97,6 +97,12 @@ On failure after attempt 2, report immediately with:
 
 **Why:** Debugging loops are the #1 cause of 50,000+ token agent runs. Two attempts is almost always sufficient for a real bug; more attempts indicate a structural problem requiring human judgment.
 
+### Docker-Specific Circuit Breaker Rules
+
+- ❌ **Never `pip install` inside a running container** to fix missing dependencies — the container user (`appuser`) has no write permissions. Update `pyproject.toml` and tell the user to rebuild: `make up` (with `--build`).
+- ❌ **Ignore `PytestCacheWarning: could not create cache path`** — this is a benign permission warning in the container. Never spend a debug attempt on it.
+- ✅ If a package is missing at runtime: report the package name and the fix (`add X to pyproject.toml`), then stop.
+
 ---
 
 # 📚 PART 2 — Project Knowledge
@@ -106,10 +112,11 @@ On failure after attempt 2, report immediately with:
 
 ## Primary Reference: `docs/AI_REFERENCE.md`
 
-Before doing any real work in **Speed 2 (Orchestrator Mode)**, confirm that `docs/AI_REFERENCE.md` exists.
+**FIRST ACTION of every Speed 2 session:** attempt `Read docs/AI_REFERENCE.md`.
 
 - If it **exists**: read it once and use its contents as ground truth for stack, ports, make targets, test commands, and key file paths.
-- If it **does not exist**: instruct the user to run `/init-ai-reference` before proceeding. Do not guess.
+- If it **does not exist**: **STOP IMMEDIATELY.** Do NOT fall back to codebase exploration. Tell the user: *"AI_REFERENCE.md is missing. Please run: `claude "Esegui @.claude/commands/init-ai-reference.md"` before proceeding."*
+  **Why:** Without AI_REFERENCE.md, the Tech Lead reconstructs ~45,000 tokens of stack knowledge through blind exploration that was already captured in the reference file.
 
 `docs/AI_REFERENCE.md` contains:
 - Stack summary (languages, frameworks, infra services + ports)
@@ -168,6 +175,9 @@ There are exactly **two operating modes**. You must identify which mode applies 
 - *"Fix the 404 on the `/health` endpoint — I've attached `main.py`"*
 - *"Update the Redis timeout from 30s to 60s in the config"*
 - *"Add a null check to `get_tenant()` — file attached"*
+- *"Create a new React component called MyComponent under `src/components/my-new-component`"*
+- *"Add a new skill for templating plugin YAMLS under claude plugins"*
+- *"Add a null check to `get_tenant()` — file attached"*
 
 ---
 
@@ -179,7 +189,7 @@ There are exactly **two operating modes**. You must identify which mode applies 
 
 **How it works (mandatory workflow — follow every step in order):**
 
-### Phase 0 — Bootstrap (first run of a new project only)
+### Phase 0 — Session Bootstrap (every Speed 2 session)
 1. Confirm `docs/AI_REFERENCE.md` exists (run `/init-ai-reference` if not)
 2. Read `docs/backlog/BACKLOG.md` for current phase and status
 3. Read `.claude/workflow.md` for the phase dependency graph
@@ -232,7 +242,8 @@ Before moving to the next phase:
 3. Run **Full Service Verification** (see below)
 4. **STOP — present summary + token cost estimate. Wait for explicit user approval.**
 5. Spawn **DocWriter** in Mode B (human docs for the phase)
-6. Update `docs/plan.md` + `docs/backlog/BACKLOG.md`
+6. **Run `/phase-retrospective`** — present the full retrospective report to the user in the mandatory format (see `.claude/commands/phase-retrospective.md`). MANDATORY — do not skip even if zero incidents occurred.
+7. Update `docs/plan.md` + `docs/backlog/BACKLOG.md`
 
 ---
 
@@ -258,6 +269,11 @@ RIGHT:  agent A + B + C done → /compress-state → /clear → fresh context �
 This prevents half-finished parallel threads from polluting each other's context.
 
 **After a Phase Gate or complex multi-file US:** recommend `/clear` to the user to reset the context window.
+
+**NO EXPLORE SUB-AGENTS FOR FILE READING.** The Tech Lead must NEVER spawn a sub-agent (any type, including `subagent_type: "Explore"`) solely to read, scan, or summarize files.
+- ✅ Use `Read`, `Grep`, or `Glob` tools directly — raw content stays in Tech Lead context, ready for injection
+- ❌ Never do: `Agent(subagent_type="Explore", prompt="Read X and summarize")` — returns only a summary; raw content is lost and must be re-read when delegating
+- **Why:** Explore agents double the token cost: pay once to read + pay again when the Tech Lead re-reads the same files for context injection (~60,000 wasted tokens per session).
 
 **NEVER pass file paths to sub-agents.** Always `cat` existing files and inject their raw content:
 ```
@@ -376,6 +392,9 @@ When an agent reports a blocker, partial implementation, or risk:
 
 @.claude/rules/project/rule-001-tenant-isolation.md
 @.claude/rules/project/rule-002-migration-before-model.md
+@.claude/rules/project/rule-003-no-explore-agents-for-file-reading.md
+@.claude/rules/project/rule-004-ai-reference-check-every-session.md
+@.claude/rules/project/rule-005-docwriter-no-multiline-bash.md
 
 <!-- Add new rule imports here after each /reflexion run — never add rule prose directly to this file -->
 
@@ -397,6 +416,21 @@ When an agent reports a blocker, partial implementation, or risk:
 12. Never mark a US done without running the smoke test
 13. Never proceed past a Phase Gate if service health checks fail
 14. **Never spawn DocWriter Mode A without injecting `<git_diff>` and `<metrics>` XML blocks**
+15. **After every `/phase-retrospective`:** append one cost row to `docs/SESSION_COSTS.md` using the Session Cost Row Format below. Use actuals from agent reports where available; estimate and mark with `~` otherwise.
+16. **Never close a Phase Gate without running `/phase-retrospective`** and presenting the full retrospective report to the user.
+
+### Session Cost Row Format
+
+After each phase gate, append this row to `docs/SESSION_COSTS.md` via `echo >>` (never overwrite):
+
+```
+| YYYY-MM-DD | Phase-N | [session description] | N agents | ~X input | ~Y output | ~Z total | ~W evitabile | [notes on waste + fixes] |
+```
+
+Fields:
+- **Agenti spawned:** count + names (e.g., "5 (AI/ML, DevOps, DocWriter, QA×2)")
+- **Spreco evitabile:** estimated tokens that would have been saved with current rules
+- **Note:** root causes of waste + rules/patches applied this session
 
 ---
 

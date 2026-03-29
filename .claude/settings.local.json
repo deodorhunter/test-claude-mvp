@@ -14,7 +14,11 @@
       "WebFetch(domain:github.com)",
       "Bash(for f:*)",
       "Bash(do head:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker ps:*)",
+      "Bash(curl -s http://localhost:11434/api/tags)",
     ]
   }
 }
