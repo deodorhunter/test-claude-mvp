@@ -2,7 +2,44 @@
 
 > Fasi da seguire in ordine. Il Tech Lead NON passa alla fase successiva senza approvazione esplicita dell'utente.
 > Aggiornato post-retrospettiva Phase 1: sub-fasi atomiche, mini-gate, smoke test obbligatori.
-> Aggiornato 2026-03-27: git branching per US + manual test instructions obbligatorie.
+> Aggiornato 2026-03-27 post retrospettiva Phase 2a: git branching per US + manual test instructions obbligatorie.
+> Aggiornato 2026-03-27 token optimization overhaul: context injection protocol, git diff for QA/DocWriter, no-exploration constraints.
+> Aggiornato 2026-03-29: YAML frontmatter on agents/commands, ultrathink for HIGH complexity, proactive context budget, destructive/non-destructive parallelism classification, Consolidate→/clear→Action pattern.
+
+## Parallelism Classification (mandatory before spawning parallel agents)
+
+Before spawning any parallel sub-agents, the Tech Lead MUST classify each task:
+
+| Classification | Definition | Safe to parallelize? |
+|---|---|---|
+| **Non-destructive** | Reads, analysis, research, review tasks. Does not modify shared files. | ✅ Yes — parallelize aggressively |
+| **Destructive** | Writes to files. May modify shared schema, config, or shared test fixtures. | ⚠️ Only if domains are strictly isolated |
+
+**Decision flow:**
+```
+Is the task destructive?
+  NO  → Spawn freely in parallel (research, review, QA analysis)
+  YES → Do the agents own different, non-overlapping file domains?
+         YES → Parallel OK (e.g. Backend on api/v1/ + Frontend on frontend/src/)
+         NO  → Must run in series (e.g. two agents touching backend/app/db/)
+```
+
+**Before a destructive parallel wave:** enter Plan Mode or describe the parallel plan to confirm no file domain overlap.
+
+## Consolidate → /compress-state → /clear → Action (between parallel waves)
+
+When a parallel wave of 2+ agents completes, **do not chain immediately to the next step**:
+
+```
+❌ WRONG:  [Agent A done] → [Agent B done] → [review both] → [start Phase 2c]
+✅ RIGHT:  [Agent A done] [Agent B done] → collect both results
+                                        → /compress-state
+                                        → user types /clear
+                                        → fresh context → review consolidated results
+                                        → proceed to Phase 2c
+```
+
+**Why:** Parallel agent results pollute each other's context. The Tech Lead's context fills with two concurrent execution threads, leading to confusion about which changes belong to which US. A clear break between waves costs ~30 seconds and saves thousands of tokens in confused reasoning.
 
 ## Git Branching Strategy
 
@@ -16,11 +53,16 @@
 
 Il QA Engineer viene spawnato **dopo ogni US**, non solo a fine fase. Esegue i comandi di test manuale dall'handoff doc contro l'ambiente Docker live.
 
-- **Modello:** haiku (task semplice: run commands, compare output)
-- **Input:** `docs/handoffs/US-NNN-handoff.md` sezione "Manual Test Instructions"
+- **Modello:** `claude-haiku-4-5-20251001` (task semplice: run commands, compare output)
+- **Context injection (mandatory):** Tech Lead MUST inject BOTH:
+  1. `git diff main...HEAD` as `<git_diff>` XML
+  2. full content of `docs/handoffs/US-NNN-handoff.md` as `<handoff_doc>` XML
 - **Output:** pass/fail report con output reale vs atteso
-- **Se fail:** Tech Lead ri-delega la US all'agente implementatore con il report QA — NON presenta all'utente
-- **Se pass:** Tech Lead presenta risultati all'utente per approvazione finale
+- **Se fail — routing obbligatorio:**
+  - Bug applicativo (output errato, feature mancante) → ri-delega all'**agente implementatore**
+  - Errore infrastrutturale (mount mancante, env var, porta, container) → ri-delega a **DevOps/Infra**
+  - NON presentare all'utente finché QA non passa
+- **Se pass:** Tech Lead presenta QA pass report + comandi manuali dall'handoff all'utente per verifica finale
 
 Questo intercetta errori di integrazione (es. path non montati, env vars mancanti) prima che l'utente debba testare manualmente.
 
