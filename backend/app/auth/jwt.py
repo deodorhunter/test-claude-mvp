@@ -1,3 +1,4 @@
+import uuid as _uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from jose import JWTError, jwt
@@ -22,7 +23,12 @@ def create_refresh_token(data: dict[str, Any]) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS
     )
-    to_encode.update({"exp": expire, "iss": "ai-platform", "type": "refresh"})
+    to_encode.update({
+        "exp": expire,
+        "iss": "ai-platform",
+        "type": "refresh",
+        "jti": str(_uuid.uuid4()),
+    })
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
