@@ -6,6 +6,7 @@ import httpx
 from sqlalchemy import select
 from ...auth.jwt import create_access_token, create_refresh_token, verify_token
 from ...auth.plone_bridge import PloneIdentityAdapter
+from ...auth.token_store import RefreshTokenStore, get_redis
 from ...db.base import get_db
 from ...db.models import (
     User,
@@ -19,6 +20,7 @@ from ...audit.service import AuditAction, AuditService, get_audit_service
 from jose import JWTError
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+import redis.asyncio as aioredis
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -167,6 +169,8 @@ async def refresh_token(
     response: Response,
     ai_platform_refresh: str | None = Cookie(default=None),
     db: AsyncSession = Depends(get_db),
+    redis_client: aioredis.Redis = Depends(get_redis),
+    audit_service: AuditService = Depends(get_audit_service),
 ):
     if not ai_platform_refresh:
         raise HTTPException(
@@ -178,6 +182,26 @@ async def refresh_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
+        )
+
+    # --- JTI replay-attack check ---
+    old_jti = payload.get("jti")
+    if not old_jti:
+        # Tokens without JTI were issued before rotation was introduced; reject
+        # them to force re-login and ensure all tokens in circulation carry JTIs.
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token missing JTI — please log in again",
+        )
+
+    token_store = RefreshTokenStore(redis_client)
+    if await token_store.is_used(old_jti):
+        logger.warning(
+            "Refresh token replay detected: jti=%s", old_jti
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token already used — possible replay attack",
         )
 
     user_id = uuid.UUID(payload["sub"])
@@ -192,6 +216,7 @@ async def refresh_token(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
 
+    # Issue new token pair
     token_data = {
         "sub": str(user.id),
         "tenant_id": str(user.tenant_id),
@@ -202,7 +227,23 @@ async def refresh_token(
     refresh_token_new = create_refresh_token(
         {"sub": str(user.id), "tenant_id": str(user.tenant_id)}
     )
+
+    # Blacklist the old JTI *after* issuing the new tokens so a Redis failure
+    # does not leave the user without a valid session on the first attempt.
+    settings = get_settings()
+    ttl_seconds = settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
+    await token_store.mark_used(old_jti, ttl_seconds)
+
     _set_auth_cookies(response, access_token, refresh_token_new)
+
+    await audit_service.log(
+        AuditAction.LOGIN_SUCCESS,
+        resource="token_refresh",
+        user_id=user.id,
+        tenant_id=user.tenant_id,
+        metadata={"action": "token_refresh", "old_jti": old_jti},
+    )
+
     return {"detail": "Token refreshed"}
 
 
