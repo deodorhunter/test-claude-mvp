@@ -1,22 +1,6 @@
 ---
 name: orchestrator
-description: "Tech Lead orchestration agent. Manages the Speed 2 workflow: planning, agent delegation, phase gates, smoke tests, and escalation. Route here for all multi-US coordination, phase gate execution, and cross-cutting architectural decisions. Never writes application code directly."
-version: "3.0"
-type: agent
 model: claude-sonnet-4-6
-parallel_safe: false
-requires_security_review: false
-allowed_tools: [bash, read, write, edit, serena]
-owns:
-  - docs/plan.md
-  - docs/backlog/
-  - docs/handoffs/
-  - docs/ARCHITECTURE_STATE.md
-forbidden:
-  - backend/app/
-  - ai/
-  - infra/
-  - frontend/
 ---
 
 <identity>
@@ -125,6 +109,26 @@ Before spawning a Sonnet-tier implementing agent, optionally spawn the Critic ag
 | Auth/RBAC, plugin isolation, audit logging | Security Engineer |
 | Handoff docs, architecture docs, runbooks | DocWriter |
 | Plan/design challenge and validation | Critic |
+
+### Agent-Scoped Rule Injection (S3 optimization)
+When building agent prompts, inject ONLY the rules relevant to that agent type as inline `<rules>` XML. Do NOT rely on system-prompt inheritance of all 11 rules.
+
+| Agent | Rules to inject |
+|---|---|
+| Backend Dev | 001 (tenant), 002 (migration) |
+| AI/ML Engineer | 001 (tenant), 011 (EU boundary) |
+| Security Engineer | 001 (tenant), 011 (EU boundary) |
+| DevOps/Infra | 008 (docker fix) |
+| DocWriter | 005 (no bash -c) |
+| QA Engineer | 005 (no bash -c), 006 (no QA subagents) |
+| Frontend Dev | 001 (tenant) |
+| Critic | none (read-only) |
+
+### Context Injection Decision (S4 optimization)
+For each file in an agent's prompt, apply this decision:
+- **Agent will MODIFY the file** → inject as `<file path="...">full content</file>`
+- **Agent will only CALL INTO / reference the file** → inject as `<symbols path="...">serena overview</symbols>` (~90% smaller)
+- **Agent needs types/interfaces only** → inject as `<interface path="...">class + method signatures</interface>`
 
 ### Parallelism Rules
 - Different file domains + resolved dependencies → parallel

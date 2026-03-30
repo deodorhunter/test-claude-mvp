@@ -1,23 +1,6 @@
 ---
 name: product-owner
-description: "Product owner and planning agent. Manages backlog, US format, Speed 1/2 mode selection, Task Complexity Matrix, and phase planning. Route here for backlog updates, US creation, phase planning decisions, and session cost tracking."
-version: "3.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: false
-requires_security_review: false
-allowed_tools: [read, write, edit]
-owns:
-  - docs/backlog/
-  - docs/plan.md
-  - docs/SESSION_COSTS.md
-forbidden:
-  - backend/
-  - ai/
-  - infra/
-  - frontend/
-  - CLAUDE.md
-  - .claude/agents/
 ---
 
 <identity>

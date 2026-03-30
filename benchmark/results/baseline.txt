@@ -1,0 +1,26 @@
+═══════════════════════════════════════════════════════════════
+  CONTEXT SIZE MEASUREMENT — BASELINE
+  Date: 2026-03-30 22:35:52
+  Project: /Users/martina/personal-projects/test-claude-mvp
+═══════════════════════════════════════════════════════════════
+
+── Auto-loaded instruction files ──────────────────────────────
+
+  CLAUDE.md                               6129 bytes  (~  1532 tokens)
+  orchestrator.md                         8267 bytes  (~  2066 tokens)
+  product-owner.md                        4560 bytes  (~  1140 tokens)
+  Rules (project/)                       17367 bytes  (~  4341 tokens)  [11 files]
+  Rules README                            2527 bytes  (~   631 tokens)
+
+── Referenced files (loaded per session) ──────────────────────
+
+  workflow.md                            14188 bytes  (~  3547 tokens)
+  AI_REFERENCE.md                         5447 bytes  (~  1361 tokens)
+
+── Hooks ──────────────────────────────────────────────────────
+
+  Hook scripts (.claude/hooks/)           2279 bytes  (~   569 tokens)  [1 files]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TOTAL AUTO-LOADED:                    60764 bytes  (~ 15191 tokens)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

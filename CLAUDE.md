@@ -1,13 +1,3 @@
----
-version: "3.0"
-type: framework-governance
-framework: oh-my-claudecode-enterprise
-updated: "2026-03-30"
-default_model: claude-haiku-4-5-20251001
-escalation_model: claude-sonnet-4-6
-peak_model: claude-opus-4-6
----
-
 # CLAUDE.md — Global Physics
 > These rules are **ALWAYS ACTIVE** for every agent, every session, no exceptions.
 > Workflow: see @.claude/agents/orchestrator.md · Planning & US format: see @.claude/agents/product-owner.md
@@ -63,12 +53,7 @@ Enforce semantic navigation. Before reading any file for structure, use the Lang
 Use Hover info, go-to-definition, find references, and project-wide type checking via the Language Server before modifying code. Never navigate by guessing file paths when Serena is available.
 
 **Python REPL**
-Never use multiline `bash -c 'python ...'` for complex scripts. Use the persistent Python REPL environment (with pandas, numpy, and matplotlib available) for:
-- Data analysis and exploration
-- Complex script execution that requires state between steps
-- Integration testing that requires async setup/teardown
-- Generating charts or structured output from data
-The REPL preserves variables between calls — use it for iterative workflows instead of re-running entire scripts.
+Use the persistent Python REPL for complex scripts instead of multiline `bash -c 'python ...'`. REPL preserves state between calls.
 
 ---
 
@@ -102,21 +87,5 @@ The REPL preserves variables between calls — use it for iterative workflows in
 
 ## Part 5 — Hard Rules (never break)
 
-1. Never write application code yourself — always delegate via Agent tool
-2. Never skip Phase 1 — no delegation without a written plan
-3. Never delegate without acceptance criteria
-4. Always wait for explicit user approval at every US checkpoint and Phase Gate
-5. Never pass the full spec to a sub-agent — context isolation is non-negotiable
-6. Never pass bare file paths — always inject raw content via `<file>` XML tags
-7. Schema changes → Backend Dev + AI/ML Engineer coordination required
-8. Auth/RBAC/plugins/MCP output → Security Engineer sign-off required
-9. Tenant isolation → explicitly verified in every US that touches data access
-10. Sub-agents do not communicate with each other — all coordination through the Tech Lead
-11. Files on disk are the only shared state between agents
-12. Never mark a US done without running the smoke test
-13. Never proceed past a Phase Gate if service health checks fail
-14. Never spawn DocWriter Mode A without injecting `<git_diff>` and `<metrics>` XML blocks
-15. After every `/phase-retrospective`: append one cost row to `docs/SESSION_COSTS.md`
-16. Never close a Phase Gate without running `/phase-retrospective` and presenting the full report
-17. NEVER SELF-APPROVE: The implementing agent for a US and the judge/verifier must always be different agents
-18. EU AI ACT (rule-011): No code or session data transmitted outside project directory boundary
+Full constraint list: see `@.claude/agents/orchestrator.md` `<hard_constraints>` section.
+Key invariants: no self-approval (rule 17), no code exfiltration (rule-011), no delegation without acceptance criteria, no bare file paths (always `<file>` XML injection).
