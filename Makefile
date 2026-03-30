@@ -1,4 +1,4 @@
-.PHONY: up down logs migrate shell-api shell-postgres
+.PHONY: up down logs migrate test shell-api shell-postgres
 
 COMPOSE = docker compose -f infra/docker-compose.yml --env-file .env
 
@@ -10,6 +10,9 @@ down:
 
 logs:
 	$(COMPOSE) logs -f
+
+test:
+	$(COMPOSE) exec api pytest -q --tb=short
 
 migrate:
 	$(COMPOSE) exec api alembic upgrade head

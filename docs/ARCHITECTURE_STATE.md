@@ -16,3 +16,15 @@
 
 ### US-013 — Cost-Aware Planner
 **Date:** 2026-03-29 | **Agent:** AI/ML Engineer | **What was built:** Quota-guarded model selection with primary→Claude fallback chain, ExecutionPlan artifact for cost tracking.
+| US-014 | AI/ML Engineer | claude-haiku-4-5-20251001 | ~55000 | ~6000 | unavailable | unavailable | 2026-03-29 |
+
+### US-014 — MCP Registry + Trust Scoring
+**Date:** 2026-03-29 | **Agent:** AI/ML Engineer | **What was built:** MCPRegistry with trust-score filtering, two stub servers (internal_docs/web), audit logging per server, 17 tests green.
+| US-015 | AI/ML Engineer | claude-haiku-4-5-20251001 | ~54000 | ~6300 | unavailable | unavailable | 2026-03-29 |
+
+### US-015 — Context Builder + Prompt Injection Defense
+**Date:** 2026-03-29 | **Agent:** AI/ML Engineer | **What was built:** MCP query aggregation with source attribution, prompt injection blocking (9 patterns), HTML stripping, 3s per-server timeout, audit logging.
+| US-016 | AI/ML Engineer | claude-haiku-4-5-20251001 | ~57000 | ~6000 | N/A | N/A | 2026-03-29 |
+
+### US-016 — RAG Pipeline: Qdrant + Embedding Service
+**Date:** 2026-03-29 | **Agent:** AI/ML Engineer | **What was built:** Multi-tenant RAG pipeline with EmbeddingService (Ollama nomic-embed-text), QdrantStore with per-tenant vector collections, RAGPipeline orchestrator, 30 tests passing, tenant isolation verified.

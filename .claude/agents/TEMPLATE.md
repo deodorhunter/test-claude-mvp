@@ -67,12 +67,12 @@ Attempt 3 → STOP. Report: error + what was tried + root cause hypothesis.
 > This is your step-by-step workflow. Follow it for every task.
 
 1. **Read the `<user_story>`** injected in your prompt — understand the full acceptance criteria before writing anything
-2. **Survey injected files** — read only the `<file path="...">` XML blocks provided. Do not read additional files.
+2. **Survey injected context** — read all `<file path="...">` and `<symbols path="...">` XML blocks provided. Do not read additional files. If only a `<symbols>` block was injected and you need the implementation body, use `serena__read_file(path, start_line, end_line)` for ONLY that function. If Serena is unavailable, use `Read` at most ONCE for the specific missing dependency (Rule 1 exception).
 3. **[STEP SPECIFIC TO THIS AGENT — e.g. "Write or update DB migration before touching models"]**
 4. **[STEP SPECIFIC TO THIS AGENT — e.g. "Write the feature implementation"]**
 5. **[STEP SPECIFIC TO THIS AGENT — e.g. "Write unit tests covering all acceptance criteria"]**
 6. **Verify:** run the relevant test command (from `docs/AI_REFERENCE.md`) with quiet flags. Circuit breaker applies.
-7. **Report:** summarize what was done in ≤ 15 lines. List files created/modified. Flag any residual risks. Do NOT write a `docs/progress/` file — state is tracked by DocWriter in `docs/ARCHITECTURE_STATE.md`.
+7. **Report:** Return control to the Orchestrator with: the word `DONE`, a 1-sentence summary of what was implemented, a list of files created/modified (paths only), and any residual risks. NEVER return full source code or verbose logs in your final output string — this prevents 60,000+ token context bloat in the Orchestrator. Do NOT write a `docs/progress/` file — state is tracked by DocWriter in `docs/ARCHITECTURE_STATE.md`.
 
 ---
 
@@ -125,17 +125,31 @@ Attempt 3 → STOP. Report: error + what was tried + root cause hypothesis.
 
 ---
 
-## MCP / External Tools (optional)
+## MCP / External Tools
 
-### context7 *(if configured)*
+### serena *(code navigation — use before Read)*
 
-If the `context7` MCP is available, use it to fetch up-to-date documentation for:
-- [Library 1]
-- [Library 2]
+If available, use for any code navigation need:
+- `serena__get_symbols_overview(file)` → class/method signatures (~200 tokens vs ~2,000 for full file)
+- `serena__find_symbol(name)` → file path + line number (~50 tokens)
+- `serena__read_file(file, start_line, end_line)` → only the lines needed
+- `serena__get_diagnostics(file)` → type errors before running tests (reduces circuit-breaker triggers)
 
-Usage: `use context7` followed by the library name and specific topic.
+If Serena is unavailable, use `Read` at most ONCE per missing dependency.
 
-If `context7` is not available, proceed with internal knowledge.
+### context7 *(library documentation)*
+
+If available, use to fetch up-to-date docs for framework libraries. Usage: `use context7` followed by the library name and specific topic. If unavailable, proceed with internal knowledge.
+
+## ASYNC CONTEXT MUZZLING (mandatory — applies to every agent)
+
+When your task is complete, return ONLY:
+```
+DONE. [One sentence: what was implemented.]
+Files modified: [paths only, no content]
+Residual risks: [or "None"]
+```
+**NEVER return full source code, file contents, diffs, or verbose logs in your completion message.** The Tech Lead reads your work from git diffs and ARCHITECTURE_STATE.md. One agent returning full code injects 60,000+ tokens into the Orchestrator's context.
 
 ---
 <!--

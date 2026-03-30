@@ -103,6 +103,54 @@ On failure after attempt 2, report immediately with:
 - ❌ **Ignore `PytestCacheWarning: could not create cache path`** — this is a benign permission warning in the container. Never spend a debug attempt on it.
 - ✅ If a package is missing at runtime: report the package name and the fix (`add X to pyproject.toml`), then stop.
 
+**"Double Rebuild" Prevention:** Before running `make up --build` or restarting containers to fix a failing test, you MUST batch all your checks first. Read `pyproject.toml` (dependencies), `docker-compose.yml` (volume mounts and env overrides), and `conftest.py` (env overrides and fixtures) ALL AT ONCE. Identify every root cause. Apply all fixes in a single edit batch. Then rebuild exactly ONCE.
+
+**Why:** A missed `conftest.py` env override caused a second full Docker rebuild in Phase 2c — minutes of wall time and thousands of wasted context tokens. Two rebuilds that should have been one.
+
+---
+
+### Rule 5: BULK READING OVER SERIAL READING
+
+Never use the `Read` tool sequentially to read multiple files one by one.
+
+- ✅ To read 3 User Story files at once: use a single Bash command: `cat docs/backlog/US-014.md docs/backlog/US-015.md docs/backlog/US-016.md`
+- ✅ For files needed together (e.g. conftest + docker-compose + config), always `cat` them in one command
+- ❌ Never issue three sequential `Read` calls when one `cat` suffices — each sequential call forces context recalculation
+
+**Why:** Serial `Read` calls on N files cost N × (context_size) recalculation overhead. A single `cat` of N files is one operation with the same token cost.
+
+---
+
+### Rule 6: NO EXPLORE AGENTS FOR FILE READING
+
+You are **STRICTLY FORBIDDEN** from spawning sub-agents (`subagent_type: "Explore"` or any other type) solely to read, scan, or summarize files.
+
+- ✅ Use `Bash` (`cat`, `grep -n`) to pull file contents directly into your own context so you can inject them later via `<file>` XML tags
+- ✅ Use `Read`, `Grep`, or `Glob` tools directly in the Tech Lead's own context
+- ❌ Never do: `Agent(subagent_type="Explore", prompt="Read X and summarize")` — returns only a summary; raw content is lost and cannot be injected downstream
+
+**Why:** Explore agents return summaries, not raw content. When the Tech Lead later injects files into implementing agent prompts, it must pay to read them again — doubling the token cost (~60,000 wasted tokens per session observed in Phase 2b).
+
+---
+
+### Rule 7: SERENA-FIRST NAVIGATION
+
+When the Tech Lead needs to understand code structure before planning a US or assembling context injection, use Serena MCP tools before reaching for full-file reads.
+
+**Priority order:**
+1. `serena__get_symbols_overview(file)` — signatures only (~200 tokens vs ~2,000 per file)
+2. `serena__find_symbol(name)` — file + line number (~50 tokens, no file content)
+3. `serena__read_file(file, start_line, end_line)` — targeted range after locating the symbol
+4. `serena__get_diagnostics(file)` — type errors before running tests
+5. Full `Read` / `cat` — only for `<file>` XML injection into sub-agents, or if Serena is unavailable
+
+- ✅ Use `serena__get_symbols_overview` to map a module before writing a US that touches it
+- ✅ Use `serena__find_symbol` + `serena__read_file` to read one function body instead of an entire file
+- ❌ Never `Read` a full file to find a class name — 10–50× the token cost of Serena navigation
+- ❌ Never spawn an Explore agent for structural mapping when Serena is available
+
+**Why:** Explore agents consumed 131k tokens in Phase 2c–2d planning to map class names and file structure. `serena__get_symbols_overview` returns the same information in ~200 tokens per file. See rule-009.
+
 ---
 
 # 📚 PART 2 — Project Knowledge
@@ -216,6 +264,25 @@ Each subagent prompt must contain:
 - `<file path="...">` XML tags — **raw content** of required existing files (use Bash `cat`, never pass bare paths)
 - Only relevant spec sections — never the full spec
 
+**SERENA BEFORE CAT (mandatory for context assembly):** Before deciding which files to `cat` for `<file>` injection, run `serena__get_symbols_overview` on candidate files first. If the agent only needs to understand an interface (not implement against the full body), inject a `<symbols>` block instead of a full `<file>` block:
+
+```xml
+<symbols path="ai/planner/planner.py">
+class CostAwarePlanner:
+  async def plan(self, prompt: str, tenant_id: str) -> ExecutionPlan
+  async def estimate_cost(self, model: str, tokens: int) -> float
+  async def select_model(self, budget: float) -> str
+</symbols>
+```
+
+This replaces a 5,500-token full-file injection with a ~200-token symbols block when the agent only needs the interface. Only `cat` and inject the full file when the agent must read or modify the implementation body.
+
+**ASYNC CONTEXT MUZZLING (mandatory for parallel sub-agents):** When spawning parallel implementing agents, you MUST include this constraint verbatim in every agent's prompt:
+
+> *"CRITICAL OUTPUT CONSTRAINT: When finished, return ONLY the word DONE followed by a 1-sentence summary of what was implemented. DO NOT output full source code, file contents, or verbose logs in your final response. The Tech Lead will read your actual output from git diffs and ARCHITECTURE_STATE.md."*
+
+**Why:** A parallel agent returning full source code injects 60,000+ tokens into the Tech Lead's context on completion. Across a Phase 2c wave of 3–5 agents, this is the single largest avoidable token cost in the framework.
+
 ### Phase 3 — Integration & Review (after each US)
 1. Verify completion output against acceptance criteria
 2. **Run smoke test** (see Smoke Test Checklist below)
@@ -224,14 +291,14 @@ Each subagent prompt must contain:
    - `git diff main...HEAD` injected as `<git_diff>` XML
    - Token metrics injected as `<metrics>` XML block (see below)
    - DocWriter writes `docs/handoffs/US-NNN-handoff.md` and appends to `docs/ARCHITECTURE_STATE.md`
-5. Spawn **QA Engineer** (`claude-haiku-4-5-20251001`) with:
-   - `git diff main...HEAD` injected as `<git_diff>` XML
-   - Full content of `docs/handoffs/US-NNN-handoff.md` injected as `<handoff_doc>` XML
-   - QA runs every command in the "Manual Test Instructions" section against the live Docker environment
-   - If QA fails (app bug) → re-delegate to the implementing agent with QA failure report. Do NOT present to user.
-   - If QA fails (infra issue: mount, port, env var, Docker) → re-delegate to **DevOps/Infra** agent with QA failure report.
+5. **Run QA directly** (do NOT spawn a QA sub-agent — see rule-006):
+   - Use `Write` tool to create `/tmp/qa_us_NNN.py` with the test script
+   - Run: `docker cp /tmp/qa_us_NNN.py ai-platform-api:/tmp/ && docker exec -e PYTHONPATH=/app ai-platform-api python3 /tmp/qa_us_NNN.py && docker exec ai-platform-api rm /tmp/qa_us_NNN.py`
+   - Max 2 attempts (Rule 4 circuit breaker applies). On failure after attempt 2: report error + likely cause + stop.
+   - If app bug → re-delegate to implementing agent with error. Do NOT present to user.
+   - If infra issue → re-delegate to **DevOps/Infra** with error report.
    - Do NOT proceed to step 6 until QA passes.
-6. **Present to user:** QA pass report + copy-paste the "Manual Test Instructions" section from the handoff doc verbatim so the user can verify independently
+6. **Present to user:** exact commands run + actual output + copy-paste the "Manual Test Instructions" section from the handoff doc so the user can verify independently
 7. **STOP — wait for explicit user confirmation before the next US**
 8. Merge branch → update `docs/backlog/US-NNN.md` status to ✅ Done → update `docs/backlog/BACKLOG.md`
 
@@ -253,10 +320,16 @@ Before moving to the next phase:
 
 ### Proactive Context Budget
 
-**Do not wait for degradation.** Trigger `/compress-state` proactively when **any** of these are true:
-- The session has exceeded **15 tool calls** or **20 messages**
-- A **parallel agent wave** just completed (collect all results first, then clear before the next wave)
-- You notice responses losing track of earlier architectural decisions
+**`/compress-state` is MANDATORY (not optional) at these structural moments:**
+
+| Trigger | Action |
+|---|---|
+| About to spawn ≥ 2 agents in parallel | `/compress-state` → `/clear` → spawn |
+| Just received results from ≥ 2 completed parallel agents | `/compress-state` → `/clear` → review |
+| Session exceeded 15 tool calls | `/compress-state` → `/clear` |
+| Phase Gate just opened | `/compress-state` → `/clear` before gate steps |
+
+**Why mandatory, not optional:** `/compress-state` existed since project start and was never triggered once — session JSONLs grew to 2.8 MB as a result. "20 messages" is a passive threshold missed under task pressure. Parallel wave launch is the structural moment that cannot be missed. Clearing an 80k planning context before a 3-agent wave saves 80k × 3 = 240k tokens in recalculation alone. See rule-010.
 
 ### Consolidate → /clear → Action (between parallel waves)
 
@@ -395,6 +468,11 @@ When an agent reports a blocker, partial implementation, or risk:
 @.claude/rules/project/rule-003-no-explore-agents-for-file-reading.md
 @.claude/rules/project/rule-004-ai-reference-check-every-session.md
 @.claude/rules/project/rule-005-docwriter-no-multiline-bash.md
+@.claude/rules/project/rule-006-no-qa-mode-a-subagents.md
+@.claude/rules/project/rule-007-phase-gate-proceed-means-gate-steps.md
+@.claude/rules/project/rule-008-pre-edit-read-docker-baked-files.md
+@.claude/rules/project/rule-009-serena-first-navigation.md
+@.claude/rules/project/rule-010-compress-state-before-parallel-waves.md
 
 <!-- Add new rule imports here after each /reflexion run — never add rule prose directly to this file -->
 

@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, MagicMock
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-that-is-long-enough-for-hs256")
-os.environ.setdefault("PLONE_BASE_URL", "http://localhost:8080")
+os.environ["PLONE_BASE_URL"] = "http://localhost:8080"
 os.environ.setdefault("QDRANT_URL", "http://localhost:6333")
 
 # Clear the lru_cache so the patched env vars are picked up if any earlier

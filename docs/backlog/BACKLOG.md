@@ -38,7 +38,7 @@
 ## Phase 2 — Core Platform
 
 **Obiettivo:** plugin system, model layer, planner, MCP, RAG pipeline.
-**Status:** 📋 Backlog — in attesa di approvazione avvio Phase 2
+**Status:** 🔄 In Progress — Phase 2c ✅ Gate chiuso (2026-03-29), Phase 2d in avvio
 **Prerequisito:** Phase Gate 1 approvato ✅
 
 ### Phase 2a — Plugin System
@@ -57,7 +57,7 @@
 | US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
 |---|---|---|---|---|---|---|
 | [US-012](US-012.md) | Model Layer: Ollama + Claude adapters, generate() interface | AI/ML Engineer | US-002 | critical | ✅ Done | [progress](../progress/US-012-done.md) |
-| [US-013](US-013.md) | Cost-aware Planner + multi-model fallback | AI/ML Engineer | US-012 | critical | 📋 Backlog | — |
+| [US-013](US-013.md) | Cost-aware Planner + multi-model fallback | AI/ML Engineer | US-012 | critical | ✅ Done | [progress](../progress/US-013-done.md) |
 
 ### Phase 2c — MCP + RAG
 
@@ -65,9 +65,9 @@
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
 |---|---|---|---|---|---|---|
-| [US-014](US-014.md) | MCP Registry + trust scoring | AI/ML Engineer | US-005 | high | 📋 Backlog | — |
-| [US-015](US-015.md) | Context Builder: MCP query, filter, source attribution | AI/ML Engineer | US-014 | high | 📋 Backlog | — |
-| [US-016](US-016.md) | RAG Pipeline: Qdrant embeddings + retrieval | AI/ML Engineer | US-014 | high | 📋 Backlog | — |
+| [US-014](US-014.md) | MCP Registry + trust scoring | AI/ML Engineer | US-005 | high | ✅ Done | [progress](../progress/US-014-done.md) |
+| [US-015](US-015.md) | Context Builder: MCP query, filter, source attribution | AI/ML Engineer | US-014 | high | ✅ Done | [progress](../progress/US-015-done.md) |
+| [US-016](US-016.md) | RAG Pipeline: Qdrant embeddings + retrieval | AI/ML Engineer | US-014 | high | ✅ Done | [progress](../progress/US-016-done.md) |
 
 ### Phase 2d — Quota, Planner Integration, Review + Tests
 
