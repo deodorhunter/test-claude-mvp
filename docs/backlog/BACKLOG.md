@@ -75,8 +75,8 @@
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
 |---|---|---|---|---|---|---|
-| [US-017](US-017.md) | Token Quota Tracking + Rate Limiting (Redis) | Backend Dev | US-012 | high | 📋 Backlog | — |
-| [US-018](US-018.md) | Security Review: plugin isolation + MCP sanitization | Security Engineer | US-011, US-015 | critical | 📋 Backlog | — |
+| [US-017](US-017.md) | Token Quota Tracking + Rate Limiting (Redis) | Backend Dev | US-012 | high | ✅ Done | [progress](../progress/US-017-done.md) |
+| [US-018](US-018.md) | Security Review: plugin isolation + MCP sanitization | Security Engineer | US-011, US-015 | critical | ✅ Done | [progress](../progress/US-018-done.md) |
 | [US-019](US-019.md) | Test Coverage Phase 2: planner, MCP, RAG, plugin lifecycle | QA Engineer | US-013, US-016, US-018 | high | 📋 Backlog | — |
 
 ---

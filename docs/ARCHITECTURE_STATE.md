@@ -28,3 +28,11 @@
 
 ### US-016 — RAG Pipeline: Qdrant + Embedding Service
 **Date:** 2026-03-29 | **Agent:** AI/ML Engineer | **What was built:** Multi-tenant RAG pipeline with EmbeddingService (Ollama nomic-embed-text), QdrantStore with per-tenant vector collections, RAGPipeline orchestrator, 30 tests passing, tenant isolation verified.
+| US-017 | Backend Dev | claude-haiku-4-5-20251001 | ~85000 | ~9833 | 0 | 0 | 2026-03-30 |
+
+### US-017 — Token Quota Tracking + Rate Limiting
+**Date:** 2026-03-30 | **Agent:** Backend Dev | **What was built:** RateLimiter (Redis sliding window, 10 req/60s) + QuotaService (PostgreSQL tracking, fail-open on DB error), 8 tests green, 186 total.
+| 2026-03-30 | US-018 | Security Engineer | claude-sonnet-4-6 | ~55000 | ~8643 | 0 | 0 | Token rotation JTI + 10 injection patterns + 27 security tests; 213 tests green |
+
+### US-018 — Security Hardening: Token Rotation & Injection Patterns
+**Date:** 2026-03-30 | **Agent:** Security Engineer | **What was built:** Refresh token JTI-based replay prevention + 10 new injection pattern signatures + 27-test security suite
