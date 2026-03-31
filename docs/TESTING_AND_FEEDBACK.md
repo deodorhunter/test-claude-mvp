@@ -320,7 +320,7 @@ Skill = "only one agent type needs this, only at a specific moment"
 **Feedback Loop:**
 
 ```
-User feedback (FRAMEWORK_FEEDBACK.yml)
+User feedback (.feedback/<date>-<type>.yml)
   ↓
 Maintainer pattern-match ("3 testers report rule-X too noisy")
   ↓
@@ -328,7 +328,7 @@ Run /reflexion to extract durable rules
   ↓
 Update rule-0NN or create new skill
   ↓
-Document in CHANGELOG
+Document in DEVLOG.md
   ↓
 Next framework release includes refinement
 ```
@@ -336,7 +336,7 @@ Next framework release includes refinement
 **Real examples (from this project's testing):**
 - Finding: "rule-009 priority unclear" (3 reports) → rewrote with concrete examples
 - Finding: "Serena saved 8–12k tokens" (5 reports) → made Serena standard in all agents
-- Finding: "Phase gates too heavy for Speed 1" (4 reports) → created `/quick` shortcut for bug fixes
+- Finding: "Phase gates too heavy for Speed 1" (4 reports) → Speed 1 scoping examples expanded in copilot-instructions and AI_PLAYBOOK.md
 
 ---
 
