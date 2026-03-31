@@ -38,7 +38,7 @@
 ## Phase 2 — Core Platform
 
 **Obiettivo:** plugin system, model layer, planner, MCP, RAG pipeline.
-**Status:** 🔄 In Progress — Phase 2c ✅ Gate chiuso (2026-03-29), Phase 2d in avvio
+**Status:** ✅ Completata — Phase Gate 2 approvato (2026-03-31)
 **Prerequisito:** Phase Gate 1 approvato ✅
 
 ### Phase 2a — Plugin System
@@ -77,7 +77,8 @@
 |---|---|---|---|---|---|---|
 | [US-017](US-017.md) | Token Quota Tracking + Rate Limiting (Redis) | Backend Dev | US-012 | high | ✅ Done | [progress](../progress/US-017-done.md) |
 | [US-018](US-018.md) | Security Review: plugin isolation + MCP sanitization | Security Engineer | US-011, US-015 | critical | ✅ Done | [progress](../progress/US-018-done.md) |
-| [US-019](US-019.md) | Test Coverage Phase 2: planner, MCP, RAG, plugin lifecycle | QA Engineer | US-013, US-016, US-018 | high | 📋 Backlog | — |
+| [US-019](US-019.md) | Test Coverage Phase 2: planner, MCP, RAG, plugin lifecycle | QA Engineer | US-013, US-016, US-018 | high | ✅ Done | [progress](../progress/US-019-done.md) |
+| [US-020](US-020.md) | plone-mcp: self-hosted MCP server + Python adapter | DevOps/Infra + AI/ML Engineer | US-014 | high | ✅ Done | [progress](../progress/US-020-done.md) |
 
 ---
 
@@ -89,7 +90,7 @@
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato |
 |---|---|---|---|---|---|
-| US-020 | API REST: query endpoint (planner + context) | Backend Dev | US-013, US-015 | critical | 📋 Backlog |
+| US-021-api | API REST: query endpoint (planner + context) | Backend Dev | US-013, US-015, US-020 | critical | 📋 Backlog |
 | US-021 | API REST: plugin management endpoints | Backend Dev | US-010 | high | 📋 Backlog |
 | US-022 | API REST: tenant admin (quota, user management) | Backend Dev | US-017 | high | 📋 Backlog |
 | US-023 | Frontend scaffold: Volto addon + routing + auth client | Frontend Dev | US-004 | critical | 📋 Backlog |

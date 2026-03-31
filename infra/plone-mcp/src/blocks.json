@@ -1,0 +1,420 @@
+{
+  "teaser": {
+    "description": "The teaser block is used to create a teaser for a content item. It links to a target and displays its properties (title, description, preview image, etc.). In most cases, only 'href' should be provided - the teaser will automatically use the target's properties. To customize the display, set 'overwrite: true' and provide custom values.",
+    "inputSchema": {
+      "blockData": {
+        "href": {
+          "type": "array",
+          "description": "Link target reference. In most cases, this is the ONLY field you need to provide.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "@id": {
+                "type": "string",
+                "description": "URL or internal path"
+              },
+              "title": {
+                "type": "string",
+                "description": "Title of the target content"
+              }
+            },
+            "required": ["@id", "title"]
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "overwrite": {
+          "type": "boolean",
+          "description": "Set to true only if using custom values instead of the target object's properties. It must be set to false is only 'href' is provided."
+        },
+        "title": {
+          "type": "string",
+          "description": "Custom teaser title (only used when overwrite is true)"
+        },
+        "head_title": {
+          "type": "string",
+          "description": "Custom kicker/head title shown above main title (only used when overwrite is true)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Custom teaser description (only used when overwrite is true)"
+        },
+        "preview_image": {
+          "type": "array",
+          "description": "Custom preview image reference (only used when overwrite is true)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "@id": {
+                "type": "string",
+                "description": "URL or internal path to the image"
+              },
+              "image_field": {
+                "type": "string",
+                "description": "MUST be set to 'image' for internal Plone images. MUST omit this field for external URLs."
+              }
+            },
+            "required": ["@id"]
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the teaser block",
+          "default": "default"
+        },
+        "styles": {
+          "align": {
+            "type": "string",
+            "enum": ["left", "center", "right"],
+            "description": "Image alignment within the teaser. Do not use this field when nesting the image inside a parent block (e.g., gridBlock), as the parent block controls alignment.",
+            "default": "left"
+          }
+        }
+      },
+      "required": ["href"]
+    }
+  },
+  "slate": {
+    "description": "The slate block is used to create rich text content. Input text MUST be in markdown format, which will be automatically converted to Slate format. DO NOT create nested blocks, only text with formatting is supported. DO NOT create h1 headings (# Heading h1 text). The ONLY supported markdown formatting: [h2, h3, h4, bold, italic, strikethrough (~~text~~), links ('Link title' is not supported), lists, nested lists, paragraphs, blockquote, subscript (CO~2~), superscript (X^2^Y^3^), and combinations of these (e.g., [**bold link**](https://example.com))].",
+    "inputSchema": {
+      "blockData": {
+        "text": {
+          "type": "string",
+          "description": "Markdown-formatted text that will be converted to Slate format"
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the block",
+          "default": "default"
+        }
+      },
+      "required": ["text"]
+    }
+  },
+  "__button": {
+    "description": "The Button block is used to create a navigation button. It can be used to link to any URL or path.",
+    "inputSchema": {
+      "blockData": {
+        "href": {
+          "type": "array",
+          "description": "Link target reference",
+          "items": {
+            "type": "object",
+            "properties": {
+              "@id": {
+                "type": "string",
+                "description": "URL or internal path"
+              },
+              "title": {
+                "type": "string",
+                "description": "Title of the target content"
+              }
+            },
+            "required": ["@id", "title"]
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "title": {
+          "type": "string",
+          "description": "The button text, it will be displayed on the button."
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the block",
+          "default": "default"
+        },
+        "styles": {
+          "align:noprefix": {
+            "--block-alignment": {
+              "type": "string",
+              "enum": [
+                "var(--align-left)",
+                "var(--align-center)",
+                "var(--align-right)"
+              ],
+              "description": "Button alignment within the block's available width.",
+              "default": "var(--align-right)"
+            }
+          },
+          "blockWidth:noprefix": {
+            "--block-width": {
+              "type": "string",
+              "enum": [
+                "var(--narrow-container-width)",
+                "var(--default-container-width)"
+              ],
+              "description": "Width avalable for the block on the page layout, narrow-width is the smallest (used by text blocks for readibility), and default-width is adequate for most blocks.",
+              "default": "var(--default-container-width)"
+            }
+          }
+        }
+      },
+      "required": []
+    }
+  },
+  "separator": {
+    "description": "The Separator block adds a horizontal line to separate content visually.",
+    "inputSchema": {
+      "blockData": {
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the block",
+          "default": "default"
+        },
+        "styles": {
+          "align:noprefix": {
+            "--block-alignment": {
+              "type": "string",
+              "enum": [
+                "var(--align-left)",
+                "var(--align-center)",
+                "var(--align-right)"
+              ],
+              "description": "Separator alignment within the block's available width. This option is disabled unless the separator block has shortLine set to true.",
+              "default": "var(--align-right)"
+            }
+          },
+          "blockWidth:noprefix": {
+            "--block-width": {
+              "type": "string",
+              "enum": [
+                "var(--narrow-container-width)",
+                "var(--default-container-width)"
+              ],
+              "description": "Width available for the block on the page layout, narrow-width is the smallest (used by text blocks for readibility), and default-width is adequate for most blocks.",
+              "default": "var(--default-container-width)"
+            }
+          },
+          "shortLine": {
+            "type": "boolean",
+            "description": "If true, the separator will be a short line, otherwise it will be a full-width line within the block's available width.",
+            "default": false
+          }
+        }
+      },
+      "required": []
+    }
+  },
+  "image": {
+    "description": "The Image block is used to display an (internal or external) image  with title, description and alt text. It can also be linked to a URL or internal path. It can be aligned and size of the image can be adjusted.",
+    "inputSchema": {
+      "blockData": {
+        "url": {
+          "type": "string",
+          "description": "For EXTERNAL images: Direct image URL (e.g., https://example.com/image.jpg). For INTERNAL Plone images: URL to the Image content object (e.g., /content-types/my-image), NOT the @@images URL."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title for the image."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description for the image."
+        },
+        "alt": {
+          "type": "string",
+          "description": "Alternative text for the image, used for accessibility"
+        },
+        "href": {
+          "type": "array",
+          "description": "Link target (URL or internal path) when the image is clicked.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "@id": {
+                "type": "string",
+                "description": "URL or internal path"
+              },
+              "title": {
+                "type": "string",
+                "description": "Title of the target content"
+              }
+            },
+            "required": ["@id", "title"]
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "image_field": {
+          "type": "string",
+          "description": "REQUIRED for internal Plone images, must be set to 'image'. MUST BE OMITTED for external URLs.",
+          "enum": ["image"]
+        },
+        "align": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "description": "Image alignment within the block. Do not use this field when nesting the image inside a parent block (e.g., gridBlock), as the parent block controls alignment.",
+          "default": "center"
+        },
+        "size": {
+          "type": "string",
+          "enum": ["s", "m", "l"],
+          "description": "Image size within the block. Do not use this field when nesting the image inside a parent block (e.g., gridBlock), as the parent block controls alignment.",
+          "default": "l"
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the block",
+          "default": "default"
+        },
+        "styles": {
+          "blockWidth:noprefix": {
+            "--block-width": {
+              "type": "string",
+              "enum": [
+                "var(--narrow-container-width)",
+                "var(--default-container-width)",
+                "var(--layout-container-width)",
+                "100%"
+              ],
+              "description": "Width available for the block on the page layout, narrow-width is the smallest (used by text blocks for readibility), default-width is used for most blocks, layout-width is a wider width for visual impact, and 100% is the full width of the viewport. This setting is ONLY available when the align style is set to center. Do not use this field when nesting the image inside a parent block (e.g., gridBlock), as the parent block controls alignment.",
+              "default": "var(--default-container-width)"
+            }
+          }
+        }
+      },
+      "required": []
+    }
+  },
+  "gridBlock": {
+    "description": "The Grid Block is used to create a grid layout to organize multiple blocks (eg Teaser, Image, Listing, Slate) in columns. Maximum number of blocks inside a grid block is 4",
+    "inputSchema": {
+      "blockData": {
+        "blocks": {
+          "type": "object",
+          "description": "Object containing child blocks (teaser, image, slate). Maximum 4 blocks allowed. Each child must have @type and required fields. Block IDs will be auto-generated as UUIDs."
+        },
+        "blocks_layout": {
+          "type": "object",
+          "description": "Layout configuration with block order",
+          "properties": {
+            "items": {
+              "type": "array",
+              "description": "Array of block IDs. Auto-populated if not provided."
+            }
+          }
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the block",
+          "default": "default"
+        },
+        "headline": {
+          "type": "string",
+          "description": "Optional headline for the grid block"
+        }
+      },
+      "required": ["blocks", "blocks_layout"]
+    }
+  },
+  "listing": {
+    "description": "The Listing block displays a list or grid of content items based on a query. It supports filtering by content type, path, title, description, creator, dates, tags, workflow state, text fields, and various sorting options. Different variations provide different visual layouts: default (simple list), summary (list with images), grid (card grid), and imageGallery (image slider).",
+    "inputSchema": {
+      "blockData": {
+        "headline": {
+          "type": "string",
+          "description": "Title displayed above the listing"
+        },
+        "headlineTag": {
+          "type": "string",
+          "enum": ["h2", "h3"],
+          "description": "HTML heading tag for the headline",
+          "default": "h2"
+        },
+        "variation": {
+          "type": "string",
+          "enum": ["default", "summary", "grid", "imageGallery"],
+          "description": "Visual layout variation: 'default' (simple list), 'summary' (list with preview images), 'grid' (card grid layout), 'imageGallery' (image slider/carousel)",
+          "default": "default"
+        },
+        "querystring": {
+          "type": "object",
+          "description": "Query configuration for filtering and sorting content",
+          "properties": {
+            "query": {
+              "type": "array",
+              "description": "Array of query criteria to filter content. Multiple criteria are combined with AND logic.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "i": {
+                    "type": "string",
+                    "enum": ["portal_type", "path", "Title", "Description", "SearchableText", "Creator", "getId", "review_state", "Subject", "created", "modified"],
+                    "description": "Index/field to query: 'portal_type' (content type), 'path' (location), 'Title' (title text), 'Description' (description text), 'SearchableText' (full-text search across all text fields), 'Creator' (content author username), 'getId' (short name/ID of the content), 'review_state' (workflow state), 'Subject' (tags/keywords), 'created' (creation date), 'modified' (modification date)"
+                  },
+                  "o": {
+                    "type": "string",
+                    "enum": [
+                      "plone.app.querystring.operation.selection.any",
+                      "plone.app.querystring.operation.selection.none",
+                      "plone.app.querystring.operation.selection.all",
+                      "plone.app.querystring.operation.string.absolutePath",
+                      "plone.app.querystring.operation.string.relativePath",
+                      "plone.app.querystring.operation.string.contains",
+                      "plone.app.querystring.operation.string.is",
+                      "plone.app.querystring.operation.string.isNot",
+                      "plone.app.querystring.operation.string.currentUser",
+                      "plone.app.querystring.operation.date.largerThan",
+                      "plone.app.querystring.operation.date.lessThan"
+                    ],
+                    "description": "Operation to apply. Selection operations: 'selection.any' (matches any of the values), 'selection.none' (excludes all of the values), 'selection.all' (must match all values). String operations: 'string.contains' (text contains substring), 'string.is' (exact match), 'string.isNot' (does not match). Path operations: 'string.absolutePath' (absolute path, value is 'UID::depth'), 'string.relativePath' (relative path, e.g. './' for current, '../' for parent). Special: 'string.currentUser' (matches the currently logged-in user, use with Creator index and empty string value). Date operations: 'date.largerThan' (after date), 'date.lessThan' (before date), values in 'YYYY-MM-DD' format."
+                  },
+                  "v": {
+                    "type": ["string", "array"],
+                    "description": "Query value(s). Use an array of strings for selection operations (portal_type, review_state, Subject, Creator with selection.any/none/all). Use a single string for string operations (Title, Description, SearchableText, getId, Creator with currentUser). For absolutePath, format is 'UID::depth' where UID is the target folder's UID and depth limits subfolder traversal. For relativePath, use './' (current location) or '../' (parent). For date operations, use 'YYYY-MM-DD' format. Common portal_type values: 'Document', 'News Item', 'Event', 'File', 'Image', 'Link', 'Collection', 'Discussion Item', 'Person'."
+                  }
+                },
+                "required": ["i", "o", "v"]
+              }
+            },
+            "sort_on": {
+              "type": "string",
+              "enum": ["sortable_title", "effective", "created", "modified", "getObjPositionInParent", "start", "end", "review_state"],
+              "description": "Field to sort results by: 'sortable_title' (alphabetical), 'effective' (publication date), 'created' (creation date), 'modified' (last modified), 'getObjPositionInParent' (manual folder order), 'start'/'end' (event dates), 'review_state' (workflow state)"
+            },
+            "sort_order": {
+              "type": "string",
+              "enum": ["ascending", "descending"],
+              "description": "Sort direction",
+              "default": "ascending"
+            },
+            "sort_order_boolean": {
+              "type": "boolean",
+              "description": "Set to true when sort_order is 'descending' to enable reverse sorting. Only needed when sort_order is 'descending'."
+            },
+            "b_size": {
+              "type": "string",
+              "description": "Batch/page size - number of items to display per page (e.g., '2', '4', '5'). Enables pagination when set."
+            },
+            "limit": {
+              "type": "string",
+              "description": "Maximum total number of items to return (e.g., '2', '4', '6'). Unlike b_size, this limits the total results, not just per page."
+            }
+          },
+          "required": ["query"]
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["default", "grey"],
+          "description": "Background theme for the listing block",
+          "default": "default"
+        },
+        "styles": {
+          "type": "object",
+          "description": "Style overrides (typically empty object)",
+          "default": {}
+        }
+      },
+      "required": ["querystring", "variation"]
+    }
+  }
+}

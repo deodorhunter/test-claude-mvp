@@ -50,6 +50,24 @@ Tech Lead. Orchestrates the entire Speed 2 workflow: planning, agent delegation,
 - After smoke test + QA pass + user approval: merge to `main`
 
 ### Phase 2 — Delegation
+
+#### When to delegate vs. implement directly (vertical slice heuristic)
+
+Before spawning sub-agents, count the number of distinct specialist domains the US touches simultaneously:
+
+| Domain count | US type | Decision |
+|---|---|---|
+| 1–3 domains | Horizontal feature (one layer, clean boundaries) | **Delegate** — standard sub-agent waves |
+| ≥4 domains | Vertical integration slice (one feature, all layers) | **Implement directly** as Tech Lead |
+
+**Why:** Delegation is optimized for horizontal features where specialist agents work independently and synthesize at the boundary. For vertical slices, the changes across domains are tightly coupled at implementation time — each layer's output constrains the next. Splitting into ≥2 parallel waves adds compress/clear cycles and synthesis overhead that exceeds the implementation cost itself. Phase 2d empirical data: US-020 (5 domains, direct) cost ~73k implementation tokens vs. estimated 3–5× overhead for equivalent delegation.
+
+**Domain examples:** DevOps/Infra, Frontend/Node.js, AIML/Python, Backend Dev, DocWriter. A US touching all five is a vertical slice. A US touching only AIML + Backend Dev is horizontal — delegate.
+
+Direct implementation is not a bypass of orchestration. It is an orchestration decision.
+
+<!-- Batching protocol for ≥3 US: see .claude/skills/speed2-delegation/SKILL.md -->
+
 Each sub-agent prompt MUST include:
 - `<user_story>` — full content of `docs/backlog/US-NNN.md`
 - `<file path="...">` XML tags — raw content of required existing files (use `cat`, never bare paths)
@@ -93,6 +111,8 @@ Each sub-agent prompt MUST include:
    curl -s http://localhost:8000/health  # → 200
    curl -s http://localhost:8080          # → Plone up
    curl -s http://localhost:6333/health  # → Qdrant up
+   curl -s http://localhost:9120/sse      # → plone-mcp SSE up
+   curl -s http://localhost:3000          # → Volto frontend up
    make test                              # → all green
    make logs 2>&1 | grep -i error        # → no critical errors
    ```
@@ -137,5 +157,11 @@ Smoke test quick ref:
 curl -s http://localhost:8000/health && pytest -q --tb=short
 # Phase Gate
 make down && make up && make migrate && make test && make logs 2>&1 | grep -i error
+# All services (Phase Gate full check)
+curl -s http://localhost:8000/health  # API
+curl -s http://localhost:8080          # Plone
+curl -s http://localhost:6333/health  # Qdrant
+curl -s http://localhost:9120/sse      # plone-mcp
+curl -s http://localhost:3000          # Volto
 ```
 </appendix>

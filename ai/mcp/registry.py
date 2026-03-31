@@ -12,6 +12,10 @@ from ai.mcp.base import MCPServer, MCPResult
 
 logger = logging.getLogger(__name__)
 
+# Explicit allowlist — only these server names may be registered (rule-012).
+# Prevents unreviewed MCP servers from entering the context pipeline.
+MCP_ALLOWLIST: frozenset[str] = frozenset({"plone", "internal_docs", "web"})
+
 
 class MCPRegistry:
     """
@@ -19,9 +23,17 @@ class MCPRegistry:
 
     Maintains a map of MCP servers, executes queries against all servers,
     filters results below min_confidence threshold, and logs audit entries.
+
+    Pass ``allowlist=MCP_ALLOWLIST`` in production to enforce rule-012 server
+    restrictions. Defaults to None (no enforcement) for backward compatibility
+    and test flexibility.
     """
 
-    def __init__(self, min_confidence: float = 0.5):
+    def __init__(
+        self,
+        min_confidence: float = 0.5,
+        allowlist: Optional[frozenset[str]] = None,
+    ):
         """
         Initialize the MCP registry.
 
@@ -32,6 +44,7 @@ class MCPRegistry:
         """
         self._servers: dict[str, MCPServer] = {}
         self.min_confidence = min_confidence
+        self._allowlist = allowlist
 
     def register(self, server: MCPServer) -> None:
         """
@@ -42,6 +55,11 @@ class MCPRegistry:
         """
         if not hasattr(server, 'name') or not server.name:
             raise ValueError("MCPServer must have a 'name' attribute")
+        if self._allowlist is not None and server.name not in self._allowlist:
+            raise ValueError(
+                f"MCPServer '{server.name}' is not on MCP_ALLOWLIST. "
+                f"Allowed: {sorted(self._allowlist)}"
+            )
         self._servers[server.name] = server
         logger.debug(f"Registered MCP server: {server.name}")
 

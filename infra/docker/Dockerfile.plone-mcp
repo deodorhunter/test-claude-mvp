@@ -1,0 +1,31 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# Install dependencies
+COPY infra/plone-mcp/package.json infra/plone-mcp/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# Build TypeScript (build script also copies src/blocks.json → dist/)
+COPY infra/plone-mcp/src ./src
+COPY infra/plone-mcp/tsconfig.json ./
+RUN pnpm run build
+
+# ── Runtime stage ────────────────────────────────────────────────────────────
+FROM node:20-alpine
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+
+ENV TRANSPORT=sse
+ENV PORT=9120
+ENV NODE_ENV=production
+
+EXPOSE 9120
+
+HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
+  CMD wget -qO- http://localhost:9120/sse || exit 1
+
+CMD ["node", "dist/index.js"]

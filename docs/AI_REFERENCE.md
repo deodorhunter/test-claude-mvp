@@ -35,6 +35,7 @@
 | LiteLLM proxy | 4000 | OpenAI-compatible proxy for Ollama; see `infra/docker-compose.ai-tools.yml` |
 | Serena MCP | 9121 | LSP code navigation (Docker mode); see `infra/docker-compose.ai-tools.yml` |
 | Plone (CMS) | 8080 | REST API backend; container: ai-platform-plone |
+| plone-mcp (Node.js) | 9120 | Self-hosted MCP server for Plone; SSE transport; container: ai-platform-plone-mcp |
 | Volto (Frontend) | 3000 | React frontend; container: ai-platform-volto |
 
 ## Make Targets
@@ -84,6 +85,9 @@ docker compose exec ai-platform-api pytest tests/integration/ -q
 | AI/ML modules | `ai/` |
 | Planner module | `ai/planner/planner.py` |
 | Model adapters | `ai/models/` |
+| MCP registry + allowlist | `ai/mcp/registry.py` |
+| Plone MCP Python adapter | `ai/mcp/servers/plone.py` |
+| plone-mcp Node.js source | `infra/plone-mcp/src/index.ts` (upstream + SSE patch) |
 | Plugin manager | `plugins/` |
 
 ## Environment Variables (names only — never values)
@@ -106,6 +110,9 @@ CONTEXT7_API_KEY — API key for Context7 MCP documentation service (Upstash)
 POSTGRES_DB — PostgreSQL database name (default: aiplatform)
 POSTGRES_USER — PostgreSQL user (default: aiplatform)
 POSTGRES_PASSWORD — PostgreSQL password (must be set in .env for Docker)
+PLONE_USERNAME — Plone admin username (used by plone-mcp service + Python adapter; default: admin)
+PLONE_PASSWORD — Plone admin password (must be set in .env for Docker)
+PLONE_MCP_URL — Self-hosted plone-mcp endpoint (http://plone-mcp:9120 in Docker; http://localhost:9120 locally)
 ```
 
 ## Health Check Endpoints
@@ -118,6 +125,7 @@ POSTGRES_PASSWORD — PostgreSQL password (must be set in .env for Docker)
 | Qdrant | `GET http://localhost:6333/healthz` | `200 OK` | Port 6333 |
 | Ollama | `GET http://localhost:11434/api/tags` | JSON list of models | Port 11434 |
 | Plone | `GET http://localhost:8080/@@ok` | OK page | Port 8080 |
+| plone-mcp | `GET http://localhost:9120/sse` | SSE stream opens | Port 9120 |
 | Volto | `GET http://localhost:3000` | React app | Port 3000 |
 
 ## Critical Volume Mounts (Docker)

@@ -81,6 +81,8 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 <!-- rule-006 (no QA subagents): backend/tests/** -->
 <!-- rule-008 (docker fix): infra/**, backend/app/core/config.py, backend/Dockerfile -->
 <!-- rule-012 (MCP trust): ai/mcp/** -->
+<!-- rule-013 (docker COPY no shell ops): infra/**, infra/docker/** -->
+<!-- rule-014 (registry enforcement opt-in): ai/mcp/**, backend/app/** -->
 
 </part_3>
 
