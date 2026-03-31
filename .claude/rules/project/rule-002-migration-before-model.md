@@ -1,10 +1,22 @@
+---
+id: rule-002
+trigger: "When an agent modifies backend/app/db/models.py"
+updated: "2026-03-31"
+paths:
+  - "backend/app/db/**"
+  - "backend/alembic/**"
+---
+
 # Rule 002 — Migration Before Model
 
-## Constraint
+<constraint>
 Any change to `backend/app/db/models.py` requires a matching Alembic migration in `backend/alembic/versions/`. Write migration first, then update model.
+</constraint>
 
-## Why
+<why>
 Autogenerate misses enum/index/constraint changes. Model-first → smoke test fail → full US re-delegation.
+</why>
 
-## Pattern
+<pattern>
 `alembic revision --autogenerate -m "desc"` → review/correct → update `models.py` → `alembic upgrade head`
+</pattern>

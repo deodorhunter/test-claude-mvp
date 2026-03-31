@@ -1,3 +1,12 @@
+# Agentic framework specific
+docs/.temp_context.md
+docs/.session-notes.md
+
+# Ignore the .git directory, but not the .gitignore file
+.git/
+!.gitignore
+
+# Other common files to ignore
 .env
 .DS_STORE
 .idea/
@@ -7,12 +16,6 @@ __pycache__/
 *.pyo
 *.pyd
 *.log
-
-# Ignore the .git directory, but not the .gitignore file
-.git/
-!.gitignore
-
-# Other common files to ignore
 node_modules/
 dist/
 build/

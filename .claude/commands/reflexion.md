@@ -19,21 +19,19 @@ cadence: "once per phase gate — NOT after every US"
 
 ---
 
-## What This Command Does
-
-Reviews the current session's failures, circuit-breaker triggers, QA bounce-backs, and unexpected blockers, then extracts only the patterns that will genuinely prevent future token waste. Saves them as discrete rule files following the format in `.claude/rules/README.md`.
+<identity>
+Reviews the current session's failures, circuit-breaker triggers, QA bounce-backs, and unexpected blockers, then extracts only the patterns that will genuinely prevent future token waste. Saves them as discrete rule files following the format in `.claude/rules/TEMPLATE.md`.
 
 **Token ROI test (mandatory — enforced below):**
 > Each rule saves ~15,000 tokens per avoided debugging loop or ~25,000 tokens per avoided QA bounce-back.
 > Each rule costs ~200 tokens per future session it's loaded.
 > A rule that is used for 5 sessions before deletion must prevent at least 1 failure in those 5 sessions to break even.
 > **If a candidate rule fails this test → discard it.**
+</identity>
 
----
-
-## Instructions for Claude
-
-### Step 1 — Recall the Phase's Failures (in-context only, no file reads)
+<workflow>
+<step_1>
+**Recall Phase Failures (in-context only, no file reads)**
 
 From the conversation history, identify every instance of:
 - Circuit breaker triggered (agent hit 2 debugging attempts and stopped)
@@ -41,108 +39,89 @@ From the conversation history, identify every instance of:
 - Unexpected blocker (agent stopped because of missing context or wrong assumption)
 - Judge FAIL verdict (from `/judge` runs)
 
-List each incident in this format:
-```
-Incident N: [US-NNN] — [agent] — [what failed] — [root cause]
-```
+List each incident:
+`Incident N: [US-NNN] — [agent] — [what failed] — [root cause]`
+</step_1>
 
-### Step 2 — Apply the Survival Filter
+<step_2>
+**Apply the Survival Filter**
 
 For each incident, ask: **"Would a rule have prevented this, and will this type of failure recur?"**
 
-**Keep the candidate if:**
+Keep the candidate if:
 - The root cause is a repeating pattern (not a one-off typo or env issue)
 - The fix is a clear, enforceable constraint (not "be more careful")
 - It applies to this project's domain specifically (not already in Part 1 of CLAUDE.md)
 
-**Discard the candidate if:**
+Discard the candidate if:
 - It's a one-time environment issue (missing env var, wrong Docker tag)
 - It's already covered by a CLAUDE.md constraint
 - It requires long explanation (>30 lines) — that's a skill, not a rule
 - It applies only to the specific US, not to the domain in general
+</step_2>
 
-### Step 3 — Check Existing Rules (read ONE file)
+<step_3>
+**Check Existing Rules (read ONE file)**
 
 ```bash
 ls .claude/rules/project/ 2>/dev/null
 ```
 
 Read the last rule number so you can continue the sequence. Do NOT read all existing rule files.
+</step_3>
 
-### Step 4 — Write Rule Files
+<step_4>
+**Write Rule Files**
 
-For each surviving candidate (maximum 3 per phase gate), write a new file to `.claude/rules/project/` following the format from `.claude/rules/README.md`.
+For each surviving candidate (maximum 3 per phase gate), write a new file to `.claude/rules/project/` following the format in `.claude/rules/TEMPLATE.md` (minimal frontmatter: id, trigger, updated; XML body: `<constraint>`, `<why>`, `<pattern>`).
+</step_4>
 
-```bash
-# Example — adapt filename and number
-cat > .claude/rules/project/rule-003-no-sync-db-calls.md << 'EOF'
----
-id: rule-003
-title: "..."
-layer: project
-phase_discovered: "Phase N"
-us_discovered: "US-NNN"
-trigger: "When an agent..."
-cost_if_ignored: "~15,000 tokens — ..."
-updated: "$(date +%Y-%m-%d)"
----
-
-# Rule 003 — [Title]
-
-## Constraint
-[One sentence]
-
-## Context
-[2-3 sentences]
-
-## Examples
-✅ [correct]
-❌ [avoid]
-EOF
-```
-
-### Step 5 — Propose CLAUDE.md Import
+<step_5>
+**Propose CLAUDE.md Import**
 
 For each saved rule, output the import line the Tech Lead should add to `CLAUDE.md`:
 
 ```
-Add to CLAUDE.md "Active Project Rules" section:
+Add to CLAUDE.md Part 3:
 @.claude/rules/project/rule-NNN-[name].md
 ```
 
 **Do NOT edit CLAUDE.md yourself.** The Tech Lead decides which rules to activate.
+</step_5>
 
-### Step 6 — Promotion Check
+<step_6>
+**Promotion Check**
 
 For each new rule, ask: **"Is this pattern universal enough to benefit all 40 org projects?"**
 
 If yes, flag it:
 ```
-⬆️ PROMOTION CANDIDATE: rule-NNN could move to .claude/rules/org/ — applies to any multi-tenant project
+⬆️ PROMOTION CANDIDATE: rule-NNN could move to .claude/rules/org/
 ```
+</step_6>
 
-### Step 7 — Report
+<step_7>
+**Report**
 
-Output:
 ```
-## /reflexion — Phase N Results
+/reflexion — Phase N Results
 
-**Incidents reviewed:** N
-**Rules saved:** N (files: rule-NNN-*.md, ...)
-**Rules discarded:** N (reasons: [one-time env issue, already covered, etc.])
-**Promotion candidates:** [list or "none"]
+Incidents reviewed: N
+Rules saved: N (files: rule-NNN-*.md, ...)
+Rules discarded: N (reasons: one-time env issue / already covered / etc.)
+Promotion candidates: [list or "none"]
 
 CLAUDE.md imports to add:
 @.claude/rules/project/rule-NNN-*.md
 ```
+</step_7>
+</workflow>
 
----
-
-## Hard Constraints
-
-- Maximum **3 rules per phase gate** run — quality over quantity
-- Never save a rule for a one-time or environment-specific failure
-- Never save a rule that duplicates Part 1 of `CLAUDE.md`
-- Never edit `CLAUDE.md` directly — only propose the import lines
-- Never read existing rule files except for the `ls` to get the next number
-- If zero incidents meet the survival test → output "0 rules saved — no durable patterns found" and stop
+<hard_constraints>
+1. Maximum **3 rules per phase gate** — quality over quantity.
+2. Never save a rule for a one-time or environment-specific failure.
+3. Never save a rule that duplicates Part 1 of `CLAUDE.md`.
+4. Never edit `CLAUDE.md` directly — only propose the import lines.
+5. Never read existing rule files except for the `ls` to get the next number.
+6. If zero incidents meet the survival test → output "0 rules saved — no durable patterns found" and stop.
+</hard_constraints>

@@ -1,20 +1,33 @@
 ═══════════════════════════════════════════════════════════════
-  CONTEXT SIZE MEASUREMENT — OPTIMIZED
-  Date: 2026-03-31 10:51:42
+  CONTEXT SIZE MEASUREMENT — OPTIMIZED-V2
+  Date: 2026-03-31 11:29:37
   Project: /Users/martina/personal-projects/test-claude-mvp
 ═══════════════════════════════════════════════════════════════
 
 ── Auto-loaded instruction files ──────────────────────────────
 
-  CLAUDE.md                               4539 bytes  (~  1134 tokens)
-  orchestrator.md                        10257 bytes  (~  2564 tokens)
-  product-owner.md                        4507 bytes  (~  1126 tokens)
-  Rules (project/)                        8088 bytes  (~  2022 tokens)  [12 files]
+  CLAUDE.md                               4824 bytes  (~  1206 tokens)
+  orchestrator.md                         8590 bytes  (~  2147 tokens)
+  product-owner.md                        4545 bytes  (~  1136 tokens)
+  Rules (project/)                        8330 bytes  (~  2082 tokens)  [12 files]
   Rules README                             350 bytes  (~    87 tokens)
+
+── Path-scoped rules (loaded on demand) ───────────────────────
+
+  rule-002-migration-before-model.md       637 bytes  (~   159 tokens)  [conditional]
+  rule-005-docwriter-no-multiline-bash.md      786 bytes  (~   196 tokens)  [conditional]
+  rule-006-no-qa-mode-a-subagents.md       566 bytes  (~   141 tokens)  [conditional]
+  rule-008-pre-edit-read-docker-baked-files.md      703 bytes  (~   175 tokens)  [conditional]
+  rule-012-mcp-trust-boundary.md          1250 bytes  (~   312 tokens)  [conditional]
+  SUBTOTAL (conditional)                  3942 bytes  (~   985 tokens)
+
+── Skills (loaded on demand) ──────────────────────────────────
+
+  skill: speed2-delegation                2983 bytes  (~   745 tokens)  [on-demand]
 
 ── Referenced files (loaded per session) ──────────────────────
 
-  workflow.md                             2103 bytes  (~   525 tokens)
+  workflow.md                              180 bytes  (~    45 tokens)
   AI_REFERENCE.md                         5447 bytes  (~  1361 tokens)
 
 ── Hooks ──────────────────────────────────────────────────────
@@ -22,5 +35,6 @@
   Hook scripts (.claude/hooks/)           4612 bytes  (~  1153 tokens)  [2 files]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  TOTAL AUTO-LOADED:                    39903 bytes  (~  9975 tokens)
+  TOTAL AUTO-LOADED (all rules):        36878 bytes  (~  9219 tokens)
+  EFFECTIVE (unconditional only):        32936 bytes  (~  8234 tokens)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

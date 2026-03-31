@@ -8,6 +8,8 @@ class ModelResponse:
     model_used: str
     tokens_used: int
     provider: str  # "ollama" | "claude" | "mock"
+    cache_read_tokens: int = 0
+    cache_creation_tokens: int = 0
 
 
 class ModelAdapter(ABC):

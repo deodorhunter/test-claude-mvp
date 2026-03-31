@@ -62,7 +62,17 @@ Senior security engineer. Deep expertise in application security, auth systems, 
    - [ ] Logs append-only, not modifiable by application code
    - [ ] GDPR/EU AI Act: source attribution and confidence logged for every AI response
 7. Write security-specific tests (cross-tenant leak, permission bypass).
-8. Run `pytest -q --tb=short`. Circuit breaker applies.
+8. MCP security checklist (run when any MCP integration is in scope):
+<mcp_checklist>
+   - [ ] Server ID is on the configured `MCP_ALLOWLIST` in `ai/mcp/registry.py`
+   - [ ] ALL schema fields validated against injection patterns (tool name, param names, enum values, description — not description only)
+   - [ ] OAuth tokens not cached across requests — re-issued per-request or short-lived
+   - [ ] Output passed through `ai/context/sanitizer.py` before context inclusion
+   - [ ] No stdio transport used in non-sandboxed environments
+   - [ ] Least-privilege scope declared for each server (no wildcard permissions)
+   - [ ] No cross-tenant session state — each tenant context strictly isolated
+</mcp_checklist>
+9. Run `pytest -q --tb=short`. Circuit breaker applies.
 </workflow>
 
 <output_format>

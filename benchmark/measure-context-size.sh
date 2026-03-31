@@ -58,6 +58,36 @@ print_dir() {
   print_file "Rules README" "$PROJECT_ROOT/.claude/rules/README.md"
 
   echo ""
+  echo "── Path-scoped rules (loaded on demand) ───────────────────────"
+  echo ""
+  CONDITIONAL_TOTAL=0
+  for rule_file in "$PROJECT_ROOT"/.claude/rules/project/rule-*.md; do
+    if grep -q "^paths:" "$rule_file" 2>/dev/null; then
+      fname=$(basename "$rule_file")
+      bytes=$(wc -c < "$rule_file" | tr -d ' ')
+      tokens=$(( bytes / 4 ))
+      CONDITIONAL_TOTAL=$((CONDITIONAL_TOTAL + bytes))
+      printf "  %-35s %8d bytes  (~%6d tokens)  [conditional]\n" "$fname" "$bytes" "$tokens"
+    fi
+  done
+  CONDITIONAL_TOKENS=$((CONDITIONAL_TOTAL / 4))
+  printf "  %-35s %8d bytes  (~%6d tokens)\n" "SUBTOTAL (conditional)" "$CONDITIONAL_TOTAL" "$CONDITIONAL_TOKENS"
+
+  echo ""
+  echo "── Skills (loaded on demand) ──────────────────────────────────"
+  echo ""
+  if [ -d "$PROJECT_ROOT/.claude/skills" ]; then
+    for skill_dir in "$PROJECT_ROOT"/.claude/skills/*/; do
+      if [ -f "${skill_dir}SKILL.md" ]; then
+        sname=$(basename "$skill_dir")
+        bytes=$(wc -c < "${skill_dir}SKILL.md" | tr -d ' ')
+        tokens=$(( bytes / 4 ))
+        printf "  %-35s %8d bytes  (~%6d tokens)  [on-demand]\n" "skill: $sname" "$bytes" "$tokens"
+      fi
+    done
+  fi
+
+  echo ""
   echo "── Referenced files (loaded per session) ──────────────────────"
   echo ""
   print_file "workflow.md" "$PROJECT_ROOT/.claude/workflow.md"
@@ -71,7 +101,10 @@ print_dir() {
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   TOTAL_TOKENS=$((TOTAL / 4))
-  printf "  TOTAL AUTO-LOADED:                 %8d bytes  (~%6d tokens)\n" "$TOTAL" "$TOTAL_TOKENS"
+  printf "  TOTAL AUTO-LOADED (all rules):     %8d bytes  (~%6d tokens)\n" "$TOTAL" "$TOTAL_TOKENS"
+  EFFECTIVE=$((TOTAL - CONDITIONAL_TOTAL))
+  EFFECTIVE_TOKENS=$((EFFECTIVE / 4))
+  printf "  EFFECTIVE (unconditional only):     %8d bytes  (~%6d tokens)\n" "$EFFECTIVE" "$EFFECTIVE_TOKENS"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 } 2>&1 | tee "$OUTPUT_FILE"

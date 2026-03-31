@@ -43,7 +43,9 @@ Senior TypeScript/React/Volto developer. Builds clean, accessible, responsive UI
    - [ ] Auth token via httpOnly cookie only
    - [ ] Permission checks use RBAC context, not hardcoded role strings
    - [ ] No tenant data shared in client state between users
-   - [ ] All interactive elements have ARIA labels and keyboard navigation
+   - [ ] API clients include tenant_id from auth context in every request
+   - [ ] No `any` types — use `unknown` and narrow properly
+   - [ ] All components are responsive and accessible (semantic HTML, ARIA attributes, keyboard navigation)
 6. Run `npx vitest run 2>/dev/null | tail -20`. Circuit breaker applies.
 </workflow>
 

@@ -17,16 +17,14 @@ parallel_safe: false
 
 ---
 
-## What This Command Does
-
+<identity>
 Produces a structured retrospective report covering the entire phase and presents it to the user.
 Then appends one cost row to `docs/SESSION_COSTS.md` using append-only bash.
+</identity>
 
----
-
-## Instructions for Claude
-
-### Step 1 — Recall Phase Incidents (in-context only, no file reads)
+<workflow>
+<step_1>
+**Recall Phase Incidents (in-context only, no file reads)**
 
 From the current session history, list every:
 - Circuit breaker triggered (agent hit 2 attempts)
@@ -34,14 +32,13 @@ From the current session history, list every:
 - Unexpected blocker (missing context, wrong assumption, infra issue)
 - /judge FAIL verdict
 
-Format each incident as:
-```
-Incident N: [US-NNN] — [agent] — [what failed] — [root cause]
-```
+Format: `Incident N: [US-NNN] — [agent] — [what failed] — [root cause]`
 
 If zero incidents: write `No incidents this phase.`
+</step_1>
 
-### Step 2 — Rules Extracted
+<step_2>
+**Rules Extracted**
 
 List rule files saved by `/reflexion` this phase:
 ```
@@ -51,60 +48,68 @@ Promotion candidates: [list or "none"]
 ```
 
 If `/reflexion` was not run: note it and run it now before continuing.
+</step_2>
 
-### Step 3 — Cost Analysis
+<step_3>
+**Cost Analysis**
 
 Produce the cost table. Use actuals from agent invocation reports where available; estimate with `~` where not.
 
 ```markdown
-| Fase/Operazione | Agente | Modello | Token input | Token output | Token totali | Evitabile? |
+| Phase/Operation | Agent | Model | Input tokens | Output tokens | Total tokens | Avoidable? |
 |---|---|---|---|---|---|---|
 | Planning | Tech Lead | Sonnet | ~X | ~Y | ~Z | No |
 | [US-NNN impl] | [Agent] | Haiku | X | Y | Z | No |
-| [Explore ×N] | Explore | — | ~X | ~Y | ~Z | ✅ Sì (~Xk — rule-003) |
+| [Explore ×N] | Explore | — | ~X | ~Y | ~Z | ✅ Yes (~Xk — rule-003) |
 | DocWriter | DocWriter | Haiku | X | Y | Z | No |
 | QA Mode A | QA | Haiku | X | Y | Z | No |
-| **TOTALE** | | | **~X** | **~Y** | **~Z** | **~W evitabile** |
+| **TOTAL** | | | **~X** | **~Y** | **~Z** | **~W avoidable** |
 ```
 
-Then: "Dove migliorare" — 2-3 bullet points on highest-impact waste.
+Then: "Areas to improve" — 2-3 bullet points on highest-impact waste.
+</step_3>
 
-### Step 4 — Actionables
+<step_4>
+**Actionables**
 
 Prioritized list of fixes applied or to apply:
 ```
-✅ Applicato: [fix description] — rule/patch reference
-⏳ Da applicare: [fix description] — where/how
+✅ Applied: [fix description] — rule/patch reference
+⏳ To apply: [fix description] — where/how
 ```
 
 Include both cost-expert fixes AND Tech Lead's own observations.
+</step_4>
 
-### Step 5 — Append to SESSION_COSTS.md
+<step_5>
+**Append to SESSION_COSTS.md**
 
 Use append-only bash (`echo >>` — NEVER overwrite):
 
 ```bash
-echo "| $(date +%Y-%m-%d) | Phase-N | [session description] | N agents | ~X input | ~Y output | ~Z total | ~W evitabile | [notes] |" >> docs/SESSION_COSTS.md
+echo "| $(date +%Y-%m-%d) | Phase-N | [session description] | N agents | ~X input | ~Y output | ~Z total | ~W evitable | [notes] |" >> docs/SESSION_COSTS.md
 ```
 
 Verify the append with `tail -3 docs/SESSION_COSTS.md`.
+</step_5>
 
-### Step 6 — Present Report to User
+<step_6>
+**Present Report to User**
 
 Output the complete report in this order:
-1. Header: `## Retrospettiva Phase-N — [date]`
+1. Header: `## Phase-N Retrospective — [date]`
 2. Incidents section
 3. Rules extracted section
-4. Cost table + "Dove migliorare"
+4. Cost table + areas to improve
 5. Actionables
-6. Confirmation: `✅ Riga aggiunta a docs/SESSION_COSTS.md`
+6. Confirmation: `✅ Row appended to docs/SESSION_COSTS.md`
+</step_6>
+</workflow>
 
----
-
-## Hard Constraints
-
-- Never skip this command at a Phase Gate — Hard Rule 16
-- Never overwrite SESSION_COSTS.md — append only
-- If /reflexion was not run before this command: run it first (Step 2 will note this)
-- Token estimates are acceptable; mark with `~`. Actuals preferred where available.
-- Maximum 1 page output — be concise. The user reads this to make decisions, not for history.
+<hard_constraints>
+1. Never skip this command at a Phase Gate — Hard Rule 16.
+2. Never overwrite SESSION_COSTS.md — append only.
+3. If /reflexion was not run before this command: run it first (Step 2 will note this).
+4. Token estimates are acceptable; mark with `~`. Actuals preferred where available.
+5. Maximum 1 page output — be concise. The user reads this to make decisions, not for history.
+</hard_constraints>

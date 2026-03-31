@@ -2,9 +2,12 @@
 > These rules are **ALWAYS ACTIVE** for every agent, every session, no exceptions.
 > Workflow: see @.claude/agents/orchestrator.md · Planning & US format: see @.claude/agents/product-owner.md
 
+<!-- compaction directive -->
+When compacting, preserve: (1) current phase + US status, (2) all modified file paths, (3) test commands and results, (4) open blockers, (5) agent delegation queue.
+
 ---
 
-## Part 1 — Token Optimization (5 Core Rules)
+<part_1 title="Token Optimization (5 Core Rules)">
 
 **Rule 1: NO AUTONOMOUS EXPLORATION**
 Forbidden: `ls`, `find`, `tree`, `glob`, `du` to discover files. Forbidden: `Read` on files not explicitly provided.
@@ -35,9 +38,11 @@ Docker-specific: never `pip install` inside a running container. Update `pyproje
 **Rule 5: BULK READING OVER SERIAL READING**
 Use `cat file1 file2 file3` in one Bash call rather than three sequential `Read` calls.
 
+</part_1>
+
 ---
 
-## Part 2 — Tool Paradigms
+<part_2 title="Tool Paradigms">
 
 **AST Structural Search**
 Find patterns by syntax, not text matching. Use AST structural code search and replace (e.g. `ast_grep`) instead of raw `sed`/`awk` when matching syntactic constructs (function signatures, class hierarchies, import patterns). AST search is refactor-safe — it won't match comments or strings that happen to contain the pattern.
@@ -55,25 +60,33 @@ Use Hover info, go-to-definition, find references, and project-wide type checkin
 **Python REPL**
 Use the persistent Python REPL for complex scripts instead of multiline `bash -c 'python ...'`. REPL preserves state between calls.
 
+</part_2>
+
 ---
 
-## Part 3 — Active Project Rules
+<part_3 title="Active Project Rules">
 
+<!-- Unconditional rules: always loaded -->
 @.claude/rules/project/rule-001-tenant-isolation.md
-@.claude/rules/project/rule-002-migration-before-model.md
 @.claude/rules/project/rule-003-no-explore-agents-for-file-reading.md
 @.claude/rules/project/rule-004-ai-reference-check-every-session.md
-@.claude/rules/project/rule-005-docwriter-no-multiline-bash.md
-@.claude/rules/project/rule-006-no-qa-mode-a-subagents.md
 @.claude/rules/project/rule-007-phase-gate-proceed-means-gate-steps.md
-@.claude/rules/project/rule-008-pre-edit-read-docker-baked-files.md
 @.claude/rules/project/rule-009-serena-first-navigation.md
 @.claude/rules/project/rule-010-compress-state-before-parallel-waves.md
 @.claude/rules/project/rule-011-eu-ai-act-data-boundary.md
 
+<!-- Path-scoped rules: auto-loaded only when working on matching files -->
+<!-- rule-002 (migration): backend/app/db/**, backend/alembic/** -->
+<!-- rule-005 (no bash -c): backend/tests/**, docs/handoffs/** -->
+<!-- rule-006 (no QA subagents): backend/tests/** -->
+<!-- rule-008 (docker fix): infra/**, backend/app/core/config.py, backend/Dockerfile -->
+<!-- rule-012 (MCP trust): ai/mcp/** -->
+
+</part_3>
+
 ---
 
-## Part 4 — Primary References
+<part_4 title="Primary References">
 
 | Reference | Purpose |
 |---|---|
@@ -81,11 +94,14 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 | `docs/backlog/BACKLOG.md` | Current phase and US status |
 | `.claude/agents/orchestrator.md` | Full Speed 2 workflow, delegation, phase gates, agent routing |
 | `.claude/agents/product-owner.md` | Speed 1/2 mode selection, Task Complexity Matrix, US format |
-| `.claude/workflow.md` | Phase dependency graph |
+
+</part_4>
 
 ---
 
-## Part 5 — Hard Rules (never break)
+<part_5 title="Hard Rules (never break)">
 
 Full constraint list: see `@.claude/agents/orchestrator.md` `<hard_constraints>` section.
 Key invariants: no self-approval (rule 17), no code exfiltration (rule-011), no delegation without acceptance criteria, no bare file paths (always `<file>` XML injection).
+
+</part_5>
