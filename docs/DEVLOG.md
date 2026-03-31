@@ -10,6 +10,7 @@ updated: "2026-03-31"
 > This file records the thinking, research, and decisions behind the framework as it evolved.
 > It is an educational artifact — read it to understand the *why*, not the *how*.
 > For the *how*, see `AI_PLAYBOOK.md` and `docs/FRAMEWORK_README.md`.
+> We is Claude and I learning together: he just rewrites our brainstorming sessions and coding sessions reviews following Hart's Rules for audience-aware writing, as instructed to do
 
 ---
 
@@ -27,6 +28,8 @@ The insight was that this isn't a model quality problem — it's a governance pr
 
 ## Entry 2 — The Deterministic Compiler Mental Model
 
+*(Original notes, in Italian, written during the first experiments with Claude Code.)*
+
 The shift that unlocked the framework: stop thinking of Claude as a chatbot and start thinking of it as a **deterministic compiler**.
 
 A compiler doesn't explore your filesystem. You hand it exactly the files it needs, and it produces exactly the output you specified. If you hand it bad input, it errors with a clear message rather than guessing. This is the contract we wanted.
@@ -43,6 +46,8 @@ Six architectural pillars emerged from this mental model:
 ---
 
 ## Entry 3 — Research Synthesis: What the Ecosystem Had Learned
+
+*(Original notes, in Italian, written during the first experiments with Claude Code.)*
 
 Before building further, we reviewed the external literature and frameworks. The sources consulted:
 
@@ -76,6 +81,8 @@ Before building further, we reviewed the external literature and frameworks. The
 
 ## Entry 4 — Architectural Decision: Rules vs Skills vs Agents
 
+*(Original notes, in Italian, written during the first experiments with Claude Code.)*
+
 A recurring early mistake: appending "lessons learned" prose directly to `CLAUDE.md`. This is wrong because `CLAUDE.md` is always-loaded — every token added to it costs tokens in every future session, forever.
 
 The correct architecture emerged from asking: what is the right granularity for different types of knowledge?
@@ -92,6 +99,8 @@ The key mechanic: `CLAUDE.md` stays a lean index that imports only currently-act
 
 ## Entry 5 — Reflexion: Honest Token Math
 
+*(Original notes, in Italian, written during the first experiments with Claude Code.)*
+
 We debated whether to run a "reflexion" cycle (extract session learnings into permanent rules) after every User Story. The math argued against it:
 
 - Running reflexion: ~3,000 tokens
@@ -106,6 +115,8 @@ The correct cadence: run reflexion once per **phase gate** (not per US). Each ru
 
 ## Entry 6 — The Plugin Architecture Path
 
+*(Original notes, in Italian, written during the first experiments with Claude Code.)*
+
 The project's governance layer was designed to be extractable from the start. The insight: only `docs/AI_REFERENCE.md` is project-specific. Everything else in `.claude/` is org-generic.
 
 The natural growth path:
@@ -119,6 +130,8 @@ This wasn't built upfront because the framework needed to evolve first. Prematur
 ---
 
 ## Entry 7 — EU AI Act Compliance Layer
+
+*(Original notes, in Italian, written during the first experiments with Claude Code.)*
 
 As the framework matured, a compliance audit found five categories of risk from common agentic tooling (multi-provider routing, external session sync, plugin marketplaces, autonomous modes):
 
@@ -348,3 +361,73 @@ This session produced two implementation rules, both path-scoped:
 - **rule-014** (`ai/mcp/**`, `backend/app/**`): New enforcement added to an existing registry or manager class must be opt-in via explicit parameter (default = permissive). Hard enforcement against existing callers breaks all test fixtures using mock names.
 
 Neither is a governance rule — they are domain-specific implementation constraints applicable only when the relevant files are in scope.
+
+<details>
+<summary>/phase-retrospective output</summary>
+
+### Phase-2d Retrospective — 2026-03-31
+
+---
+
+### Step 1: Incidents
+
+**Incident 1: US-020** — Tech Lead direct — `ai/mcp/servers/plone.py` scritto con blocco duplicato `async with httpx.AsyncClient` — copia/paste error durante la scrittura. Rilevato al primo pytest run, fix in 1 edit. *(no circuit breaker — 1 fix, 1 re-run)*
+
+**Incident 2: US-020** — Tech Lead direct — `Dockerfile.plone-mcp` conteneva `COPY ... 2>/dev/null || true` — sintassi shell non valida in istruzione COPY Docker. Rilevato al primo `make up`, fix in 1 edit. *(no circuit breaker — 1 fix, 1 re-run)*
+
+**Incident 3: US-020** — Tech Lead direct — `MCP_ALLOWLIST` hardcoded in `register()` ha rotto 26 test esistenti che usano nomi mock arbitrari (`alpha`, `wiki`, `srv1`…). Root cause: non verificato pattern test esistenti prima di aggiungere enforcement. Fix: allowlist → parametro opzionale `allowlist=` (opt-in). *(no circuit breaker — 1 fix, 1 re-run)*
+
+**Incident 4: US-020** — Phase Gate `make up` — `PLONE_PASSWORD:?required` in docker-compose senza entry in `.env` avrebbe bloccato rebuild. Root cause: constraint di produzione applicato in dev senza default. Fix: `:-admin` default per dev. *(rilevato pre-run, 1 fix)*
+
+---
+
+### Step 2: Rules Extracted
+
+`/reflexion` è stato eseguito questa sessione. Candidati emersi da questa sessione:
+
+```
+Rule candidates (non-googleable, context-specific):
+- Docker COPY non supporta operatori shell (|| true, 2>/dev/null) → usare RUN cp
+- Enforcement su registry esistente deve essere opt-in per non rompere test fixture
+- backend/tests/ NON è volume-mounted → docker cp per nuovi test file; ai/ e plugins/ sono mounted
+- plone-mcp PloneMCPServer non è exported → modificare upstream o fare Python adapter diretto
+
+Rules discarded: 0
+Promotion candidates: Docker COPY syntax (rule-013 candidate), registry opt-in enforcement
+```
+
+---
+
+### Step 3: Cost Analysis
+
+| Operazione | Agente | Modello | Input ~tokens | Output ~tokens | Totale | Evitabile? |
+|---|---|---|---|---|---|---|
+| Planning (plan mode) | Tech Lead | Sonnet | ~18k | ~3k | ~21k | No |
+| Explore ×1 (plone-mcp general info) | Explore | Sonnet | ~8k | ~2k | ~10k | ⚠️ Parziale (~4k) |
+| Explore ×1 (plone-mcp source fetch) | Explore | Sonnet | ~10k | ~3k | ~13k | No (necessario per patch) |
+| Implementation diretta (US-019 verify + US-020 full) | Tech Lead | Sonnet | ~55k | ~18k | ~73k | No |
+| DocWriter Mode B (inline) | Tech Lead | Sonnet | ~5k | ~3k | ~8k | No |
+| **TOTALE** | | | **~96k** | **~29k** | **~125k** | **~4k (<4%)** |
+
+**Finestra attiva al Phase Gate: ~109.5k** (snapshot pre-retrospective).
+
+**Aree di miglioramento:**
+- Il primo Explore agent (info generali plone-mcp) poteva essere ridotto a WebFetch diretto su README — ~4k evitabili
+- Implementazione diretta senza sub-agents ha eliminato ~200-300k token di overhead rispetto alle sessioni 2b/2c (~580k cumulativi) — pattern da replicare
+- `backend/tests/` non volume-mounted è un attrito ricorrente → candidato a fix in Dockerfile (volume mount o COPY nel build)
+
+---
+
+### Step 4: Actionables
+
+```
+✅ Applied: PloneMCPServer + SSE transport patch — US-020 completo
+✅ Applied: MCPRegistry allowlist opt-in (allowlist= param) — backward compat preserved
+✅ Applied: Dockerfile.plone-mcp COPY syntax fix — make up funziona
+✅ Applied: PLONE_PASSWORD default :-admin per dev — Phase Gate non bloccato
+✅ Applied: rule-013 (Docker COPY no-shell-ops) + rule-014 (registry enforcement opt-in)
+⏳ To apply: Aggiungere backend/tests/ come volume mount nel Dockerfile.backend (elimina docker cp pattern)
+⏳ To apply: Piano Phase 3 — rinumerare US-021-api e seguenti
+```
+
+</details>
