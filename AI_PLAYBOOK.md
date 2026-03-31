@@ -139,7 +139,7 @@ You can inspect any command file to see exactly what it will do before running i
 | Debugging loop — 8 attempts at a broken test | +20,000 tokens | Full implementation of a medium feature |
 | DocWriter reading all raw source files instead of git diff | +6,000–15,000 tokens | Full spec read × 2 |
 
-At scale (40 projects × 10 developers × 5 tasks/day), the difference between disciplined and undisciplined prompting is **tens of millions of tokens per month**.
+At scale (i.e. 40 projects × 10 developers × 5 tasks/day), the difference between disciplined and undisciplined prompting is **tens of millions of tokens per month**.
 
 ### The 4 Rules (summary — full details in `CLAUDE.md`)
 
@@ -202,7 +202,7 @@ Start of session
 
 ## Setting Up a New Project from This Template
 
-To port this framework to one of the 40 org projects:
+To port this framework to one of your projects:
 
 1. Copy `.claude/`, `CLAUDE.md`, and `AI_PLAYBOOK.md` to the new repo
 2. Run `/init-ai-reference` to auto-generate `docs/AI_REFERENCE.md` for that repo's stack
