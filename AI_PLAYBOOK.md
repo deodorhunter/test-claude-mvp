@@ -12,13 +12,32 @@ related: [CLAUDE.md, .claude/commands/, .claude/agents/]
 
 ---
 
+## The Problem
+
+Most teams adopt AI coding assistants and immediately hit the same wall: the AI is powerful but untraceable. It rewrites files you didn't ask it to touch, burns through your API budget on useless exploration, makes decisions nobody can explain in a code review, and when something breaks you cannot tell whether the bug came from your code or from a hallucinated dependency the AI silently introduced three sessions ago.
+
+This isn't a model quality problem — it's a governance problem. You've given a capable agent no contract, no boundaries, and no memory. It's filling in the blanks the best it can, and the results are unpredictable by design.
+
+The problem gets worse at scale. One developer with an unstructured Claude session is annoying. A team of ten, each with their own prompting style, no shared rules, and no audit trail, is a liability — for cost, for code quality, and for regulatory compliance.
+
+On compliance: the EU AI Act — Regulation (EU) 2024/1689 [[Verified — EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689)], in force August 2024 — requires that AI systems used in regulated contexts maintain a risk management system (Art. 9), data governance controls (Art. 10), traceable logs (Art. 12), and mandatory human oversight (Art. 14). GDPR (Regulation (EU) 2016/679 [[Verified — EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679)]) adds restrictions on where your data can travel (Art. 46). In practice, this means: don't let the AI read files it doesn't need, don't route your code through unapproved third-party services, and ensure every autonomous action has a human checkpoint. This framework enforces all three automatically.
+
+## What You Get
+
+- **Predictable AI costs**: an unstructured AI session can consume 200,000+ API units on a single task; this framework keeps the same task under 10,000 — consistently, across the whole team
+- **Traceable decisions**: every AI action is tied to an explicit requirement with acceptance criteria; the output is reviewable like a code change, not a black box
+- **Compliance boundary**: your code stays inside your infrastructure — no data leaves to third-party services, no autonomous actions happen without a human checkpoint
+- **Portable process**: the governance layer is decoupled from this codebase — copy it to any new project in 30 minutes
+
+---
+
 ## Why This Exists
 
 AI coding assistants can write excellent code — but they can also burn through tokens doing useless work: exploring the entire codebase before touching a file, printing 5,000-line install logs, retrying a broken test 12 times, or rewriting a 300-line file to change 3 lines.
 
 This playbook standardizes how developers in this org interact with Claude so that:
-- Token costs stay predictable and low (target: < 10,000 tokens per task)
-- Context windows don't get polluted with noise
+- AI costs stay predictable and low (target: < 10,000 API units per task)
+- Each session only loads information relevant to the task at hand — not the entire codebase
 - Claude's outputs are focused, testable, and reviewable
 
 We call the problem **Agentic Bloat**: the tendency of autonomous AI loops to expand their context window with irrelevant information until they're spending most compute processing their own previous mistakes.

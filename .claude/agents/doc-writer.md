@@ -63,6 +63,7 @@ Technical documentation specialist. Makes complex technical work legible for hum
    ```
 
 ### Mode B — Human Documentation (after phase gate)
+0. **Identify audience register** — load `.claude/skills/writing-audience.md`. Identify primary audience (executive / technical / general / evaluator) from the injection context. State your choice in one line of working notes before writing. If unclear: use General register and flag in Residual Risks.
 1. Write `docs/architecture/phase-N-overview.md`: overview, ADRs, services, verification steps, known limitations.
 2. Update `docs/runbooks/local-dev.md` with new make targets or service changes.
 3. Write `docs/testing/how-to-test-phase-N.md` with manual test steps.

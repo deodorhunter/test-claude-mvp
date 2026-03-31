@@ -1,0 +1,89 @@
+# Framework Testing Feedback — Security / Compliance Expert
+#
+# For: Security engineers, compliance officers, DPOs, risk managers evaluating framework for governance + compliance
+# Store as: .feedback/YYYYMMDDTHHmmss-security-[initials].yml
+# Submit via: Pull Request OR confidential GitHub Discussion (label: security-review)
+
+version: "3.0"  # Framework version tested against
+tested_commit: ""  # Git commit hash (run: git rev-parse HEAD)
+timestamp: ""  # ISO 8601: 2026-03-31T14:30:00Z
+
+reviewer:
+  role: security-engineer | compliance-officer | dpo | risk-manager
+  focus_area: data-isolation | auth | audit-logging | third-party-integrations | eu-compliance | supply-chain-risk
+  years_experience: ~0
+
+framework_assessment:
+
+  rule_enforcement_mechanisms:
+    - "✓ rule-001 (tenant isolation) — agent cannot write cross-tenant query" | "⚠ rule-NNN — bypassable in scenario X" | "✓ all rules enforced"
+    - ""
+  
+  governance_gaps:
+    - "Example: MCP servers not validated in pre-flight hook"
+    - "Example: Session replay files not encrypted at rest"
+    - ""
+  
+  compliance_alignment:
+    eu_ai_act:
+      article_9_risk_mgmt: "✓ Covered by: rule-001, phase gates" | "⚠ Partial: X not addressed" | "✗ Missing"
+      article_10_data_governance: "✓ Local Ollama satisfies, ✗ Claude API needs DPA"
+      article_14_human_oversight: "✓ Phase gates enforced, no autonomous bypass"
+      confidence_level: verified | cross-referenced | requires-legal-review
+    
+    gdpr:
+      article_46_transfers: "✓ Local Ollama (no transfer), ✗ Context7 needs Upstash DPA, ✗ Claude needs Anthropic DPA"
+      audit_trail: "✓ SESSION_COSTS.md exists, ⚠ not tamper-proof"
+      data_subject_rights: "✓ Audit trail supports Art. 15 access requests"
+  
+  third_party_integrations:
+    - name: "Upstash/Context7"
+      risk_level: low | medium | high
+      data_exposure: "Library names + query strings only; no source code or schemas"
+      required_controls: "DPA or Standard Contractual Clauses (SCCs) required before production"
+      current_status: "⚠ Not yet in place"
+    
+    - name: "Anthropic/Claude API"
+      risk_level: low | medium | high
+      data_exposure: "Source code and session context"
+      required_controls: "Data Processing Agreement (DPA) with Anthropic"
+      current_status: "⚠ User must verify with Anthropic"
+    
+    - name: "Ollama (local)"
+      risk_level: low
+      data_exposure: "None — runs on customer hardware"
+      required_controls: "N/A"
+      current_status: "✓ No external transfer"
+  
+  supply_chain_audit:
+    - "Serena MCP: uvx pulls latest from GitHub (⚠ no lock pin on version)"
+    - "LiteLLM + Ollama: container images use `pull_policy: always` (⚠ non-deterministic rebuilds)"
+    - "Python dependencies: no lockfile in .claude/ or ai/ (⚠ reproducibility risk)"
+
+observations:
+  what_strengthens_governance:
+    - "Hard-coded constraints per agent make violations detectable"
+    - "Append-only audit trail (SESSION_COSTS.md) prevents alteration"
+    - "Phase gates are mandatory, not bypassed"
+  
+  concerns:
+    - "Agent tool restrictions are advisory, not executable in Copilot Chat"
+    - "No persistent append-only audit log (current: SESSION_COSTS.md is mutable)"
+    - "MCP servers not validated against allowlist in pre-flight hook"
+
+recommendations:
+  priority_high:
+    - "Add MCP server allowlist to pre-flight hook (.claude/hooks/pre-prompt.sh)"
+    - "Document supply chain risk model (pin Serena version, use image SHAs for Ollama/LiteLLM)"
+    - "Establish SLA for human review gates (Art. 14 compliance)"
+  
+  priority_medium:
+    - "Migrate audit trail to append-only database table (Phase C: replace SESSION_COSTS.md)"
+    - "Publish security model documentation (threat model + mitigations)"
+    - "Add OAuth token handling policy for MCP servers (rule-012 clarification)"
+  
+  priority_low:
+    - "Copilot Chat agent restrictions: document as advisory, not enforceable"
+    - "Consider supply chain insights in security policy"
+
+contact_email: ""  # optional — for follow-up discussion

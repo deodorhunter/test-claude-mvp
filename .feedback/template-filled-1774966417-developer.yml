@@ -1,0 +1,52 @@
+# Framework Testing Feedback — Developer
+#
+# Filled template from measure-framework-impact.sh
+# Edit this file, then submit as PR to .feedback/ directory
+# See: docs/TESTING_AND_FEEDBACK.md#submitting-feedback
+
+version: "3.0"
+tested_commit: ""  # Fill: git rev-parse HEAD
+timestamp: ""  # Fill: date -Iseconds
+
+tester:
+  role: developer | tech-lead | architect
+  experience: first-time | "2-3 sessions" | experienced
+  team_size: solo | "2-5" | "5-20" | enterprise
+  project_type: web-backend | ml-infrastructure | data-pipeline | plugin-system | other
+  codebase_loc: ~0  # rough lines of code
+
+us_tested:
+  id_or_name: "US-001 (e.g., from docs/backlog/)" 
+  description: "What was implemented"
+  complexity: simple | medium | complex
+  domain: backend | frontend | infra | security | testing | documentation
+
+metrics:
+  tokens_consumed: ~0  # total tokens (Claude API or Ollama)
+  baseline_tokens: ~0  # pre-framework (from .feedback/baseline-*.txt)
+  duration_minutes: ~0  # wall-clock time
+  iterations_before_success: ~0  # agent runs before AC met
+  qa_bouncebacks: 0  # failed judge/QA reviews
+  rules_triggered:
+    - rule-001-tenant-isolation
+    # - rule-NNN-name (list any caught)
+
+findings:
+  what_worked_excellently:
+    - ""
+  
+  what_was_unclear:
+    - ""
+  
+  what_didnt_fit:
+    - ""
+  
+  suggestions_for_framework:
+    - ""
+
+context:
+  codebase_sensitivity: low | medium | high
+  regulatory_context: ""  # GDPR, SOC2, HIPAA, etc if any
+  team_location: ""  # geographic distribution
+
+contact_email: ""  # optional

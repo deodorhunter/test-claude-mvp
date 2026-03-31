@@ -1,6 +1,7 @@
 # Agentic framework specific
 docs/.temp_context.md
 docs/.session-notes.md
+.claude/settings.local.json
 
 # Ignore the .git directory, but not the .gitignore file
 .git/

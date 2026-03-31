@@ -1,0 +1,114 @@
+# AI Tools — Dev Tooling Stack
+# Serena (code navigation) + Ollama (local inference) + LiteLLM (Anthropic-compatible proxy)
+#
+# SEPARATE from infra/docker-compose.yml — AI dev tools are not platform services.
+# Start with: docker compose -f infra/docker-compose.ai-tools.yml up -d
+#
+# Prerequisites:
+#   - infra/docker-compose.yml must be running (provides ollama_data volume + ai-platform network)
+#   - OLLAMA_MODEL env var set (default: qwen2.5-coder:7b)
+#   - CONTEXT7_API_KEY env var set for Context7 MCP (optional — tool works without it but rate-limited)
+
+version: "3.9"
+
+services:
+
+  # ── Serena MCP (HTTP/SSE mode) ───────────────────────────────────────────────
+  # Exposes LSP-level code navigation (get_symbols_overview, find_symbol, get_diagnostics)
+  # over HTTP/SSE instead of stdio. Required for Docker isolation.
+  #
+  # VS Code: configure as remote MCP server pointing to http://localhost:9121/sse
+  # Claude Code: claude mcp add serena --transport http --url http://localhost:9121/sse
+  serena:
+    image: ghcr.io/oraios/serena:latest
+    pull_policy: always
+    command:
+      - start-mcp-server
+      - --context
+      - ide
+      - --project
+      - /workspace
+      - --transport
+      - sse
+      - --host
+      - 0.0.0.0
+      - --port
+      - "9121"
+    volumes:
+      # Mount workspace read-only — Serena reads but never writes code
+      - type: bind
+        source: ..
+        target: /workspace
+        read_only: true
+    ports:
+      - "127.0.0.1:9121:9121"  # localhost only — never expose to network
+    networks:
+      - ai-tools-internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9121/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── LiteLLM Proxy ─────────────────────────────────────────────────────────────
+  # Translates Anthropic-format API calls to Ollama's OpenAI-compatible API.
+  # Claude Code connects here when ANTHROPIC_BASE_URL=http://localhost:4000
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    pull_policy: always
+    command:
+      - --model
+      - ollama/${OLLAMA_MODEL:-qwen2.5-coder:7b}
+      - --port
+      - "4000"
+      - --host
+      - 0.0.0.0
+    environment:
+      OLLAMA_API_BASE: http://ollama:11434
+    ports:
+      - "127.0.0.1:4000:4000"  # localhost only
+    networks:
+      - ai-tools-internal
+      - ai-platform          # must reach ai-platform-ollama on the platform network
+    depends_on:
+      - ollama-tools
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Ollama (dev-tools alias) ──────────────────────────────────────────────────
+  # Re-uses the ollama_data volume from the main compose stack so model weights
+  # are not downloaded twice.
+  # If ai-platform-ollama (from docker-compose.yml) is already running on
+  # port 11434, remove this service and point litellm at ai-platform-ollama directly.
+  ollama-tools:
+    image: ollama/ollama:latest
+    pull_policy: always
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:11435:11434"  # offset port to avoid conflict with main compose
+    networks:
+      - ai-tools-internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  # Shared with infra/docker-compose.yml — model weights downloaded once
+  ollama_data:
+    external: true
+
+networks:
+  ai-tools-internal:
+    driver: bridge
+    internal: true  # Serena has no outbound internet access
+  ai-platform:
+    external: true  # LiteLLM can reach the platform's Ollama container

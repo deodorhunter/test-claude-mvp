@@ -117,6 +117,29 @@ CLAUDE.md imports to add:
 </step_7>
 </workflow>
 
+<feedback_loop>
+**Closing the Feedback Loop: Share Your Findings**
+
+After extracting rules via `/reflexion`, consider sharing insights with the framework community:
+
+1. **Export key metrics** to a feedback template (choose one):
+   - Developer: [`.feedback/template-developer.yml`](../../.feedback/template-developer.yml)
+   - Security: [`.feedback/template-security.yml`](../../.feedback/template-security.yml)
+   - Legal/DPO: [`.feedback/template-legal.yml`](../../.feedback/template-legal.yml)
+
+2. **Include:**
+   - Framework version tested: `version: "3.0"`
+   - Git commit: `tested_commit: $(git rev-parse HEAD)`
+   - Token metrics: cost per US, % reduction vs baseline
+   - What worked well, what was unclear, suggestions for improvement
+
+3. **Submit:** Pull request to `.feedback/` directory OR confidential GitHub Discussion
+
+4. **Impact:** Framework maintainers pattern-match submissions → high-impact findings become new rules or skills
+
+Learn more: [`docs/TESTING_AND_FEEDBACK.md`](../../docs/TESTING_AND_FEEDBACK.md#submitting-feedback)
+</feedback_loop>
+
 <hard_constraints>
 1. Maximum **3 rules per phase gate** — quality over quantity.
 2. Never save a rule for a one-time or environment-specific failure.

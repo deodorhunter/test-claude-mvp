@@ -32,6 +32,8 @@
 | Redis | 6379 | Cache + rate limiting; container: ai-platform-redis |
 | Qdrant | 6333 | Vector DB for embeddings/RAG; container: ai-platform-qdrant |
 | Ollama | 11434 | Local LLM inference; container: ai-platform-ollama |
+| LiteLLM proxy | 4000 | OpenAI-compatible proxy for Ollama; see `infra/docker-compose.ai-tools.yml` |
+| Serena MCP | 9121 | LSP code navigation (Docker mode); see `infra/docker-compose.ai-tools.yml` |
 | Plone (CMS) | 8080 | REST API backend; container: ai-platform-plone |
 | Volto (Frontend) | 3000 | React frontend; container: ai-platform-volto |
 
@@ -98,7 +100,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES — JWT access token lifetime in minutes (default: 6
 REFRESH_TOKEN_EXPIRE_DAYS — JWT refresh token lifetime in days (default: 7)
 AI_MODE — AI behavior mode: "demo" (use Ollama local) or other production modes
 OLLAMA_URL — Ollama API endpoint (http://ollama:11434 in Docker)
-OLLAMA_MODEL — Ollama model name (tinyllama for dev, llama3 for prod)
+OLLAMA_MODEL — Ollama model name (qwen2.5-coder:7b for coding tasks, tinyllama for dev)
+ANTHROPIC_BASE_URL — Override Anthropic API endpoint (http://localhost:4000 to use Ollama via LiteLLM)
+CONTEXT7_API_KEY — API key for Context7 MCP documentation service (Upstash)
 POSTGRES_DB — PostgreSQL database name (default: aiplatform)
 POSTGRES_USER — PostgreSQL user (default: aiplatform)
 POSTGRES_PASSWORD — PostgreSQL password (must be set in .env for Docker)

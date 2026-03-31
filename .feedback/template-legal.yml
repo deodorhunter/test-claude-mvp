@@ -1,0 +1,146 @@
+# Framework Testing Feedback — Legal / DPO / Compliance Leadership
+#
+# For: Legal counsel, Data Protection Officers, compliance directors, regulatory affairs evaluating framework for production deployment
+# Store as: .feedback/YYYYMMDDTHHmmss-legal-[initials].yml
+# Submit via: Confidential GitHub Discussion (label: legal-review) OR email maintainer (do not commit source code artifacts)
+
+version: "3.0"  # Framework version evaluated
+tested_commit: ""  # Git commit hash
+timestamp: ""  # ISO 8601
+
+reviewer:
+  role: legal-counsel | dpo | compliance-director | regulatory-affairs
+  jurisdiction: EU | UK | US | other
+  industry: fintech | healthcare | government | saas | other
+  years_experience: ~0
+
+framework_fit_assessment:
+
+  eu_ai_act_classification:
+    likely_classification: "Likely high-risk AI (Art. 4(43), Annex III)" | "Low-risk" | "Uncertain — context-dependent"
+    confidence: verified | cross-referenced | requires-legal-review
+    reasoning: "Automated decision-making with human oversight; high-risk if used for hiring, credit decisions, resource allocation (Annex III examples)"
+    dpia_required: true | false | "conditional on deployment context"
+
+  article_by_article_alignment:
+    
+    article_9_risk_management_system:
+      requirement: "Documented risk management throughout AI lifecycle"
+      framework_coverage: "✓ Covered by: rule-oriented structure, phase gates, hard constraints per agent"
+      gap: "⚠ Document needs formal risk register (currently: implicit in rule structure)"
+      status: yes | partial | no
+    
+    article_10_data_governance:
+      requirement: "High-quality training data, data governance, record-keeping"
+      framework_coverage: "✓ Part A: local Ollama models = you control training data. Part B: Claude API requires user to manage data provenance"
+      gap: "Add data lineage tracking for Ollama model selection"
+      status: yes | partial | no
+    
+    article_12_record_keeping:
+      requirement: "Technical documentation, logs, training data, performance metrics"
+      framework_coverage: "✓ Partial: SESSION_COSTS.md tracks sessions; ARCHITECTURE_STATE.md logs changes"
+      gap: "⚠ Audit trail is mutable (SESSION_COSTS.md); should be append-only database"
+      status: yes | partial | no
+    
+    article_14_human_oversight:
+      requirement: "Human always in decision loop, cannot be bypassed"
+      framework_coverage: "✓ Phase gates are mandatory, automated agents cannot self-approve"
+      gap: "✗ Copilot Chat: governance is advisory (cannot enforce tool restrictions)"
+      status: yes | partial | no
+
+  gdpr_compliance:
+    
+    article_5_principles:
+      lawfulness_fairness:
+        requirement: "Lawful basis for processing, transparency, fairness"
+        framework_coverage: "✓ Phase gates provide transparency; human decision gates ensure fairness"
+        gap: "Document lawful basis (e.g., legitimate interest in AI governance)"
+      
+      purpose_limitation:
+        requirement: "Data used only for stated purpose"
+        framework_coverage: "✓ MCP servers (Context7) only query library docs, not source code"
+        gap: "✗ If context7 queries ever include source snippets, Art. 5(1)(b) violated"
+      
+      data_minimization:
+        requirement: "Only necessary data processed"
+        framework_coverage: "✓ Local Ollama: no external transfer. Claude API: transmit only necessary context"
+        gap: "Document context-assembly policy (what's included/excluded)"
+    
+    article_46_transfers_outside_eea:
+      scope: "Anthropic Claude API (US), Upstash Context7 (US)"
+      claude_api_status: "⚠ Requires Data Processing Agreement (DPA) with Anthropic"
+      context7_status: "⚠ Requires Upstash DPA or Standard Contractual Clauses (SCCs); ensure adequate safeguards (Schrems II compliant)"
+      ollama_status: "✓ N/A — runs locally, no transfer outside EU"
+      recommendation: "Obtain and review DPAs before production deployment; for transfers post-Chevron/Loper Bright, verify SCCs or Standard Clauses still satisfy Art. 46 tests"
+
+  liability_and_penalties:
+    
+    eu_ai_act_fines:
+      violation: "Failure to comply with Art. 9 (risk mgmt), Art. 10 (data governance), Art. 14 (human oversight)"
+      penalty: "€30,000,000 or 6% of global annual turnover, whichever higher (Art. 99(3))"
+      mitigation: "Framework's phase gates and hard constraints provide defensible evidence of compliance effort"
+    
+    gdpr_fines:
+      violation: "Unauthorized data transfer, Art. 46 non-compliance, Art. 32 security failures"
+      penalty: "€20,000,000 or 4% of global annual turnover, whichever higher"
+      mitigation: "Local Ollama satisfies Art. 46 by default; Claude/Context7 require DPA in place before use"
+
+  third_party_risk_summary:
+    
+    anthropic_claude_api:
+      data_transmitted: "Source code, session context, US descriptions (high sensitivity)"
+      transfer_basis: "Must be GDPR Art. 46 (DPA with Anthropic)"
+      dpa_status: "ℹ️ User must verify with Anthropic; not provided in template"
+      recommendation: "Establish SLA with Anthropic before production; confirm EU DPA or SCCs compliance"
+    
+    upstash_context7:
+      data_transmitted: "Library names, query text only (low sensitivity); NOT source code or schemas"
+      transfer_basis: "GDPR Art. 46 (Upstash DPA or SCCs)"
+      dpa_status: "ℹ️ User must verify with Upstash; confirm Schrems II post-Chevron adequacy"
+      recommendation: "Context7 is optional; disable if you cannot obtain Upstash DPA"
+    
+    ollama_local:
+      data_transmitted: "None — runs on customer hardware"
+      transfer_basis: "N/A"
+      dpa_status: "✓ No DPA needed"
+      recommendation: "Recommended for fully regulated environments (GDPR-only, no US transfer)"
+
+deployment_readiness:
+
+  question_1_production_ready:
+    answer: "Yes, with caveats" | "No, significant gaps" | "Conditional"
+    reasoning: "Phase gates + hard constraints provide governance framework; EU compliance achievable with local Ollama. If using Claude API or Context7, requires DPA in place."
+    evidence: "Rule-001 (tenant isolation), rule-002 (migration before model), phase gate enforcement, SESSION_COSTS.md audit trail"
+
+  question_2_regulatory_risk_assessment:
+    risk_level: low | medium | high
+    factors:
+      - "✓ Low risk: Using local Ollama only (GDPR Art. 46 satisfied)"
+      - "⚠ Medium: Using Claude API (requires Anthropic DPA verification)"
+      - "⚠ Medium: Using Context7 (requires Upstash DPA + Schrems II validation)"
+      - "✗ High: Non-deterministic deployments (no version pinning for Serena, Ollama images)"
+
+  question_3_audit_readiness:
+    current_state: "Partial" | "Good" | "Excellent"
+    gap: "Audit trail (SESSION_COSTS.md) is mutable; should be append-only database (Phase C roadmap)"
+    evidence_available: "Rule structure, phase gate logs, ARCHITECTURE_STATE.md, hard constraints per agent"
+    recommendation: "Before production: migrate audit trail to tamper-proof storage (PostgreSQL append-only table or similar)"
+
+recommendations:
+
+  before_production_pilot:
+    - "[ ] Run formal Data Protection Impact Assessment (DPIA) under GDPR Art. 35"
+    - "[ ] Obtain Data Processing Agreement with Anthropic (if using Claude API)"
+    - "[ ] Obtain Data Processing Agreement with Upstash (if using Context7), verify Schrems II compliance"
+    - "[ ] Document supply chain security model (Serena version pin, Ollama image SHAs, dependency lockfile)"
+    - "[ ] Define SLA for Art. 14 human oversight gates (max time between submission and human review)"
+    - "[ ] Establish incident response plan (what happens if rule violated, audit trail compromised)"
+
+  for_high_risk_ai_classification:
+    - "[ ] Create formal risk register (Art. 9) — link to rule-0NN structure"
+    - "[ ] Implement append-only audit log (replace SESSION_COSTS.md with database)"
+    - "[ ] Add conformity assessment statement (Art. 23)"
+    - "[ ] Establish quality and risk management plan (Art. 9)"
+    - "[ ] Prepare Art. 13 transparency documentation for end users"
+
+contact_email: ""  # optional — confidential discussion with maintainer

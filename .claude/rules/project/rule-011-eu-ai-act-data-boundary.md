@@ -8,6 +8,8 @@ updated: "2026-03-31"
 
 <constraint>
 AI processing uses only configured providers (Ollama local, Claude API with EU DPA). No code/schema/session data transmitted to third-party services (Discord, Slack, plugin marketplaces, session sync). Phase-gate checkpoints mandatory — no autonomous bypass. Session replay never committed or synced.
+
+Exception: Context7 MCP server (`mcp.context7.com`, Upstash US) receives library names and query strings only — not source code, schema, or session data — for documentation lookup. GDPR Art. 46 [Verified — EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679) safeguard required: obtain Upstash DPA or verify Standard Contractual Clauses (SCCs) are in place before production use.
 </constraint>
 
 <why>

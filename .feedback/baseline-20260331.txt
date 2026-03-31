@@ -1,0 +1,40 @@
+# Baseline Metrics — Captured Tue Mar 31 16:13:37 CEST 2026
+# Framework Version: 3.0
+# Framework Commit: b44bb393f5be98391840b00a4d42c14c2a358dea
+
+## Codebase Snapshot
+- Python files:       77
+- Python lines of code: 18474
+- Total files:      189
+- Git commits (last 30 days):       22
+
+## Recent Activity
+```
+  b44bb39 Phase A-D token optimizations: path-scoped rules, delegation skill, prompt caching
+  e1c5cfe chore: token optimization framework — 42% auto-loaded context reduction
+  693b788 feat: governance framework refactor — oh-my-claudecode edition with EU AI Act compliance
+  89587dd feat(US-018): Security review — token rotation, injection patterns, audit events
+  bb0c470 feat(US-018): Security review — refresh token rotation, injection patterns, audit events
+```
+
+## Environment
+- Hostname: Martinas-MBP.station
+- OS: Darwin
+- Git branch: main
+- Timestamp: Tue Mar 31 16:13:37 CEST 2026
+
+---
+
+## Pre-Framework Metrics (to be filled in manually)
+
+### US-0 or Last Project
+- [ ] Tokens consumed: ________
+- [ ] Duration (minutes): ________
+- [ ] Test pass rate: ________%
+- [ ] Bugs found before deployment: ________
+- [ ] QA bouncebacks: ________
+- [ ] Agent iterations: ________
+
+### Notes
+[Add your observations about the pre-framework development cycle]
+
