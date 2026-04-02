@@ -6,6 +6,7 @@ type: agent
 model: dynamic
 parallel_safe: true
 requires_security_review: true
+invocable_by: [orchestrator]
 allowed_tools: [bash, read, edit, write]
 owns:
   - infra/docker/
@@ -21,6 +22,9 @@ forbidden:
   - frontend/
   - plugins/
   - .env
+  - docs/ARCHITECTURE_STATE.md
+  - docs/CONSISTENCY_LOG.md
+  - docs/SESSION_COSTS.md
 ---
 
 <identity>

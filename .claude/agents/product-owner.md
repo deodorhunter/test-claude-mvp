@@ -6,6 +6,7 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: false
 requires_security_review: false
+invocable_by: [orchestrator]
 allowed_tools: [read, write]
 disallowedTools: [bash, edit, serena]
 owns:
@@ -16,6 +17,8 @@ forbidden:
   - ai/
   - infra/
   - frontend/
+  - docs/ARCHITECTURE_STATE.md
+  - docs/CONSISTENCY_LOG.md
 ---
 
 <identity>

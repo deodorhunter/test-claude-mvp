@@ -6,6 +6,7 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: false
 requires_security_review: false
+invocable_by: [orchestrator]
 allowed_tools: [bash, read, edit, serena]
 owns: []
 forbidden:

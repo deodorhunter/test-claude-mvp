@@ -6,6 +6,7 @@ type: agent
 model: dynamic
 parallel_safe: true
 requires_security_review: false
+invocable_by: [orchestrator]  # required — who may spawn this agent
 allowed_tools: [bash, read, edit, write, serena]
 owns:
   - path/to/domain/

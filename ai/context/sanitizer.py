@@ -29,6 +29,10 @@ INJECTION_PATTERNS = [
     r"###\s*(SYSTEM|INSTRUCTION)",
     # Template / Jinja injection ({{ ... }})
     r"\{\{.*?\}\}",
+    # XML system/instruction tag injection (primary OpenClaw vector)
+    r"</?instructions\b",
+    r"</?system\b",
+    r"</?prompt\b",
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in INJECTION_PATTERNS]

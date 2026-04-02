@@ -39,4 +39,18 @@ if [ -d "$PROJECT_ROOT/.omc" ]; then
   echo "<system_warning>⚠️  .omc/ directory detected. oh-my-claudecode session sync features (replay JSONL, external notifications) are EU AI Act non-compliant for this project. See rule-011-eu-ai-act-data-boundary.md before proceeding.</system_warning>"
 fi
 
+# ── 5. PII IN PROMPT GUARD (soft warning, rule-017) ──────────────────────────
+# Advisory only (not exit 1): agent-level <input_guard> in rule-017 is the
+# enforcing boundary. Hard gate would block legitimate prose with email addresses.
+PROMPT_FILE="${CLAUDE_PROMPT_FILE:-}"
+if [ -n "$PROMPT_FILE" ] && [ -f "$PROMPT_FILE" ]; then
+  if grep -qE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' "$PROMPT_FILE" 2>/dev/null; then
+    echo "<system_warning>rule-017: message may contain an email address. If you are pasting database output, redact PII (replace with placeholders like <user_email>) before the agent processes it. Dev/test data and schema shapes are fine — real personal data is not.</system_warning>"
+  fi
+  UUID_COUNT=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' "$PROMPT_FILE" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$UUID_COUNT" -ge 5 ]; then
+    echo "<system_warning>rule-017: message contains $UUID_COUNT UUIDs — possible bulk DB record dump. If this is production data, redact tenant/user identifiers before the agent processes it.</system_warning>"
+  fi
+fi
+
 exit 0

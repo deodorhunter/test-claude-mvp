@@ -74,15 +74,18 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 @.claude/rules/project/rule-009-serena-first-navigation.md
 @.claude/rules/project/rule-010-compress-state-before-parallel-waves.md
 @.claude/rules/project/rule-011-eu-ai-act-data-boundary.md
+@.claude/rules/project/rule-017-no-direct-db-access.md
 
 <!-- Path-scoped rules: auto-loaded only when working on matching files -->
 <!-- rule-002 (migration): backend/app/db/**, backend/alembic/** -->
 <!-- rule-005 (no bash -c): backend/tests/**, docs/handoffs/** -->
 <!-- rule-006 (no QA subagents): backend/tests/** -->
 <!-- rule-008 (docker fix): infra/**, backend/app/core/config.py, backend/Dockerfile -->
-<!-- rule-012 (MCP trust): ai/mcp/** -->
+<!-- rule-012 (MCP trust + RAG): ai/mcp/**, ai/rag/** -->
 <!-- rule-013 (docker COPY no shell ops): infra/**, infra/docker/** -->
 <!-- rule-014 (registry enforcement opt-in): ai/mcp/**, backend/app/** -->
+<!-- rule-015 (host execution air-gap): backend/**, ai/** -->
+<!-- rule-016 (external content untrusted): .claude/agents/**, docs/handoffs/** -->
 
 </part_3>
 
@@ -105,5 +108,7 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 Full constraint list: see `@.claude/agents/orchestrator.md` `<hard_constraints>` section.
 Key invariants: no self-approval (rule 17), no code exfiltration (rule-011), no delegation without acceptance criteria, no bare file paths (always `<file>` XML injection).
+
+Audit files (`docs/ARCHITECTURE_STATE.md`, `docs/CONSISTENCY_LOG.md`, `docs/SESSION_COSTS.md`) are agent-forbidden-write paths. Only `/handoff` and `/phase-retrospective` commands may append to them via `echo >>`. The Write tool on these files is forbidden for all agents.
 
 </part_5>

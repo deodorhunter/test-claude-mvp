@@ -6,6 +6,7 @@ type: agent
 model: dynamic
 parallel_safe: true
 requires_security_review: false
+invocable_by: [orchestrator]
 allowed_tools: [bash, read, edit, write, serena]
 owns:
   - backend/app/api/v1/
@@ -24,6 +25,9 @@ forbidden:
   - ai/
   - infra/
   - frontend/
+  - docs/ARCHITECTURE_STATE.md
+  - docs/CONSISTENCY_LOG.md
+  - docs/SESSION_COSTS.md
 ---
 
 <identity>

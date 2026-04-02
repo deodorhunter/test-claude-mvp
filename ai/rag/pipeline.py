@@ -10,6 +10,7 @@ from dataclasses import dataclass
 
 from ai.rag.embeddings import EmbeddingService
 from ai.rag.store import QdrantStore
+from ai.context.sanitizer import sanitize
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,9 @@ class RAGPipeline:
         """
         if not text or not text.strip():
             raise ValueError("Document text cannot be empty")
+
+        # Sanitize external content before embedding (rule-012, rule-016)
+        text = sanitize(text)
 
         logger.info(f"Indexing document {doc_id} for tenant {tenant_id}")
 

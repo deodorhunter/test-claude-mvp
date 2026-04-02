@@ -6,6 +6,7 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: true
 requires_security_review: false
+invocable_by: [orchestrator]
 allowed_tools: [bash, write]
 disallowedTools: [edit, serena]
 owns:
@@ -18,6 +19,8 @@ forbidden:
   - docs/mvp-spec.md
   - docs/plan.md
   - docs/backlog/
+  - docs/CONSISTENCY_LOG.md
+  - docs/SESSION_COSTS.md
   - CLAUDE.md
   - .claude/
   - backend/
