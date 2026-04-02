@@ -13,3 +13,8 @@ At every Speed 2 session start, read `docs/AI_REFERENCE.md` first. If missing: S
 <why>
 Per-session precondition, not one-time setup. Without it, ~45k tokens wasted reconstructing stack knowledge via Explore agents.
 </why>
+
+<pattern>
+✅ Session start: `Read docs/AI_REFERENCE.md` → proceed with task
+❌ Session start: explore codebase to discover stack, ports, test commands
+</pattern>

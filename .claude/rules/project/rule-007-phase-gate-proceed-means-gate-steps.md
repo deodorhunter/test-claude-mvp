@@ -13,3 +13,8 @@ When user says "proceed"/"approved"/"continue" at a phase boundary, complete ALL
 <why>
 Phase Gate was skipped entirely in Phase 2c — BACKLOG not updated, retrospective not run. Gate steps are in orchestrator.md Phase 4.
 </why>
+
+<pattern>
+✅ User says "proceed" → run all Phase 4 gate steps → then start next phase
+❌ User says "proceed" → skip gate → start planning next phase immediately
+</pattern>

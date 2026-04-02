@@ -26,3 +26,8 @@ Manual `/compress-state` remains the primary mechanism; the hook is a safety net
 
 Override threshold: `export COMPRESS_THRESHOLD=8` (set lower for smaller context budgets).
 </automation>
+
+<pattern>
+✅ Before 2+ parallel agents: `/compress-state` → `/clear` → spawn agents
+❌ Spawn 3 parallel agents with 80k planning context still loaded
+</pattern>

@@ -15,3 +15,8 @@ Tech Lead runs Mode A tests directly: write to `backend/tests/.temp_qa_us_NNN.py
 <why>
 QA sub-agents stall on Bash permissions, triggering circuit-breaker violations.
 </why>
+
+<pattern>
+✅ Tech Lead runs: `docker exec ai-platform-api python3 tests/.temp_qa.py`
+❌ Spawn QA sub-agent to run `docker exec` commands
+</pattern>

@@ -13,3 +13,8 @@ NEVER spawn a sub-agent (including `subagent_type: "Explore"`) to read or summar
 <why>
 Explore agents return summaries — raw content is lost. Files must be re-read for `<file>` XML injection, doubling token cost (~60k wasted in Phase 2b).
 </why>
+
+<pattern>
+✅ `Read`, `Grep`, or `Glob` directly to read files
+❌ `Agent(subagent_type="Explore", prompt="summarize the models file")`
+</pattern>

@@ -13,3 +13,8 @@ Before selecting work for a sprint, run `/refine-backlog` on all 📋 Backlog US
 <why>
 3 of 15 Phase 3 US were yes-man responses (reflexive agreement with user feedback). Catching them post-implementation wasted ~30k tokens. Catching them during refinement costs ~500 tokens.
 </why>
+
+<pattern>
+✅ Before sprint: run `/refine-backlog` → present verdicts → human approves → sprint starts
+❌ Add US to sprint without yes-man filter check
+</pattern>
