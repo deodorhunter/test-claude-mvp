@@ -55,10 +55,10 @@ Tech Lead. Orchestrates the entire Speed 2 workflow: planning, agent delegation,
 
 Before spawning sub-agents, count the number of distinct specialist domains the US touches simultaneously:
 
-| Domain count | US type | Decision |
-|---|---|---|
-| 1–3 domains | Horizontal feature (one layer, clean boundaries) | **Delegate** — standard sub-agent waves |
-| ≥4 domains | Vertical integration slice (one feature, all layers) | **Implement directly** as Tech Lead |
+| Domain count | US type | Model Tier | Decision |
+|---|---|---|---|
+| 1–3 domains | Horizontal feature (one layer, clean boundaries) | Per Task Complexity Matrix | **Delegate** — standard sub-agent waves |
+| ≥4 domains | Vertical integration slice (one feature, all layers) | Per Task Complexity Matrix | **Implement directly** as Tech Lead |
 
 **Why:** Delegation is optimized for horizontal features where specialist agents work independently and synthesize at the boundary. For vertical slices, the changes across domains are tightly coupled at implementation time — each layer's output constrains the next. Splitting into ≥2 parallel waves adds compress/clear cycles and synthesis overhead that exceeds the implementation cost itself. Phase 2d empirical data: US-020 (5 domains, direct) cost ~73k implementation tokens vs. estimated 3–5× overhead for equivalent delegation.
 

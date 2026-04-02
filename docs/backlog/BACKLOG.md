@@ -85,20 +85,20 @@
 ## Phase 3 — Framework Upgrade (User Feedback)
 
 **Obiettivo:** Governance framework improvements driven by 14 user feedback items + 5 internal observations.
-**Status:** 📋 Backlog — non iniziata
+**Status:** 🔄 In Progress — Phase 3a Complete
 **Prerequisito:** Phase Gate 2 approvato ✅
 **Nota:** Original Phase 3 (API & Frontend) deferred to Phase 4. This phase has no application code changes.
 
 ### Phase 3a — Token Optimization & Model Routing
 
-**Mini-gate 3a:** Archive rules removed from auto-load path (US-050 ✅), model routing matrix documented, orchestration guide written.
+**Mini-gate 3a:** ✅ Archive rules removed from auto-load path (US-050 ✅), model routing matrix documented (US-051 ✅), orchestration guide written (US-053 ✅).
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
 |---|---|---|---|---|---|---|
 | [US-050](US-050.md) | Archive rules cleanup: remove from auto-load path | DevOps/Infra | — | critical | ✅ Done | |
-| [US-051](US-051.md) | Model routing strategy: Haiku/Sonnet/Local decision matrix | AI/ML Engineer | — | critical | 📋 Backlog | |
+| [US-051](US-051.md) | Model routing strategy: Haiku/Sonnet/Local decision matrix | Doc Writer | — | critical | ✅ Done | [progress](../progress/US-051-done.md) |
 | ~~US-052~~ | ~~Automated cost extraction~~ | — | — | — | ❌ DROPPED | Hallucinated implementation (75% fabricated). Valid fragment absorbed into US-051. |
-| [US-053](US-053.md) | Orchestration prompting guide for token-efficient workflows | Doc Writer | US-051 | high | 📋 Backlog | |
+| [US-053](US-053.md) | Orchestration prompting guide for token-efficient workflows | Doc Writer | US-051 | high | ✅ Done | [progress](../progress/US-053-done.md) |
 
 ### Phase 3b — Automation & Cognitive Tooling
 

@@ -137,6 +137,111 @@ PLONE_MCP_URL — Self-hosted plone-mcp endpoint (http://plone-mcp:9120 in Docke
 | `backend/` (implied) | `/app/backend/` | Backend code (in Dockerfile) |
 | Persistent volumes | See docker-compose.yml | Data persistence (postgres_data, redis_data, qdrant_data, ollama_data) |
 
+## Model Routing
+
+**Routing mechanism:** Each agent's `model:` key in its `.md` frontmatter is the **ONLY** routing mechanism for Claude Code. Model selection happens at agent initialization, not runtime.
+
+### Per-Agent Model Assignment
+
+| Agent | Default Model | Tier | When overridden |
+|---|---|---|---|
+| doc-writer | `claude-haiku-4-5-20251001` | LOW | Never — docs are always LOW complexity |
+| qa-engineer | `claude-haiku-4-5-20251001` | LOW | Never — QA Mode A is always LOW |
+| critic | `claude-haiku-4-5-20251001` | LOW | Never — plan review is LOW |
+| debugger | `claude-haiku-4-5-20251001` | LOW | Never — debugging is LOW |
+| product-owner | `claude-haiku-4-5-20251001` | LOW | Never — backlog work is LOW |
+| orchestrator | `claude-sonnet-4-6` | MEDIUM | Never — coordination requires MEDIUM thinking |
+| aiml-engineer | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| backend-dev | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| dev-ops | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| frontend-dev | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| security-engineer | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+
+### Task Complexity Matrix (Source of Truth)
+
+**Used by orchestrator to set `model:` for `dynamic` agents at delegation time:**
+
+| Tier | Criteria | Model | ultrathink? |
+|---|---|---|---|
+| LOW → Haiku | Simple CRUD, minor config, DocWriter (all modes), QA Mode A, formatting | `claude-haiku-4-5-20251001` | No |
+| MEDIUM/HIGH → Sonnet | New abstractions, complex business logic, security impl, core architecture, auth/RBAC, full test suite (QA Mode B) | `claude-sonnet-4-6` | **Yes** — prepend `ultrathink` to agent system prompt |
+| FULL-CODEBASE → Opus | Phase Gate security review >200K context, multi-phase dependency analysis | `claude-opus-4-6` | Yes |
+
+### Dynamic Agents Explained
+
+Agents with `model: dynamic` have their model set by the orchestrator **at delegation time**. The orchestrator reads the US complexity (via Task Complexity Matrix) and injects the appropriate model into the agent's system prompt. This enables cost optimization: a backend-dev agent handles both simple config changes (Haiku) and complex distributed tracing (Sonnet) without code changes.
+
+### Limitations & Constraints
+
+- **No `smallFastModel` global setting:** Claude Code does not support a configuration key for "prefer Haiku everywhere". Model routing is per-agent via frontmatter only.
+- **GitHub Models API:** GitHub Models has no Claude Code adapter. Model routing is not available when using GitHub Models as the underlying provider.
+- **GitHub Copilot:** Copilot's model selection is tied to the user's subscription tier, not per-task. Individual agents cannot override the tier. Use Claude Code for per-US model control.
+
+## Orchestration Patterns
+
+### Speed 1 vs Speed 2 Decision Tree
+
+**Speed 1 (Copilot Mode):** Use for bug fixes, minor config changes, simple CRUD, small refactors, quick doc updates.
+- Criteria: ≤2 files modified, no new abstractions, single-domain work (e.g., fix DB config or add validation rule)
+- No User Story created, no branching, no QA phase gate
+- Model: Always `claude-haiku-4-5-20251001`
+
+**Speed 2 (Orchestrator Mode):** Use for new features, new abstractions, multi-file changes, security work, architectural decisions.
+- Criteria: ≥3 files touched, new abstractions introduced, multi-domain work (≥2 specialist domains)
+- Mandatory: User Story, branch per US, phase gates, smoke tests
+- Model: Per Task Complexity Matrix (Haiku for LOW, Sonnet for MEDIUM/HIGH, Opus for full-codebase security)
+
+**Decision heuristic:** "Does this change introduce new patterns or touch ≥3 files across different layers?" If yes → Speed 2. If no → Speed 1.
+
+### Prompt Templates
+
+**Front-load file locations:** Write "Edit `backend/app/auth/jwt.py` to add refresh token logic" instead of "I need help with the auth module".
+
+**Always name exact files:** Include paths in the first sentence so Claude doesn't explore to find them:
+```
+Add user_id column to Plugin model in backend/app/db/models.py,
+then add a query helper in backend/app/db/crud.py to filter by user.
+```
+
+**Specify model tier explicitly:** "This is LOW complexity (config tweak) — use Haiku" or "This is HIGH complexity (auth + RBAC) — use Sonnet with ultrathink".
+
+**Separate plan from implementation:** Ask for planning first ("Write a brief plan for fixing the rate limiter"), wait for output, then ask for implementation. Avoids 20k tokens of unused plan context bleeding through.
+
+### Anti-patterns (Token Cost Estimates)
+
+1. **Vague prompt without file references** — "Help me fix the API" forces Claude to explore endpoints, models, config files. Wasted ~15k tokens per missing file ref. **Fix:** Name 3–5 exact files upfront.
+
+2. **Missing file context — Read storm** — Delegating without injecting existing code forces agent to `Read` every candidate file. ~3k tokens per unneeded file read (8–10 reads per session typical). **Fix:** Use `cat` + `<file>` XML injection before delegating; use Serena for symbols-only when full code not needed.
+
+3. **Wrong mode for complexity** — Asking Sonnet to fix a typo in config (~3× unnecessary cost). **Fix:** Use Task Complexity Matrix; Speed 1 Copilot for single-file work.
+
+4. **Plan + implementation in one message** — Asking "Plan the refactor AND show me the code" loads 20k tokens of plan context that gets carried through all subsequent implementation work (unused). **Fix:** Request plan, wait for response, then request implementation in a separate prompt.
+
+### Slash Command Catalog
+
+| Command | Use case |
+|---|---|
+| `/compress-state` | Before parallel agent waves or after 15+ tool calls; synthesizes session snapshot |
+| `/consistency-check` | Scores agent output against US acceptance criteria; blocks at ≤2 |
+| `/deep-interview` | Extracts testable requirements from fuzzy intent via Socratic questioning |
+| `/handoff` | Appends metrics + summary to ARCHITECTURE_STATE.md after merging a US |
+| `/init-ai-reference` | Scans repo, writes AI_REFERENCE.md; run when stack changes |
+| `/judge` | Post-implementation pre-QA: checks git diff against US acceptance criteria |
+| `/learn` | Distills hard-won session insight into reusable note in .session-notes.md |
+| `/notepad` | Appends timestamped entry to .session-notes.md (Learnings/Decisions/Issues) |
+| `/phase-retrospective` | End-of-phase report; appends cost row to SESSION_COSTS.md |
+| `/refine-backlog` | Pre-sprint yes-man filter on all Backlog US; produces verdicts |
+| `/reflexion` | Phase-gate ritual: extracts 1–3 durable rules into .claude/rules/project/ |
+| `/review-session` | End-of-session quality audit (audience, EU AI Act, links, ADAPT) |
+
+### Speed 1 with Copilot
+
+Attach all relevant files explicitly in the Copilot sidebar. Keep edits surgical — modify one function or method at a time, not entire files.
+
+Reference `.github/copilot-instructions.md` for project-specific context (tenant isolation, no exploration, no hallucinations).
+
+Copilot has no Phase 2 orchestration equivalent — no agents, no delegations, no hand-off docs. For complex features requiring planning or cross-domain coordination, switch to Speed 2 (CLI mode).
+
 ---
 
 **Future sessions will read this file instead of exploring. Re-run `/init-ai-reference` after major stack changes.**
