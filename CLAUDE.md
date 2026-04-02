@@ -107,3 +107,5 @@ Full constraint list: see `@.claude/agents/orchestrator.md` `<hard_constraints>`
 Key invariants: no self-approval (rule 17), no code exfiltration (rule-011), no delegation without acceptance criteria, no bare file paths (always `<file>` XML injection).
 
 </part_5>
+
+
