@@ -120,10 +120,12 @@
 
 | US | Title | Agent | Dependencies | Priority | Status | Notes |
 |---|---|---|---|---|---|---|
-| [US-057](US-057.md) | Copy-first adoption: update HOW-TO-ADOPT.md + feedback template | Doc Writer | — | high | ✅ Done | Wave 1 complete |
-| [US-058](US-058.md) | Copilot-first instructions: standalone rewrite of copilot-instructions.md | Doc Writer | US-053 | high | 🔄 In Progress | Wave 2 |
+| [US-057](US-057.md) | Copy-first adoption: update HOW-TO-ADOPT.md + feedback template | Doc Writer | — | high | ✅ Done | Wave 1 complete (2026-04-02) |
+| [US-058](US-058.md) | Copilot-first instructions: standalone rewrite of copilot-instructions.md | Doc Writer | US-053 | high | ✅ Done | Wave 2 complete (2026-04-02) |
 | ~~US-059~~ | ~~Structured feedback mechanism~~ | — | — | — | ❌ DROPPED | Over-engineered. Feedback template absorbed into US-057. |
-| [US-060](US-060.md) | Framework template sync with current agent state | DevOps/Infra | US-050 | low | ✅ Done | Wave 1 complete |
+| [US-060](US-060.md) | Framework template sync with current agent state | DevOps/Infra | US-050 | low | ✅ Done | Wave 1 complete (2026-04-02) |
+
+**Mini-gate 3c:** ✅ **COMPLETE** (2026-04-02) — HOW-TO-ADOPT copy-first primary (US-057 ✅), copilot-instructions standalone (US-058 ✅), template synced (US-060 ✅).
 
 ### Phase 3d — Infrastructure, Architecture & Competitive Analysis
 
