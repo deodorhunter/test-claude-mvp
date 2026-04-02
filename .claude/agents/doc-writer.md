@@ -67,6 +67,53 @@ Technical documentation specialist. Makes complex technical work legible for hum
 1. Write `docs/architecture/phase-N-overview.md`: overview, ADRs, services, verification steps, known limitations.
 2. Update `docs/runbooks/local-dev.md` with new make targets or service changes.
 3. Write `docs/testing/how-to-test-phase-N.md` with manual test steps.
+
+### Slash Command Reference
+
+Orchestrator delegations may reference slash commands (e.g., `/handoff`, `/consistency-check`) in task instructions. Pre-generated command catalog: see `docs/.command-catalog.md` for all 12 commands + descriptions (~3k tokens saved vs. re-generating list per delegation).
+
+### Context Injection Optimization (Rule-009: Symbol-First Navigation)
+
+For documentation-only tasks (no code changes), prefer symbol-based context over full file reads. This reduces context bloat and improves token efficiency.
+
+**❌ Anti-pattern: Full file injection for reference context**
+```
+Orchestrator injects via Read:
+<file path="backend/app/api/routes.py">
+[2000 tokens of full file content]
+</file>
+
+When doc-writer only needs to understand the route signatures, not implement changes.
+Cost: 2000 tokens per file × 5–8 files typical = 10–16k wasted tokens per doc task.
+```
+
+**✅ Pattern: Symbol-based interface injection**
+```
+Orchestrator runs serena__get_symbols_overview("backend/app/api/routes.py") first:
+<symbols>
+- endpoint: GET /api/plugins/{plugin_id} → async def get_plugin(plugin_id: str, current_user: User)
+- endpoint: POST /api/plugins → async def create_plugin(plugin: PluginCreate, current_user: User)
+- endpoint: DELETE /api/plugins/{plugin_id} → async def delete_plugin(plugin_id: str, current_user: User)
+[~200 tokens total for interface-only overview]
+</symbols>
+
+When doc-writer processes this injected snapshot, it has enough detail for handoff docs without:
+- Reading full function bodies
+- Parsing implementation details
+- Loading unused imports and type annotations
+Cost: 200 tokens per file × 8 files = 1600 tokens. Savings: 10–16k → 1.6k per doc task.
+```
+
+**When to use each approach:**
+
+| Scenario | Use | Tokens | Benefit |
+|---|---|---|---|
+| Writing handoff doc (Mode A) — just need function sigs + interfaces | Symbol overview | ~200/file | 10× efficiency |
+| Explaining data flow in arch doc (Mode B) — need request/response types | Symbol overview + targeted Read for critical sections | ~500 total | Balance |
+| Fixing implementation bug (code change) | Full Read + diff injection | ~2000/file | Necessary for correctness |
+
+**Orchestrator guidance:** When delegating a doc task, run `serena__get_symbols_overview()` on candidate files *before* using `Read`. Inject `<symbols>` blocks instead of `<file>` blocks. Only fall back to full `Read` if the doc specifically requires implementation details (e.g., explaining a complex algorithm).
+
 </workflow>
 
 <output_format>

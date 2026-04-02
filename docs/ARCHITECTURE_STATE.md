@@ -98,3 +98,7 @@ result = await plone_server.query(input_text)  # → MCPResult(data, source, con
 - [x] API health → 200 OK
 - [x] plone-mcp SSE → stream aperto porta 9120
 - [x] Tutti US Phase 2 ✅ Done
+| US-067 | doc-writer | claude-haiku-4-5-20251001 | 15000 | 3500 | 0 | 0 | 2026-04-02 |
+
+### US-067 — Optimize File Context Injection for Doc Tasks
+**Date:** 2026-04-02 | **Agent:** doc-writer | **What was built:** Updated doc-writer agent prompt with symbol-based context injection guidance and added AI_REFERENCE.md subsection with token savings estimates.
