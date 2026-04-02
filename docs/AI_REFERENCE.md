@@ -137,6 +137,46 @@ PLONE_MCP_URL — Self-hosted plone-mcp endpoint (http://plone-mcp:9120 in Docke
 | `backend/` (implied) | `/app/backend/` | Backend code (in Dockerfile) |
 | Persistent volumes | See docker-compose.yml | Data persistence (postgres_data, redis_data, qdrant_data, ollama_data) |
 
+## Model Routing
+
+**Routing mechanism:** Each agent's `model:` key in its `.md` frontmatter is the **ONLY** routing mechanism for Claude Code. Model selection happens at agent initialization, not runtime.
+
+### Per-Agent Model Assignment
+
+| Agent | Default Model | Tier | When overridden |
+|---|---|---|---|
+| doc-writer | `claude-haiku-4-5-20251001` | LOW | Never — docs are always LOW complexity |
+| qa-engineer | `claude-haiku-4-5-20251001` | LOW | Never — QA Mode A is always LOW |
+| critic | `claude-haiku-4-5-20251001` | LOW | Never — plan review is LOW |
+| debugger | `claude-haiku-4-5-20251001` | LOW | Never — debugging is LOW |
+| product-owner | `claude-haiku-4-5-20251001` | LOW | Never — backlog work is LOW |
+| orchestrator | `claude-sonnet-4-6` | MEDIUM | Never — coordination requires MEDIUM thinking |
+| aiml-engineer | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| backend-dev | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| dev-ops | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| frontend-dev | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| security-engineer | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+
+### Task Complexity Matrix (Source of Truth)
+
+**Used by orchestrator to set `model:` for `dynamic` agents at delegation time:**
+
+| Tier | Criteria | Model | ultrathink? |
+|---|---|---|---|
+| LOW → Haiku | Simple CRUD, minor config, DocWriter (all modes), QA Mode A, formatting | `claude-haiku-4-5-20251001` | No |
+| MEDIUM/HIGH → Sonnet | New abstractions, complex business logic, security impl, core architecture, auth/RBAC, full test suite (QA Mode B) | `claude-sonnet-4-6` | **Yes** — prepend `ultrathink` to agent system prompt |
+| FULL-CODEBASE → Opus | Phase Gate security review >200K context, multi-phase dependency analysis | `claude-opus-4-6` | Yes |
+
+### Dynamic Agents Explained
+
+Agents with `model: dynamic` have their model set by the orchestrator **at delegation time**. The orchestrator reads the US complexity (via Task Complexity Matrix) and injects the appropriate model into the agent's system prompt. This enables cost optimization: a backend-dev agent handles both simple config changes (Haiku) and complex distributed tracing (Sonnet) without code changes.
+
+### Limitations & Constraints
+
+- **No `smallFastModel` global setting:** Claude Code does not support a configuration key for "prefer Haiku everywhere". Model routing is per-agent via frontmatter only.
+- **GitHub Models API:** GitHub Models has no Claude Code adapter. Model routing is not available when using GitHub Models as the underlying provider.
+- **GitHub Copilot:** Copilot's model selection is tied to the user's subscription tier, not per-task. Individual agents cannot override the tier. Use Claude Code for per-US model control.
+
 ---
 
 **Future sessions will read this file instead of exploring. Re-run `/init-ai-reference` after major stack changes.**
