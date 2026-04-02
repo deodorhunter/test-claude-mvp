@@ -102,13 +102,16 @@
 
 ### Phase 3b — Automation & Cognitive Tooling
 
-**Mini-gate 3b:** Cognitive patterns documented, doc verification passes on current repo, context compression has automation hook, refinement ceremony operational.
+**Mini-gate 3b:** ✅ **COMPLETE** (2026-04-02) — Cognitive patterns documented (US-054 ✅), doc verification passes (US-055 ✅), context compression automation implemented (US-056 ✅), refinement ceremony operational (US-065 ✅).
 
 | US | Title | Agent | Dependencies | Priority | Status | Notes |
 |---|---|---|---|---|---|---|
-| [US-054](US-054.md) | Cognitive patterns docs: learn/judge/notepad/reflexion/deep-interview | Doc Writer | — | high | 📋 Backlog | |
-| [US-055](US-055.md) | Doc verification CI: `make verify-docs` for links, ports, commands | QA Engineer | — | high | 📋 Backlog | |
-| [US-056](US-056.md) | Automated context compression hook (rule-010 automation) | AI/ML Engineer | US-051 | medium | 📋 Backlog | |
+| [US-054](US-054.md) | Cognitive patterns docs: learn/judge/notepad/reflexion/deep-interview | Doc Writer | — | high | ✅ Done | Wave 1 cleanup complete |
+| [US-055](US-055.md) | Doc verification CI: `make verify-docs` for links, ports, commands | QA Engineer | — | high | ✅ Done | Wave 1 cleanup complete |
+| [US-056](US-056.md) | Automated context compression hook (rule-010 automation) | AI/ML Engineer | US-051 | medium | ✅ Done | Wave 2 parallel |
+| [US-066](US-066.md) | Configure Serena MCP to ignore .git/ paths (rule-019 impl) | DevOps/Infra | rule-019 | medium | ✅ Done | Wave 1 cleanup complete |
+| [US-067](US-067.md) | Optimize file context injection for doc tasks (symbol overviews) | Doc Writer | rule-009 | medium | ✅ Done | Wave 2 parallel |
+| [US-068](US-068.md) | Pre-collect command metadata for agent delegation | Product Owner | US-054 | medium | ✅ Done | Wave 2 sequential (after US-056+US-067) |
 | [US-065](US-065.md) | Backlog refinement command + skill + rule-018 | Doc Writer | — | high | ✅ Done | |
 
 ### Phase 3c — Adoption, DX & Multi-Client
@@ -171,6 +174,15 @@
 | US-033 | K8s manifests (placeholder): tutti i services | DevOps/Infra | US-030 | medium | 📋 Backlog |
 | US-034 | Docker security policies + hardening finale | Security Engineer | US-032 | high | 📋 Backlog |
 | US-035 | Load + smoke test su staging | QA Engineer | US-031, US-034 | high | 📋 Backlog |
+
+---
+
+## Residual Risks & Follow-up Actions from Phase 3b
+
+**To Apply (before Phase 4 QA):**
+1. Monitor US-056 auto-compress.sh hook in live parallel waves — verify SubagentStop matcher regex (".*") doesn't silently no-op at runtime. First validation opportunity: Phase 3c Wave 1.
+2. Verify US-066 Serena `--config /serena_config.json` flag against `ghcr.io/serena:latest` image specification. Currently unverified; risk: config flag unsupported in deployed image. Action: test in docker compose before Phase 4 deployment.
+3. Consider Critic agent pre-implementation review for future high-complexity US (prevents scope creep like Wave 1 stub files). Implement as optional gate in Phase 4+ workflows.
 
 ---
 

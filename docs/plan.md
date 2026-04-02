@@ -174,3 +174,65 @@ Docker hardening, CI/CD, secrets management. K8s manifest come placeholder roadm
 | Alembic migration conflicts | MEDIUM | Solo Backend Dev crea migrations |
 | Incomplete audit for EU AI Act | MEDIUM | MODEL_QUERY logs devono includere metadata.sources — verificato in US-018 |
 | Ollama model download at startup | HIGH | Pre-pull in Dockerfile; health check after model ready |
+
+---
+
+## Phase 3a — Token Optimization & Model Routing ✅ COMPLETE
+
+**Completed:** 2026-04-02 | Mini-gate: Archive rules + Model routing matrix + Orchestration guide
+**US:** US-050 ✅ + US-051 ✅ + US-053 ✅ (all Done)
+**Cost:** ~102k tokens | Avoidable waste: ~20k (file injection bloat)
+**Rule extracted:** rule-019 (Serena-git isolation for worktrees)
+
+---
+
+## Phase 3b — Automation & Cognitive Tooling 📋
+
+**Objective:** Implement automation for context management, document verification, and cognitive patterns. Foundation for Phase 3c (adoption & DX).
+
+**Mini-gate 3b Checklist:**
+- [ ] Cognitive patterns documented (US-054)
+- [ ] Doc verification CI passes (US-055)
+- [ ] Context compression automation hooked (US-056)
+
+### Sprint Structure
+
+**Wave 1 (Parallel — No Dependencies):**
+- US-054 (Doc Writer, HIGH, Haiku): Cognitive patterns docs — learn/judge/notepad/reflexion/deep-interview patterns, automation potential, token costs
+- US-055 (QA Engineer, HIGH, Haiku): Doc verification CI (`make verify-docs`) — bash script, link checker, port validator, US file existence checker
+- US-066 (DevOps/Infra, MEDIUM, Sonnet): Serena MCP .git/ ignore config — implements rule-019; Serena settings.json update + docs
+
+**Wave 2 (Sequential — After Wave 1):**
+- US-056 (AI/ML Engineer, MEDIUM, Sonnet): Automated context compression hook — rule-010 automation; configurable threshold; fallback to manual /compress-state
+- US-067 (Doc Writer, MEDIUM, Haiku): Optimize file context injection — symbol overviews per rule-009; ~10k token savings per doc phase
+- US-068 (Product Owner, MEDIUM, Haiku, depends on US-054): Pre-collect command metadata — docs/.command-catalog.md reference; reusable across phases
+
+### Cost Estimate
+
+| Wave | Estimate | Notes |
+|---|---|---|
+| Wave 1 (parallel) | ~60k tokens | US-054: ~20k; US-055: ~15k; US-066: ~25k (Sonnet) |
+| Wave 2 (sequential) | ~50k tokens | US-056: ~20k; US-067: ~15k; US-068: ~15k |
+| **Total Phase 3b** | **~110k tokens** | 4× Haiku + 2× Sonnet |
+
+### Risk Assessment
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| US-056 hook API research: May not support all trigger types | MEDIUM | US-056 task 1: Research first. Fallback: manual /compress-state still works. |
+| US-055 CI timeout on large repos | LOW | Keep script <30s; use HEAD requests only (no full downloads). |
+| US-068 blocked by US-054 completion | LOW | US-054 high priority Wave 1; US-068 Wave 2 after ~4 days. |
+
+### Files Expected
+
+```
+docs/COGNITIVE_PATTERNS.md (new)
+benchmark/verify-docs.sh (new)
+Makefile (add verify-docs target)
+.claude/settings.json (Serena ignored_paths)
+.claude/hooks/auto-compress.sh (new, conditional)
+.claude/agents/doc-writer.md (symbol-based context guidance)
+docs/AI_REFERENCE.md (Context Management section)
+docs/.command-catalog.md (new reference)
+```
+

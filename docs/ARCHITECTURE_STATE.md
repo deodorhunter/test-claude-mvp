@@ -98,3 +98,42 @@ result = await plone_server.query(input_text)  # → MCPResult(data, source, con
 - [x] API health → 200 OK
 - [x] plone-mcp SSE → stream aperto porta 9120
 - [x] Tutti US Phase 2 ✅ Done
+| US-067 | doc-writer | claude-haiku-4-5-20251001 | 15000 | 3500 | 0 | 0 | 2026-04-02 |
+
+### US-067 — Optimize File Context Injection for Doc Tasks
+**Date:** 2026-04-02 | **Agent:** doc-writer | **What was built:** Updated doc-writer agent prompt with symbol-based context injection guidance and added AI_REFERENCE.md subsection with token savings estimates.
+
+| US-054 | Doc Writer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-054 — Cognitive Patterns Documentation
+**Date:** 2026-04-02 | **Agent:** Doc Writer | **What was built:** Catalog of 5 cognitive patterns (learn, judge, notepad, reflexion, deep-interview) with trigger conditions, token costs, and automation potential assessment.
+
+| US-055 | QA Engineer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-055 — Doc Verification CI Script
+**Date:** 2026-04-02 | **Agent:** QA Engineer | **What was built:** Bash-only `benchmark/verify-docs.sh` validates HTTP links, port mappings, US file references, rule frontmatter; `make verify-docs` target added.
+
+| US-056 | AI/ML Engineer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-056 — Context Compression Hook Automation
+**Date:** 2026-04-02 | **Agent:** AI/ML Engineer | **What was built:** `.claude/hooks/auto-compress.sh` advisory triggers on tool-call threshold and parallel waves; rule-010 updated; docs integrated.
+
+| US-066 | DevOps/Infra | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-066 — Serena MCP .git/ Ignore Configuration
+**Date:** 2026-04-02 | **Agent:** DevOps/Infra | **What was built:** `.claude/settings.json` configured to ignore `.git/`, `node_modules/`, `__pycache__/` paths; rule-019 operational; index.lock contention resolved.
+
+| US-067 | Doc Writer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-067 — Symbol-First Context Injection Guidance
+**Date:** 2026-04-02 | **Agent:** Doc Writer | **What was built:** doc-writer.md delegation template updated with serena__get_symbols_overview pattern vs. full Read; estimated 10k tokens/phase savings documented.
+
+| US-068 | Product Owner | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-068 — Pre-Collected Command Catalog Reference
+**Date:** 2026-04-02 | **Agent:** Product Owner | **What was built:** `docs/.command-catalog.md` pre-collected from `.claude/commands/` audit; delegation templates updated to reference (not regenerate); estimated 3k tokens/delegation savings.
+
+| US-065 | Doc Writer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-02 |
+
+### US-065 — Backlog Refinement Ceremony + Skill + Rule-018
+**Date:** 2026-04-02 | **Agent:** Doc Writer | **What was built:** `/refine-backlog` command + skill, rule-018 (pre-sprint yes-man filter), refinement ceremony operational for Phase 3c+.

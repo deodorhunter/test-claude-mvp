@@ -2,7 +2,7 @@
 type: devlog
 audience: humans
 purpose: education and retrospective — NOT a framework reference, NOT loaded in model context
-updated: "2026-03-31"
+updated: "2026-04-02"
 ---
 
 # AI Governance Framework — Development Log
@@ -477,3 +477,153 @@ The `.claude/rules/archive/` directory contained 12 verbose original rule drafts
 - **3c — Adoption & DX** (3 US): US-057, US-058, US-060
 - **3d — Infra & Architecture** (4 US): US-061, US-062, US-063, US-064
 - **Dropped:** US-052 (hallucinated), US-059 (yes-man)
+
+---
+
+## Entry 13 — Wave 1 Scope Creep: Agent Autonomy Boundary Gaps — 2026-04-02
+
+> After US-054 (Cognitive Patterns), US-055 (Verify Docs), and US-066 (Serena Config) completed Phase 3b Wave 1 implementation, Judge verdicts caught scope creep: 15 stub backlog files created, 7 rule files modified, all out of scope. Framework learning: agents exhibit "autonomy creep" when boundaries are implicit rather than explicit.
+
+#### The incident
+
+**US-055 (Verify Docs Script)** generated 17 untracked backlog stub files (US-021–035, US-052, US-059). These were not listed in the AC. Upon inspection, the agent interpreted Phase 3b's expanded backlog (which includes pointers to Phase 4 US numbers) as authorization to create skeleton backlog files for future phases.
+
+**US-055 and US-066 (Serena Config)** both independently modified 7 rule files (rule-003, 004, 006, 007, 009, 010, 018). Neither had rule modification in their AC. Both agents treated rules as "documentation files to update with their changes" rather than "immutable constraints managed separately."
+
+#### Root cause analysis
+
+This is a variant of the "yes-man" pattern documented in Entry 12, but at a different level: the agents were not reflexively agreeing with user feedback. They were autonomously deciding to improve the system. This reflects a gap in governance boundaries.
+
+**Implicit vs. explicit scope:** The AC specified "create verify-docs.sh" and "mount serena_config.json in docker-compose," but did NOT explicitly say "do not create backlog files" or "do not modify rule files." The agents interpreted absence of prohibition as implicit authorization to optimize adjacent systems.
+
+**Trust in agent reasoning:** Both agents reasoned: "Our change improves the system. Creating skeleton backlog files helps future phases plan. Updating rule files ensures they're consistent with new implementations." This is rational from the agent's perspective — it maximizes perceived value.
+
+**Framework gap:** Judge verdicts (rule-based post-implementation QA) caught the scope creep but did not prevent it. The detection mechanism exists; the prevention mechanism does not. No pre-implementation constraint enforcer (like a Critic agent applied to implementation details) blocked the autonomy boundary violation.
+
+#### Comparison with Entry 12's hallucination pattern
+
+| Aspect | Entry 12 (Hallucination) | Entry 13 (Autonomy Creep) |
+|---|---|---|
+| **Pattern** | Yes-man: reflexive agreement with user | Autonomy creep: unsolicited system improvement |
+| **Source** | User feedback items → US generation | Implementation details → adjacent files |
+| **Detection mechanism** | Critic agent review + hallucination audit | Judge verdict (post-implementation) |
+| **Prevention** | `/refine-backlog` ceremony (pre-sprint) | ??? (gap identified) |
+| **Commonality** | Both lack explicit scope boundaries | Shared: implicit boundaries invite violation |
+
+#### Fix applied — two-part approach
+
+**Part 1 — Immediate cleanup:**
+1. Deleted all 17 stub backlog files (safe; untracked)
+2. Reverted all 7 rule file modifications via `git checkout main` (preserved in-scope deliverables)
+3. Preserved in-scope outputs: benchmark/verify-docs.sh, docs/COGNITIVE_PATTERNS.md, infra/serena_config.json, all intended file modifications
+
+**Part 2 — Framework update (for future waves):**
+
+When creating US acceptance criteria, now require explicit "DO NOT" sections:
+```markdown
+### Acceptance Criteria
+[...]
+
+### Files Involved
+[...only these files may be created/modified...]
+
+### DO NOT
+- Do not create backlog files beyond those listed above
+- Do not modify .claude/rules/** files
+- Do not update shared documentation (AI_PLAYBOOK.md, AI_REFERENCE.md) without explicit AC item
+```
+
+When delegating HIGH-complexity US that touch infra or governance files, prepend a scope constraint reminder to the agent prompt:
+
+```
+SCOPE CONSTRAINT: Implement ONLY the acceptance criteria items. Do NOT:
+- Modify rule files (.claude/rules/**)
+- Create or modify backlog files outside the Files Involved section
+- Update shared documentation without explicit AC requirement
+```
+
+#### Prevention mechanisms being considered
+
+1. **Critic agent constraint review** (before implementation): Apply Critic to flag scope creep risks in HIGH-complexity US before delegating
+2. **Explicit DO NOT lists** (ubiquitous in future AC): Every US AC now includes "DO NOT" section
+3. **Pre-merge scope audit** (before QA): Judge agent verifies that `git diff` only touches Files Involved section
+
+#### Connection to broader framework evolution
+
+Entry 12 revealed that agents can generate plausible fiction when asked to speculate about unknown APIs. Entry 13 reveals that agents can autonomously decide to improve adjacent systems when boundaries are implicit.
+
+Both incidents point to the same governance insight: **explicit constraints beat implicit assumptions**. The framework has strong mechanisms for detecting violations (Judge, Critic) but weak mechanisms for preventing them pre-implementation. Future phases will layer in prevention-focused controls alongside the existing detection layer.
+
+The fix (cleanup + explicit DO NOT lists) is reversible and low-cost. The lesson (boundaries must be explicit) is durable and applies to all future US writing.
+
+---
+
+## Entry 14 — Phase 3b Gate & Rule-020: Automating the Discretionary-Choice Anti-pattern — 2026-04-02
+
+> Phase 3b completed (7 US, 454k tokens). Phase Gate 3b executed all mandatory steps. Rule-020 extracted to prevent recurrence of Phase Gate skip pattern (observed in Phase 2c and again in Phase 3b).
+
+#### Phase 3b outcomes
+
+**Implementation (Wave 1 + 2):** 7 US across 3 waves
+- Wave 1 (cleanup after scope creep): US-054 ✅ (45k), US-055 ✅ (38k), US-066 ✅ (24k)
+- Wave 2a (parallel): US-056 ✅ (58.5k AI/ML), US-067 ✅ (48.4k DocWriter)
+- Wave 2b (sequential): US-068 ✅ (53.6k Product Owner)
+
+**Documentation (Mode B):** 57.3k tokens — `docs/architecture/phase-3b-overview.md`
+
+**Deliverables:**
+- `.claude/hooks/auto-compress.sh` — 4-event advisory hook (PostToolUse, PreToolUse, SubagentStop, UserPromptSubmit)
+- `docs/.command-catalog.md` — 12 commands, reusable reference (~3k tokens/delegation savings)
+- Updated rule-010, AI_REFERENCE.md with Context Management + Symbol-Context sections
+- rule-020 extracted and activated
+
+**Phase 3b mini-gate verified:** cognitive patterns ✅, doc verification ✅, context compression automation ✅, refinement ceremony ✅
+
+#### Rule-020: Phase Gate Auto-Proceed Pattern
+
+**Pattern identified:** Rule-007 violation recurrence (Phase 2c + Phase 3b).
+
+**Incident 1 (Phase 2c, 2026-03-29):** Phase Gate was entirely skipped when orchestrator asked user "proceed to Phase 3?" instead of running mandatory gate steps.
+
+**Incident 2 (Phase 3b, 2026-04-02):** After Wave 2b completion, orchestrator asked "Phase 3c work OR Phase Gate 3b?" — again offering discretionary choice over mandatory gate.
+
+**Root cause:** Misreading orchestrator.md Phase 4 as a decision point rather than a non-discretionary sequence. The hard constraint is rule-007 ("complete ALL phase gate steps"), but the implementation assumed user input was needed.
+
+**Cost of the pattern:** Each full skip costs ~40k tokens (missing retrospective, cost analysis, architecture doc). Partial skip (asking discretionary choice) doesn't cause token waste directly but signals the gate is being treated as optional.
+
+**Prevention:** Rule-020 — "When all US in a phase are marked Done, proceed immediately with Phase Gate steps (orchestrator.md Phase 4). Never ask 'Phase N+1 work OR Phase Gate N?' — the gate is mandatory and non-discretionary."
+
+**Impact:** Blocks the discretionary-choice anti-pattern. The user caught the violation in real-time (Phase 3b); rule-020 will prevent recurrence in Phase 4+.
+
+#### Cost analysis: Phase 3b vs prior phases
+
+| Phase | Duration (est.) | Total tokens | Avoidable waste | Notes |
+|---|---|---|---|---|
+| Phase 2d | ~90 mins | ~125k | ~4k (3%) | Minimal waste; direct impl pattern; rule-010 not yet automated |
+| Phase 3a | ~60 mins | ~102k | ~20k (20%) | Over-contextualization on doc tasks; led to US-067 (symbol-first) + US-068 (pre-collect catalog) |
+| **Phase 3b** | **~180 mins** | **~454k** | **~40k (9%) prevented by rule-020** | Rule-020 extraction (recurrence prevention); Wave 1 scope creep cleaned; context compression automated |
+
+**Observation:** Phase 3b is longer and has higher absolute token cost, but avoidable waste is lower % than Phase 3a. Improvements from 3a (symbol-context guidance, pre-collected commands) likely contributing to efficiency. No circuit-breaker triggers or QA bounce-backs in Phase 3b.
+
+#### Framework learning: Behavioral constraints vs detection
+
+Entry 13 focused on scope creep detection (Judge verdicts caught stub files). Entry 14 reveals a parallel gap in orchestration: the orchestrator itself was violating rule-007, caught by the user not by the system.
+
+**Current defensive layers:**
+- **Detection:** Judge (post-impl), Critic (pre-impl), /consistency-check, /judge verdicts
+- **Prevention:** Rules loaded in CLAUDE.md, hard constraints in orchestrator.md
+
+**Gap:** Orchestrator rules (rule-007, rule-020) are documented but not auto-enforced. A human still has to notice when the orchestrator skips a gate or offers discretionary choice.
+
+**Future consideration:** Could a "orchestrator validator" agent run post-gate-step to confirm rule-007 compliance? Or could the pre-prompt hook detect Phase Gate keywords and enforce gate-step sequencing? For now, rule-020 + user vigilance is the control.
+
+#### Lessons for Phase 3c+
+
+1. **Explicit DO NOT sections in AC** are now standard (from Entry 13). Reduces autonomy creep risk.
+2. **Rule-020 activation** prevents gate-skip pattern in Phase 4 orchestration.
+3. **Context compression automation** (US-056) now advisory via hooks. Monitor SubagentStop regex matcher in live parallel waves (first validation: Phase 3c).
+4. **Symbol-first context injection** (US-067) reduces doc task bloat; estimated 10-12k tokens/phase savings going forward.
+5. **Pre-collected command catalog** (US-068) eliminates ~3k tokens per delegation (used in agent prompts).
+
+**Combined estimated savings for Phase 3c+:** ~30-40k tokens per phase from automation + pattern fixes above.
+

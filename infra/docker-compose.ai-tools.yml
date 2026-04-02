@@ -34,11 +34,18 @@ services:
       - 0.0.0.0
       - --port
       - "9121"
+      - --config
+      - /serena_config.json
     volumes:
       # Mount workspace read-only — Serena reads but never writes code
       - type: bind
         source: ..
         target: /workspace
+        read_only: true
+      # rule-019: ignore .git/ and heavy dirs to prevent index.lock contention
+      - type: bind
+        source: ./serena_config.json
+        target: /serena_config.json
         read_only: true
     ports:
       - "127.0.0.1:9121:9121"  # localhost only — never expose to network

@@ -219,6 +219,10 @@ then add a query helper in backend/app/db/crud.py to filter by user.
 
 ### Slash Command Catalog
 
+Pre-generated command reference: see `docs/.command-catalog.md` for all 12 commands + descriptions. This avoids re-generating command metadata during agent delegations (~3k tokens saved per delegation).
+
+**Quick reference (full catalog in `.command-catalog.md`):**
+
 | Command | Use case |
 |---|---|
 | `/compress-state` | Before parallel agent waves or after 15+ tool calls; synthesizes session snapshot |
@@ -234,6 +238,28 @@ then add a query helper in backend/app/db/crud.py to filter by user.
 | `/reflexion` | Phase-gate ritual: extracts 1–3 durable rules into .claude/rules/project/ |
 | `/review-session` | End-of-session quality audit (audience, EU AI Act, links, ADAPT) |
 
+### File Context Injection (Rule-009: Symbol-First Navigation)
+
+**Principle:** For documentation-only tasks (no code changes), use Serena symbol overviews instead of full file reads. Reduces bloat, improves token efficiency.
+
+| Approach | Cost | When to use |
+|---|---|---|
+| Symbol overview (`serena__get_symbols_overview`) | ~200 tokens/file | Writing handoff docs, mode B architecture summaries, reference context |
+| Full Read injection (`<file>` blocks) | ~2000 tokens/file | Code changes, implementation details, algorithm explanation required |
+
+**Cost comparison (typical 8-file doc task):**
+- ❌ Anti-pattern: Full Read × 8 files = ~16,000 tokens wasted (10–15k per doc phase)
+- ✅ Pattern: Symbol overview × 8 files = ~1,600 tokens + targeted reads for 1–2 critical sections = ~2,500 total
+
+**Orchestrator checklist before delegating a doc task:**
+1. Identify files referenced (API routes, models, configs, etc.)
+2. For each file: "Does the doc need implementation details or just interfaces?" → Yes/implementation: full Read | No/interfaces only: symbol overview
+3. Inject `<symbols>` blocks for 6–8 overview files
+4. Inject `<file>` blocks for 1–2 critical sections (if needed)
+5. Expected savings per doc task: ~10–12k tokens
+
+**Reference:** `.claude/agents/doc-writer.md` includes detailed pattern examples.
+
 ### Speed 1 with Copilot
 
 Attach all relevant files explicitly in the Copilot sidebar. Keep edits surgical — modify one function or method at a time, not entire files.
@@ -245,3 +271,81 @@ Copilot has no Phase 2 orchestration equivalent — no agents, no delegations, n
 ---
 
 **Future sessions will read this file instead of exploring. Re-run `/init-ai-reference` after major stack changes.**
+
+---
+
+## Context Management
+
+**Rule reference:** `.claude/rules/project/rule-010-compress-state-before-parallel-waves.md`
+
+Context compression prevents token multiplication when parallel agent waves share a large planning context (80k × 3 agents = 240k wasted tokens).
+
+### Automated Hook: `auto-compress.sh`
+
+Registered in `.claude/settings.json`. Fires advisory warnings — never blocks session flow.
+
+| Trigger | Hook Event | Condition | Advisory |
+|---|---|---|---|
+| Tool-call threshold | `PostToolUse` (all tools) | count ≥ `COMPRESS_THRESHOLD` (default: 12) | Run `/compress-state → /clear` |
+| Sub-agent spawn | `PreToolUse` (Agent) | context count ≥ 5 tool calls | Check if ≥2 agents → compress first |
+| Parallel results received | `SubagentStop` (all) | ≥2 sub-agents completed | Compress before next wave |
+| Phase Gate keyword | `UserPromptSubmit` | prompt matches `phase gate` / `proceed to phase` | Complete all gate steps |
+
+### Configuration
+
+```bash
+# Override compression threshold (default: 12 tool calls)
+export COMPRESS_THRESHOLD=8
+
+# State files are stored per-session in:
+# ${TMPDIR}/claude-compress-state/tool-count-{session_id}
+# ${TMPDIR}/claude-compress-state/subagent-count-{session_id}
+```
+
+### Manual Fallback (primary mechanism)
+
+```bash
+# Step 1: Snapshot current session context
+/compress-state   # writes docs/.temp_context.md
+
+# Step 2: Clear session to free context window
+/clear
+
+# Step 3: Reload snapshot for next wave
+# Read docs/.temp_context.md at start of next prompt
+```
+
+### Example Hook Warning Output
+
+```
+<system_warning>rule-010: Tool-call count has reached 12 (threshold: 12).
+Run /compress-state → /clear before spawning parallel agents to avoid 120k+ token
+waste. Reset: delete /tmp/claude-compress-state/tool-count-{id} or run /clear.
+(auto-compress.sh)</system_warning>
+```
+
+### Copilot Compatibility
+
+Not applicable. Copilot Chat is stateless per conversation — no compression mechanism exists or is needed.
+
+---
+
+## IDE & LSP Settings
+
+### Serena MCP — Ignored Paths (rule-019)
+
+Serena LSP holds `.git/index` during reads, causing "Unable to create index.lock" errors during concurrent git operations in worktrees. To prevent this, Serena is configured to skip `.git/` and other high-churn directories entirely.
+
+**Config file:** `infra/serena_config.json`
+
+Ignored paths:
+- `.git/` and `.git/**` — prevents index.lock contention during worktree merges
+- `node_modules/` — large, not indexable, irrelevant to LSP navigation
+- `__pycache__/` — compiled bytecode, not source
+- `.venv/` — third-party packages, not project code
+
+**How it's applied:** The config file is bind-mounted read-only into the Serena container at `/serena_config.json` and passed via `--config /serena_config.json` at startup. See `infra/docker-compose.ai-tools.yml`, serena service.
+
+**Rule reference:** `.claude/rules/project/rule-019-serena-git-isolation.md` — extracted after 3 recurrences of git index.lock contention during Phase 3a worktree merges.
+
+**Manual test:** Run `git merge` inside an active worktree while Serena is running. No `index.lock` error should appear.
