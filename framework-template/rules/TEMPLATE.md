@@ -1,3 +1,4 @@
+<!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-NNN
 trigger: "When an agent [action that triggers this rule]"
