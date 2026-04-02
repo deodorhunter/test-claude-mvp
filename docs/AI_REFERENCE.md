@@ -245,3 +245,25 @@ Copilot has no Phase 2 orchestration equivalent — no agents, no delegations, n
 ---
 
 **Future sessions will read this file instead of exploring. Re-run `/init-ai-reference` after major stack changes.**
+
+---
+
+## IDE & LSP Settings
+
+### Serena MCP — Ignored Paths (rule-019)
+
+Serena LSP holds `.git/index` during reads, causing "Unable to create index.lock" errors during concurrent git operations in worktrees. To prevent this, Serena is configured to skip `.git/` and other high-churn directories entirely.
+
+**Config file:** `infra/serena_config.json`
+
+Ignored paths:
+- `.git/` and `.git/**` — prevents index.lock contention during worktree merges
+- `node_modules/` — large, not indexable, irrelevant to LSP navigation
+- `__pycache__/` — compiled bytecode, not source
+- `.venv/` — third-party packages, not project code
+
+**How it's applied:** The config file is bind-mounted read-only into the Serena container at `/serena_config.json` and passed via `--config /serena_config.json` at startup. See `infra/docker-compose.ai-tools.yml`, serena service.
+
+**Rule reference:** `.claude/rules/project/rule-019-serena-git-isolation.md` — extracted after 3 recurrences of git index.lock contention during Phase 3a worktree merges.
+
+**Manual test:** Run `git merge` inside an active worktree while Serena is running. No `index.lock` error should appear.

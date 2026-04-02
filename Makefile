@@ -1,4 +1,4 @@
-.PHONY: up down logs migrate test shell-api shell-postgres
+.PHONY: up down logs migrate test shell-api shell-postgres verify-docs
 
 COMPOSE = docker compose -f infra/docker-compose.yml --env-file .env
 
@@ -22,3 +22,6 @@ shell-api:
 
 shell-postgres:
 	$(COMPOSE) exec postgres psql -U $${POSTGRES_USER:-aiplatform} $${POSTGRES_DB:-aiplatform}
+
+verify-docs:
+	@bash benchmark/verify-docs.sh

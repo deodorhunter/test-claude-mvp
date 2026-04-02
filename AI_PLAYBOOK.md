@@ -116,6 +116,18 @@ To use a command, type it in the chat (Claude Code supports `/command-name` nota
 | `/handoff` | Runs `git diff`, parses it, appends summary to `docs/ARCHITECTURE_STATE.md` | After a US is merged, to keep the state file current |
 | `/compress-state` | Summarizes the current chat into `docs/.temp_context.md` and prompts `/clear` | When you've been working in the same session for > 30 min and token usage is climbing |
 
+### Cognitive Patterns — Decision & Memory Commands
+
+Five patterns implement insight capture, requirement elicitation, and rule extraction. See `docs/COGNITIVE_PATTERNS.md` for full reference, token costs, and automation potential.
+
+| Command | Type | When to use |
+|---|---|---|
+| `/learn` | Insight capture | After discovering non-googleable, hard-won insights |
+| `/judge` | Acceptance check | After implementation, before QA — catches obvious failures early |
+| `/notepad` | Memory capture | Any time during session to persist learnings, decisions, issues |
+| `/reflexion` | Rule extraction | At every phase gate (mandatory) to extract durable rules |
+| `/deep-interview` | Requirement elicitation | Before creating vague User Stories — clarify intent Socratically |
+
 ### How Commands Work
 
 Each `.claude/commands/X.md` file contains a structured prompt that:

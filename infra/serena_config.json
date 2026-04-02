@@ -1,0 +1,9 @@
+{
+  "ignored_paths": [
+    ".git/",
+    ".git/**",
+    "node_modules/",
+    "__pycache__/",
+    ".venv/"
+  ]
+}
