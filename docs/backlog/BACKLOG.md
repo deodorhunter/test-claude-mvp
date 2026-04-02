@@ -177,6 +177,15 @@
 
 ---
 
+## Residual Risks & Follow-up Actions from Phase 3b
+
+**To Apply (before Phase 4 QA):**
+1. Monitor US-056 auto-compress.sh hook in live parallel waves — verify SubagentStop matcher regex (".*") doesn't silently no-op at runtime. First validation opportunity: Phase 3c Wave 1.
+2. Verify US-066 Serena `--config /serena_config.json` flag against `ghcr.io/serena:latest` image specification. Currently unverified; risk: config flag unsupported in deployed image. Action: test in docker compose before Phase 4 deployment.
+3. Consider Critic agent pre-implementation review for future high-complexity US (prevents scope creep like Wave 1 stub files). Implement as optional gate in Phase 4+ workflows.
+
+---
+
 ## Residual Risks da Phase 1
 
 Issues aperti da risolvere prima o durante Phase 2:

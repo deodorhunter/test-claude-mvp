@@ -74,6 +74,7 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 @.claude/rules/project/rule-009-serena-first-navigation.md
 @.claude/rules/project/rule-010-compress-state-before-parallel-waves.md
 @.claude/rules/project/rule-011-eu-ai-act-data-boundary.md
+@.claude/rules/project/rule-020-phase-gate-auto-proceed.md
 
 <!-- Path-scoped rules: auto-loaded only when working on matching files -->
 <!-- rule-002 (migration): backend/app/db/**, backend/alembic/** -->
