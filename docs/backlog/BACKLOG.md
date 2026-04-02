@@ -109,6 +109,9 @@
 | [US-054](US-054.md) | Cognitive patterns docs: learn/judge/notepad/reflexion/deep-interview | Doc Writer | — | high | 📋 Backlog | |
 | [US-055](US-055.md) | Doc verification CI: `make verify-docs` for links, ports, commands | QA Engineer | — | high | 📋 Backlog | |
 | [US-056](US-056.md) | Automated context compression hook (rule-010 automation) | AI/ML Engineer | US-051 | medium | 📋 Backlog | |
+| [US-066](US-066.md) | Configure Serena MCP to ignore .git/ paths (rule-019 impl) | DevOps/Infra | rule-019 | medium | 📋 Backlog | Phase 3a actionable |
+| [US-067](US-067.md) | Optimize file context injection for doc tasks (symbol overviews) | Doc Writer | rule-009 | medium | 📋 Backlog | Phase 3a actionable |
+| [US-068](US-068.md) | Pre-collect command metadata for agent delegation | Product Owner | — | medium | 📋 Backlog | Phase 3a actionable |
 | [US-065](US-065.md) | Backlog refinement command + skill + rule-018 | Doc Writer | — | high | ✅ Done | |
 
 ### Phase 3c — Adoption, DX & Multi-Client
