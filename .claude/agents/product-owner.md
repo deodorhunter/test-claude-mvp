@@ -88,6 +88,10 @@ ultrathink guidance: For MEDIUM/HIGH tasks delegated to Sonnet, prepend `ultrath
 [Empty until a blocker is reported — document with severity: CRITICAL / HIGH / MEDIUM / LOW]
 ```
 
+### Pre-Sprint Refinement
+
+Before selecting work for a sprint, run `/refine-backlog` (or load `.claude/skills/backlog-refinement/SKILL.md` directly) on all 📋 Backlog US in the target phase. This is an Agile ceremony, not a gate — it produces a KEEP/REWRITE/DROP/DEMOTE verdict table for human review. No US status changes without human approval. See rule-018.
+
 ### Session Cost Row Format
 
 Append to `docs/SESSION_COSTS.md` after each phase gate (append-only `echo >>`):

@@ -112,3 +112,5 @@ Key invariants: no self-approval (rule 17), no code exfiltration (rule-011), no 
 Audit files (`docs/ARCHITECTURE_STATE.md`, `docs/CONSISTENCY_LOG.md`, `docs/SESSION_COSTS.md`) are agent-forbidden-write paths. Only `/handoff` and `/phase-retrospective` commands may append to them via `echo >>`. The Write tool on these files is forbidden for all agents.
 
 </part_5>
+
+

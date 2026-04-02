@@ -1,7 +1,7 @@
 # Project Backlog — AI Orchestration Platform MVP
 
 > Master index di tutte le User Stories. Aggiornato dal Tech Lead.
-> Ultimo aggiornamento: 2026-03-27 | Post-retrospettiva Phase 1
+> Ultimo aggiornamento: 2026-04-01 | Phase 3 Framework Upgrade planned from user feedback
 
 ---
 
@@ -82,11 +82,64 @@
 
 ---
 
-## Phase 3 — API & Frontend
+## Phase 3 — Framework Upgrade (User Feedback)
+
+**Obiettivo:** Governance framework improvements driven by 14 user feedback items + 5 internal observations.
+**Status:** 📋 Backlog — non iniziata
+**Prerequisito:** Phase Gate 2 approvato ✅
+**Nota:** Original Phase 3 (API & Frontend) deferred to Phase 4. This phase has no application code changes.
+
+### Phase 3a — Token Optimization & Model Routing
+
+**Mini-gate 3a:** Archive rules removed from auto-load path (US-050 ✅), model routing matrix documented, orchestration guide written.
+
+| US | Titolo | Agente | Dipendenze | Priorità | Stato | File |
+|---|---|---|---|---|---|---|
+| [US-050](US-050.md) | Archive rules cleanup: remove from auto-load path | DevOps/Infra | — | critical | ✅ Done | |
+| [US-051](US-051.md) | Model routing strategy: Haiku/Sonnet/Local decision matrix | AI/ML Engineer | — | critical | 📋 Backlog | |
+| ~~US-052~~ | ~~Automated cost extraction~~ | — | — | — | ❌ DROPPED | Hallucinated implementation (75% fabricated). Valid fragment absorbed into US-051. |
+| [US-053](US-053.md) | Orchestration prompting guide for token-efficient workflows | Doc Writer | US-051 | high | 📋 Backlog | |
+
+### Phase 3b — Automation & Cognitive Tooling
+
+**Mini-gate 3b:** Cognitive patterns documented, doc verification passes on current repo, context compression has automation hook, refinement ceremony operational.
+
+| US | Title | Agent | Dependencies | Priority | Status | Notes |
+|---|---|---|---|---|---|---|
+| [US-054](US-054.md) | Cognitive patterns docs: learn/judge/notepad/reflexion/deep-interview | Doc Writer | — | high | 📋 Backlog | |
+| [US-055](US-055.md) | Doc verification CI: `make verify-docs` for links, ports, commands | QA Engineer | — | high | 📋 Backlog | |
+| [US-056](US-056.md) | Automated context compression hook (rule-010 automation) | AI/ML Engineer | US-051 | medium | 📋 Backlog | |
+| [US-065](US-065.md) | Backlog refinement command + skill + rule-018 | Doc Writer | — | high | ✅ Done | |
+
+### Phase 3c — Adoption, DX & Multi-Client
+
+**Mini-gate 3c:** HOW-TO-ADOPT updated with copy-first path, Copilot instructions standalone, template synced.
+
+| US | Title | Agent | Dependencies | Priority | Status | Notes |
+|---|---|---|---|---|---|---|
+| [US-057](US-057.md) | Copy-first adoption: update HOW-TO-ADOPT.md + feedback template | Doc Writer | — | high | 📋 Backlog | Absorbs dropped US-059 |
+| [US-058](US-058.md) | Copilot-first instructions: standalone rewrite of copilot-instructions.md | Doc Writer | US-053 | high | 📋 Backlog | |
+| ~~US-059~~ | ~~Structured feedback mechanism~~ | — | — | — | ❌ DROPPED | Over-engineered. Feedback template absorbed into US-057. |
+| [US-060](US-060.md) | Framework template sync with current agent state | DevOps/Infra | US-050 | low | 📋 Backlog | Demoted — low urgency |
+
+### Phase 3d — Infrastructure, Architecture & Competitive Analysis
+
+**Mini-gate 3d:** Ollama + Qwen 3.5 documented, Plone-MCP clarified, OpenClaw analysis complete, SWE-agent evaluation done.
+
+| US | Title | Agent | Dependencies | Priority | Status | Notes |
+|---|---|---|---|---|---|---|
+| [US-061](US-061.md) | Ollama + Qwen 3.5 docs + MODEL_COMPARISON.md (Claude vs Copilot vs local) | Doc Writer | — | high | 📋 Backlog | |
+| [US-062](US-062.md) | Plone-MCP architecture clarification: rename/doc 3 touchpoints | Doc Writer | — | medium | 📋 Backlog | |
+| [US-063](US-063.md) | OpenClaw competitive analysis + COMPETITIVE_ANALYSIS.md | Doc Writer | — | medium | 📋 Backlog | |
+| [US-064](US-064.md) | SWE-Agent evaluation: go/no-go recommendation for mini-swe-agent | QA Engineer | — | medium | 📋 Backlog | Scoped to evaluation only |
+
+---
+
+## Phase 4 — API & Frontend (deferred from Phase 3)
 
 **Obiettivo:** API REST completa, UI Volto funzionante, flussi tenant-aware end-to-end.
 **Status:** 📋 Backlog — non iniziata
-**Prerequisito:** Phase Gate 2 approvato
+**Prerequisito:** Phase Gate 3 approvato
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato |
 |---|---|---|---|---|---|
@@ -103,11 +156,11 @@
 
 ---
 
-## Phase 4 — Production Infra
+## Phase 5 — Production Infra (was Phase 4)
 
 **Obiettivo:** Docker hardening, CI/CD, K8s (roadmap), secrets management.
 **Status:** 📋 Backlog — non iniziata
-**Prerequisito:** Phase Gate 3 approvato
+**Prerequisito:** Phase Gate 4 approvato
 **Nota MVP:** K8s manifest sono placeholder per roadmap enterprise. L'MVP gira su Docker Compose.
 
 | US | Titolo | Agente | Dipendenze | Priorità | Stato |
