@@ -38,13 +38,93 @@ Separate the two cleanly. The universal layer never changes across projects. The
 
 ---
 
-## 30-Minute Adoption Checklist
+## Copy-First Adoption (Primary Path) — 2 Commands
 
-1. **Copy files** — `cp -r framework-template/.claude /your-new-project/` and `cp -r framework-template/.github /your-new-project/`
-2. **Rename** — `cp framework-template/CLAUDE.template.md /your-new-project/CLAUDE.md`
+The fastest adoption path. Copy the framework, customize your stack reference, done.
+
+```bash
+# 1. Copy the framework to your project
+cp -r .claude /your-new-project/
+cp CLAUDE.md /your-new-project/
+
+# 2. In the new project, customize stack reference
+cd /your-new-project
+vi docs/AI_REFERENCE.md       # Update stack, ports, test commands
+vi CLAUDE.md                  # Adapt agent @owns/@forbidden paths if needed
+```
+
+**Post-Copy Checklist:**
+- [ ] `docs/AI_REFERENCE.md` updated with your stack (FastAPI, Django, etc.), ports, test commands
+- [ ] `.claude/agents/backend-dev.md` (or relevant agent) has `owns:` and `forbidden:` paths matching your project structure
+- [ ] `.gitignore` includes: `docs/.temp_context.md`, `docs/.session-notes.md`, `.claude/settings.local.json`
+- [ ] First project rule created in `.claude/rules/project/` (e.g., schema isolation, auth scoping)
+- [ ] Smoke test: Claude Code / Copilot Chat can read your `docs/AI_REFERENCE.md` without exploring the whole codebase
+
+---
+
+## Global MCP Installation (Optional)
+
+If you want Claude Code to auto-discover your MCP servers globally (not per-project):
+
+```bash
+# Install via npm (global scope)
+npm install -g @anthropic-ai/serena-mcp    # Language Server + symbol navigation
+npm install -g @anthropic-ai/context7-mcp  # Documentation lookup (Context7)
+
+# Then in Claude Code settings, add to MCP registry:
+# .claude/settings.json → "mcp_servers": ["serena-mcp", "context7-mcp"]
+```
+
+For project-specific MCPs, use `.claude/settings.json` in the project root instead.
+
+---
+
+## Copilot Users
+
+Copy `.github/copilot-instructions.md` from the template to your project:
+
+```bash
+cp framework-template/copilot-instructions.template.md /your-new-project/.github/copilot-instructions.md
+```
+
+Then customize `[@ADAPT]` markers with your project's paths and rules.
+
+---
+
+## Providing Feedback on the Framework
+
+Found a bug, pattern gap, or good idea? Use this template:
+
+```
+**Category:** [documentation | missing-rule | permission-blocker | other]
+**Description:** [One sentence describing the issue]
+**Suggested fix:** [How it might be resolved in 1-2 sentences]
+```
+
+Post feedback as a GitHub issue in your fork or upstream repository.
+
+---
+
+## Advanced: Selective Adoption (Alternative Path)
+
+If you don't want the full framework, you can cherry-pick individual agents and rules:
+
+1. Copy `.claude/agents/orchestrator.md` (the Tech Lead coordinator)
+2. Copy one or two specialist agents that match your stack
+3. Copy only the rules that apply to your domain (tenant isolation, audit logging, etc.)
+4. Create a minimal `CLAUDE.md` that imports just those rules
+
+This requires more manual curation but works for projects with strong existing governance.
+
+---
+
+## 30-Minute Full Checklist (if using Advanced Path)
+
+1. **Copy files** — choose copy-first (recommended) or selective (advanced)
+2. **Rename** — `cp CLAUDE.template.md /your-new-project/CLAUDE.md`
 3. **Set stack identity** — edit `CLAUDE.md`: fill in the stack name in the project identity block
 4. **Adapt the backend agent** — in `.claude/agents/backend-dev.md`, replace `owns:` and `forbidden:` paths with your project's directory structure
-5. **Write `docs/AI_REFERENCE.md`** — run `/init-ai-reference` in Claude Code, or copy the template at `docs/AI_REFERENCE.md` and fill it in manually (stack, ports, test commands)
+5. **Write `docs/AI_REFERENCE.md`** — run `/init-ai-reference` in Claude Code, or fill in manually (stack, ports, test commands)
 6. **Add your first project rule** — use `rules/TEMPLATE.md` to capture the first domain constraint you know about (e.g., auth scope isolation, DB naming convention)
 7. **Add `.gitignore` entries** — `docs/.temp_context.md`, `docs/.session-notes.md`, `.claude/settings.local.json`
 8. **Test Speed 1** — open Copilot Chat, attach a file, run a targeted fix. Verify it doesn't try to read other files.
