@@ -102,16 +102,16 @@
 
 ### Phase 3b — Automation & Cognitive Tooling
 
-**Mini-gate 3b:** Cognitive patterns documented, doc verification passes on current repo, context compression has automation hook, refinement ceremony operational.
+**Mini-gate 3b:** ✅ **COMPLETE** (2026-04-02) — Cognitive patterns documented (US-054 ✅), doc verification passes (US-055 ✅), context compression automation implemented (US-056 ✅), refinement ceremony operational (US-065 ✅).
 
 | US | Title | Agent | Dependencies | Priority | Status | Notes |
 |---|---|---|---|---|---|---|
 | [US-054](US-054.md) | Cognitive patterns docs: learn/judge/notepad/reflexion/deep-interview | Doc Writer | — | high | ✅ Done | Wave 1 cleanup complete |
 | [US-055](US-055.md) | Doc verification CI: `make verify-docs` for links, ports, commands | QA Engineer | — | high | ✅ Done | Wave 1 cleanup complete |
-| [US-056](US-056.md) | Automated context compression hook (rule-010 automation) | AI/ML Engineer | US-051 | medium | 📋 Backlog | Wave 2 parallel |
+| [US-056](US-056.md) | Automated context compression hook (rule-010 automation) | AI/ML Engineer | US-051 | medium | ✅ Done | Wave 2 parallel |
 | [US-066](US-066.md) | Configure Serena MCP to ignore .git/ paths (rule-019 impl) | DevOps/Infra | rule-019 | medium | ✅ Done | Wave 1 cleanup complete |
-| [US-067](US-067.md) | Optimize file context injection for doc tasks (symbol overviews) | Doc Writer | rule-009 | medium | 📋 Backlog | Wave 2 parallel |
-| [US-068](US-068.md) | Pre-collect command metadata for agent delegation | Product Owner | US-054 | medium | 📋 Backlog | Wave 2 sequential (after US-056+US-067) |
+| [US-067](US-067.md) | Optimize file context injection for doc tasks (symbol overviews) | Doc Writer | rule-009 | medium | ✅ Done | Wave 2 parallel |
+| [US-068](US-068.md) | Pre-collect command metadata for agent delegation | Product Owner | US-054 | medium | ✅ Done | Wave 2 sequential (after US-056+US-067) |
 | [US-065](US-065.md) | Backlog refinement command + skill + rule-018 | Doc Writer | — | high | ✅ Done | |
 
 ### Phase 3c — Adoption, DX & Multi-Client
