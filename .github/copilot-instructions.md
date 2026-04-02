@@ -1,71 +1,161 @@
-# GitHub Copilot Instructions
+# Copilot Chat Instructions — Standalone Guide
 
-> Global rules for all Copilot Chat and Copilot Edits interactions in this repository.
-> For Claude Code orchestration, see `.claude/`. These two setups coexist — do not mix their conventions.
+> **For this repository:** Copilot Chat operates in Speed 1 mode only.
+> **For multi-step features, orchestration, or planning:** Use Claude Code CLI (see "When to Use Claude Code" section).
 
 ---
 
-## Operating Model: Two Speeds
+## What Copilot Does (Speed 1 Mode)
 
-### Speed 1 — Copilot Mode (you drive)
+Copilot is fast, interactive, and stateful within a conversation. Use it for:
 
-Use for bug fixes, small refactors, config changes, adding a field, quick doc edits.
+- Bug fixes with clear error messages
+- Small refactors (1–3 files, <100 lines changed)
+- Config updates, adding fields to models, quick doc edits
+- Quick tests of small code changes
 
 **The contract:**
 - User attaches the specific file(s) the change lives in
-- You read only those files
-- You make a targeted edit and show what changed
-- You do not open, read, or suggest changes to other files
-
-**Good Speed 1 prompts:**
-- "Fix the KeyError on line 47 of quota_service.py — file attached"
-- "Add `updated_at` to the Tenant model — see models.py"
-
-**Bad Speed 1 prompts (require more context, not Copilot's job):**
-- "Look through the codebase and find all quota checks"
-- "Refactor the entire auth layer"
-
-### Speed 2 — Orchestration Mode (Claude Code only)
-
-Speed 2 involves multi-step planning, sub-agent delegation, and phase gates. This is handled exclusively through Claude Code (`.claude/agents/`). **Do not attempt Speed 2 workflows in Copilot Chat.**
-
-Note: GitHub added agent support to Copilot Chat (late 2024), but Copilot agents are tool-wrapper *personas*, not governance systems. See [COPILOT_GAP_NOTES.md#why-copilot-chat-agents-dont-solve-this](COPILOT_GAP_NOTES.md#why-copilot-chat-agents-dont-solve-this) for details on architectural differences and why they cannot replace Claude Code's multi-agent orchestration.
+- You read only those files (+ optional MCP lookups for context)
+- You make targeted edits and show what changed
+- You do not explore the codebase autonomously
 
 ---
 
-## Token Anti-Patterns: Never Do These
+## Speed 1 Workflow — Annotated Examples
 
-1. **No autonomous exploration** — do not suggest running `ls`, `find`, `tree`, or `glob`. Do not read files the user did not attach.
-2. **Silence verbose outputs** — any bash command you suggest should suppress noise: `pip install -q`, `pytest -q --tb=short`, `npm install --silent`, build output piped to `/dev/null`.
-3. **Circuit breaker** — if a test or command fails twice with targeted fixes, stop. Report: (a) exact error, (b) what was tried, (c) root cause hypothesis. Do not keep retrying.
-4. **Targeted editing** — never rewrite an entire file to change 3 lines. Use surgical edits. If more than 30% of the file would change, ask the user to confirm scope first.
-5. **Atomic changes** — make the smallest correct change that satisfies the request. Do not refactor adjacent code. Do not add features not in the request.
+**Example 1: Bug fix with clear error**
+```
+User: "KeyError on line 47 of quota_service.py (attached) — tenant_id not in dict"
+Copilot:
+  1. Read attached file
+  2. Locate the error (line 47)
+  3. Identify root cause: dict key missing
+  4. Propose fix (check key before access OR provide default)
+  5. Show edited lines only
+  6. Explain: "The error happens because... The fix guards against..."
+```
 
----
+**Example 2: Add a field to a model**
+```
+User: "Add `updated_at` timestamp to Tenant model (models.py attached). Auto-update on save."
+Copilot:
+  1. Read models.py
+  2. Find Tenant class
+  3. Add datetime import (if missing)
+  4. Add `updated_at: datetime = Field(default_factory=datetime.utcnow)`
+  5. For auto-update: "You'll need to add a SQLAlchemy event listener to models.py or a pre-commit hook. Show me the existing pattern?"
+  6. If user provides the pattern: implement it. If not: suggest the two common approaches + point to a minimal example.
+```
 
-## Serena Code Navigation (when Serena MCP is loaded)
-
-Serena is configured in `.vscode/mcp.json`. Use it instead of asking the user to attach files for context gathering.
-
-- **Before reading any file for structure**: call `mcp_oraios_serena_get_symbols_overview(path)` — full symbol signatures at ~200 tokens vs ~2,000 for the whole file
-- **To locate a function or class**: call `mcp_oraios_serena_find_symbol(name)` before using grep or asking the user to search
-- **Before running tests or editing a file**: call `mcp_oraios_serena_get_diagnostics(path)` to catch type errors before they become test failures
-- **Full `#file:` attachment**: appropriate only when you need entire file context for an edit spanning multiple functions
-
-Context7 is also configured via `.vscode/mcp.json`. Use `mcp_context7_query_docs` for current library documentation. Never include source code or schema in Context7 queries — library name and question only.
+**Example 3: When you can't fix it**
+```
+User: "This test is failing. I don't understand why. File attached."
+Copilot:
+  1. Read the test + attached context
+  2. Run the test (if you can, via terminal)
+  3. See the actual error
+  4. First attempt: targeted fix based on error
+  5. If that doesn't work: suggest "This looks like a dependency issue or schema mismatch. Can you run: make migrate && pytest tests/test_file.py -v"
+  6. If that still doesn't work (second failure): STOP. Report: (a) exact error (≤10 lines), (b) what you tried, (c) hypothesis ("could be schema, fixture setup, async timing..."). Suggest the user attach conftest.py or the fixture definition, or use Claude Code for deeper diagnosis.
+```
 
 ---
 
 ## Project Ground Truth
 
-Stack, ports, make targets, and test commands are in `docs/AI_REFERENCE.md`. Read it if attached; do not guess the stack.
+**Stack, ports, make targets, test commands:**
+Read `docs/AI_REFERENCE.md` if attached. Do not guess the stack.
 
-The backlog and US status are in `docs/backlog/BACKLOG.md`.
+**Backlog and Sprint Status:**
+Read `docs/backlog/BACKLOG.md` if attached to understand dependencies and priorities.
+
+**Security Rules** (always enforced):
+- Every SQLAlchemy query on tenant-owned data: `.where(Model.tenant_id == tenant_id)`. Tenant_id comes from JWT token, never from request body.
+- No code suggesting transmission of source, schema, or session data to third parties.
+- No bypassing security (`--no-verify`, disabling auth, skipping RBAC).
 
 ---
 
-## Security Constraints (always active)
+## Token Anti-Patterns — Never Do These in Copilot
 
-- Every SQLAlchemy query on tenant-owned data must include `.where(Model.tenant_id == tenant_id)`. The `tenant_id` comes from the JWT token — never from the request body. A query without tenant scope is a data breach, not a bug.
-- Do not generate or suggest code that transmits source code, schema, or session data to third-party services.
-- Do not suggest bypassing security controls (`--no-verify`, disabling auth middleware, skipping RBAC checks).
+1. **No exploration** — Do not suggest `ls`, `find`, `tree`, `glob`, or reading unattached files. Work with what the user provides.
+2. **Silence noise** — Any bash command: `pip install -q`, `pytest -q --tb=short`, `npm --silent`. No build spam.
+3. **Circuit breaker** — If a fix fails twice, stop. Report exact error + what you tried + hypothesis. Don't retry endlessly.
+4. **Surgical edits** — Don't rewrite entire files to change 3 lines. If >30% of the file changes, ask the user to confirm scope first.
+5. **Atomic changes** — Smallest correct change. Don't refactor adjacent code or add features not requested.
+
+---
+
+## Serena Code Navigation (MCP Integration)
+
+If Serena MCP is loaded in `.vscode/mcp.json` (Copilot's MCP tools), use it to reduce context load:
+
+**Serena functions:**
+- `serena_get_symbols_overview(file_path)` — Function/class signatures (~200 tokens vs ~2,000 for full file)
+- `serena_find_symbol(name)` — Locate a function/class by name + get file + line number
+- `serena_get_diagnostics(file_path)` — Type errors, linting issues before you edit
+
+**When to use Serena:**
+- User asks about a function: use `find_symbol` instead of grepping
+- Before reading a large file for structure: use `symbols_overview` first
+- Before editing a file with type annotations: run `get_diagnostics` to catch errors early
+
+**When NOT to use Serena:**
+- User provides the file attached — just read it directly
+- You need the full function body for context — Serena gives signatures only
+
+---
+
+## Regex-based Targeted Reads (Optional Efficiency Pattern)
+
+Copilot's strengths: fast file reading, regex search. Consider this pattern for large files:
+
+1. Ask user: "Is there a specific function/section you're changing?"
+2. If yes: search for that function definition using regex, read just that section
+3. If no: "The whole file is needed for this change. Is it OK to read the full file?"
+
+This avoids loading 5,000-line files when you only need 50 lines.
+
+**Example regex pattern:**
+User: "Fix the authenticate() function in auth_handler.py (attached). It has a bug on line 42."
+Copilot: Use regex `def authenticate` → find the function → read just that function + surrounding context (±10 lines).
+
+---
+
+## When to Use Claude Code Instead of Copilot
+
+**Multi-step features** (requires planning):
+- "Add a complete feature that touches models, API routes, and frontend"
+- "Refactor 5 related modules to implement a new pattern"
+
+**Complex planning or review needed** (requires criticism before implementation):
+- "Design a new auth flow for multi-tenant scenarios"
+- "Plan a migration from MongoDBto PostgreSQL"
+
+**Integration of many pieces** (requires orchestration):
+- "Implement a full quote system from schema to API to UI"
+
+**See the Claude Code section of this repo's docs for setup and mode selection.**
+
+---
+
+## Instructions for Specific Tasks
+
+Read the files in `.github/instructions/` for patterns on:
+- How to structure Speed 1 prompts
+- Copilot + MCP patterns for your stack
+- Common anti-patterns for your project
+
+Each instruction file is standalone — you don't need to cross-reference CLAUDE.md or Claude Code docs.
+
+---
+
+## Feedback & Updates
+
+If you find a bug in these instructions or have a suggestion:
+
+1. Create a GitHub issue with label `[copilot-instructions]`
+2. Or comment in `HOW-TO-ADOPT.md` feedback section
+
+These instructions are maintained separately from Claude Code governance and can be updated without affecting the orchestration layer.
