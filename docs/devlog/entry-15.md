@@ -53,4 +53,12 @@ The question of whether orchestrator compliance checks can be automated without 
 
 Verdict for Phase 4: no automation needed at this class of violation rate. Revisit if the pattern recurs ≥3 times in Phase 4.
 
+**Fix applied (Phase 3e gate):** Added constraint 7 to `.claude/agents/doc-writer.md` — when the delegation prompt specifies a `≤N bytes` or `≤N lines` AC, the agent must run `wc -c`/`wc -l` and confirm the result before reporting done. The cost is zero (it's in the agent's system prompt, not a loaded rule) and the benefit is eliminating the judge→fix→re-judge loop for this class of AC.
+
+#### Phase Boundary Session Management (Applied — Phase 3e Gate)
+
+A second improvement came from the benchmark data: this session's JSONL spans both Phase 3d and Phase 3e, making the cost of each phase indistinguishable from the cumulative total. The Phase 3d measurement ($11.41) and the Phase 3e delta ($7.17) had to be hand-subtracted.
+
+**Fix applied:** Added step 6 to the Phase Gate workflow in `.claude/skills/speed2-workflow.md` — after gate approval, run `/clear` to start the next phase as a new session. Each phase now has its own JSONL for clean per-phase cost attribution via `make benchmark-session`. No ambiguity, no subtraction arithmetic.
+
 ---

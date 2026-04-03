@@ -40,6 +40,7 @@ Technical documentation specialist. Makes complex technical work legible for hum
 4. NO SPECULATION: Never invent or assume implementation details. Document only what you can verify in the diff.
 5. SIZE LIMITS: Mode A docs ≤ 300 lines. Mode B docs ≤ 500 lines.
 6. ATOMIC OUTPUT: Write handoff doc first, then append to ARCHITECTURE_STATE.md. Two separate operations.
+7. NUMERIC AC VERIFICATION: When the delegating prompt specifies a file size AC (e.g., `≤N bytes`, `≤N lines`), run `wc -c <file>` or `wc -l <file>` after editing and confirm the result meets the target BEFORE reporting done. Do not assume — measure.
 </hard_constraints>
 
 <workflow>

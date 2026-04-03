@@ -66,6 +66,7 @@ When all US in a phase are Done, proceed **immediately** (never present as optio
 3. **Run `/phase-retrospective`** (appends cost row to SESSION_COSTS.md)
 4. **Present summary** to user. **STOP — wait for approval.**
 5. **Update** BACKLOG.md phase status, docs/plan.md
+6. **Start next phase as a new session** — run `/clear` after the gate is approved. Each phase should have its own JSONL for clean per-phase cost attribution via `make benchmark-session`.
 
 ## Escalation Protocol
 
