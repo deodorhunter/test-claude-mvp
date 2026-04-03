@@ -70,8 +70,9 @@ Direct implementation is not a bypass of orchestration. It is an orchestration d
 
 Each sub-agent prompt MUST include:
 - `<user_story>` — full content of `docs/backlog/US-NNN.md`
-- `<file path="...">` XML tags — raw content of required existing files (use `cat`, never bare paths)
+- `<file path="...">` XML tags — raw content of required existing files (use `cat`, never bare paths). **DocWriter agents MUST always get file content pre-injected** — they cannot Read files in sub-agent context (permission denied). Include the full current file content.
 - SERENA BEFORE CAT: run `serena__get_symbols_overview` on candidate files first; inject `<symbols>` block instead of `<file>` when agent only needs the interface
+- **EXPLICIT MODEL ASSIGNMENT (mandatory):** Never delegate with `model: dynamic`. Always resolve the model at delegation time per Task Complexity Matrix and state it explicitly in the prompt: `Model: claude-haiku-4-5-20251001` (LOW) or `Model: claude-sonnet-4-6` (MEDIUM/HIGH). Dynamic model = spawn failure.
 - ASYNC CONTEXT MUZZLING (inject verbatim in every agent prompt):
   > "CRITICAL OUTPUT CONSTRAINT: When finished, return ONLY the word DONE followed by a 1-sentence summary. DO NOT output full source code, file contents, or verbose logs."
 

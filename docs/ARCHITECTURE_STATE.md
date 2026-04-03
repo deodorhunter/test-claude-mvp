@@ -137,3 +137,5 @@ result = await plone_server.query(input_text)  # → MCPResult(data, source, con
 
 ### US-065 — Backlog Refinement Ceremony + Skill + Rule-018
 **Date:** 2026-04-02 | **Agent:** Doc Writer | **What was built:** `/refine-backlog` command + skill, rule-018 (pre-sprint yes-man filter), refinement ceremony operational for Phase 3c+.
+
+| Phase-3c | 2026-04-02 | US-057/058/060 | HOW-TO-ADOPT copy-first, Copilot standalone, template v3.0 synced (12 agents, 20 rules) |
