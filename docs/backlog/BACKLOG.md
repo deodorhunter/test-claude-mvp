@@ -85,7 +85,7 @@
 ## Phase 3 — Framework Upgrade (User Feedback)
 
 **Obiettivo:** Governance framework improvements driven by 14 user feedback items + 5 internal observations.
-**Status:** 🔄 In Progress — Phase 3a Complete
+**Status:** ✅ Completata — Phase Gate 3 pending (2026-04-03)
 **Prerequisito:** Phase Gate 2 approvato ✅
 **Nota:** Original Phase 3 (API & Frontend) deferred to Phase 4. This phase has no application code changes.
 
@@ -129,16 +129,16 @@
 
 ### Phase 3d — Infrastructure, Architecture & Competitive Analysis
 
-**Mini-gate 3d:** Ollama + Qwen 3.5 documented, Plone-MCP clarified, OpenClaw analysis complete, SWE-agent evaluation done.
+**Mini-gate 3d:** ✅ **COMPLETE** (2026-04-03) — Qwen3 verified + MODEL_COMPARISON.md (US-061 ✅), Plone arch clarified (US-062 ✅), OMC competitive analysis (US-063 ✅), SWE-agent eval CONDITIONAL GO (US-064 ✅), session cost capture scripts (US-069 ✅), accuracy scoring /judge + trend log (US-070 ✅).
 
 | US | Title | Agent | Dependencies | Priority | Status | Notes |
 |---|---|---|---|---|---|---|
-| [US-061](US-061.md) | Ollama + Qwen 3.5 docs + MODEL_COMPARISON.md (Claude vs Copilot vs local) | Doc Writer | — | high | 📋 Backlog | |
-| [US-062](US-062.md) | Plone-MCP architecture clarification: rename/doc 3 touchpoints | Doc Writer | — | medium | 📋 Backlog | |
-| [US-063](US-063.md) | OpenClaw competitive analysis + COMPETITIVE_ANALYSIS.md | Doc Writer | — | medium | 📋 Backlog | |
-| [US-064](US-064.md) | SWE-Agent evaluation: go/no-go recommendation for mini-swe-agent | QA Engineer | — | medium | 📋 Backlog | Scoped to evaluation only |
-| [US-069](US-069.md) | In-house session cost accuracy + drift detection (parse session JSONL) | Backend Dev | — | high | 📋 Backlog | gitignore local metrics |
-| [US-070](US-070.md) | Accuracy scoring: structured /judge output + trend log | Doc Writer | US-069 | medium | 📋 Backlog | append-only accuracy-log.jsonl |
+| [US-061](US-061.md) | Ollama + Qwen 3.5 docs + MODEL_COMPARISON.md (Claude vs Copilot vs local) | Doc Writer | — | high | ✅ Done | Qwen3 verified against ollama.com |
+| [US-062](US-062.md) | Plone-MCP architecture clarification: rename/doc 3 touchpoints | Doc Writer | — | medium | ✅ Done | |
+| [US-063](US-063.md) | OpenClaw competitive analysis + COMPETITIVE_ANALYSIS.md | Doc Writer | — | medium | ✅ Done | OpenClaw = OMC webhook relay, not standalone |
+| [US-064](US-064.md) | SWE-Agent evaluation: go/no-go recommendation for mini-swe-agent | QA Engineer | — | medium | ✅ Done | CONDITIONAL GO verdict |
+| [US-069](US-069.md) | In-house session cost accuracy + drift detection (parse session JSONL) | Backend Dev | — | high | ✅ Done | make benchmark-session/report |
+| [US-070](US-070.md) | Accuracy scoring: structured /judge output + trend log | Doc Writer | US-069 | medium | ✅ Done | make benchmark-accuracy |
 
 ---
 
