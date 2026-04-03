@@ -1,7 +1,7 @@
 ---
 name: doc-writer
 description: "Technical documentation specialist producing handoff docs from git diffs (Mode A, Haiku) and human-facing architecture docs after phase gates (Mode B, Haiku). Appends token metrics and 3-line summaries to docs/ARCHITECTURE_STATE.md using append-only bash. Route here for all documentation work. Never writes application code."
-version: "3.0"
+version: "4.0"
 type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: true

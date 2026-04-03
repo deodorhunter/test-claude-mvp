@@ -1,5 +1,5 @@
 # AI Governance Framework — Developer Reference
-> Version 3.0 · 2026-03-30 · oh-my-claudecode Enterprise Edition
+> Version 4.0 · 2026-04-03 · oh-my-claudecode Enterprise Edition
 > EU AI Act compliant · Multi-tenant · Append-only audit trail
 
 ---
@@ -11,7 +11,7 @@ This framework governs how Claude Code agents operate within this repository. It
 - **Structured agent definitions** (YAML/XML) with enforced Mute Return
 - **Cognitive decentralization** (orchestrator, product owner, critic roles)
 - **EU AI Act compliance controls** (data boundary, human oversight, audit trail)
-- **Token economics** (context loading: 60,764 → 32,936 bytes, −46% — see benchmark/results/optimized-v2.txt; anti-pattern avoidance: up to ~145k tokens/session — Explore agents, no compress-state, etc.)
+- **Token economics** (context loading: 60,764 → 39,313 bytes, −35% — see benchmark/results/optimized.txt; anti-pattern avoidance: up to ~145k tokens/session — Explore agents, missing context injection, etc.)
 
 The framework is directly inspired by [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) paradigms, selectively adopting its best cognitive patterns while rejecting infra-level features incompatible with EU enterprise requirements. For a full feature comparison, honest assessment, and token-saving techniques extracted from OMC, see [`docs/COMPETITIVE_ANALYSIS.md`](COMPETITIVE_ANALYSIS.md).
 
@@ -42,7 +42,6 @@ CLAUDE.md                    ← Global physics only (~120 lines, down from 450)
 │
 ├── .claude/commands/
 │   ├── handoff.md           ← /handoff US-NNN: append to ARCHITECTURE_STATE.md
-│   ├── compress-state.md    ← /compress-state: session snapshot + /clear
 │   ├── init-ai-reference.md ← /init-ai-reference: write docs/AI_REFERENCE.md
 │   ├── judge.md             ← /judge US-NNN: pre-QA AC check (~2k tokens)
 │   ├── notepad.md           ← /notepad [category] [entry]: session memory (NEW)
@@ -50,8 +49,7 @@ CLAUDE.md                    ← Global physics only (~120 lines, down from 450)
 │   └── phase-retrospective.md ← /phase-retrospective: cost analysis + session costs
 │
 └── .claude/rules/project/
-    ├── rule-001 through rule-010  ← Accumulated project rules
-    └── rule-011-eu-ai-act-data-boundary.md  ← NEW: compliance boundary
+    └── rule-001 through rule-019  ← 13 active rules (gaps where rules were absorbed or deleted)
 ```
 
 ---
@@ -92,7 +90,7 @@ A dedicated agent that challenges plans before any implementing agent is spawned
 The "fresh output only, never assume" principle is now enforced in all verification steps. Every PASS verdict in judge.md, qa-engineer.md, and orchestrator.md requires actual terminal output shown verbatim. "Tests passed" without output is rejected.
 
 ### 3. Notepad Wisdom (`.claude/commands/notepad.md`)
-Timestamped, categorized session memory under four categories: Learnings, Decisions, Issues, Problems. Complements the memory system by capturing in-session institutional knowledge before `/compress-state` synthesizes it. Gitignored, local-only (rule-011 compliant).
+Timestamped, categorized session memory under four categories: Learnings, Decisions, Issues, Problems. Captures in-session institutional knowledge before `/clear` closes the context. Gitignored, local-only (rule-011 compliant).
 
 ### 4. Separation of Authoring and Review
 Formalized as Hard Rule 17: "The implementing agent for a US and the judge/verifier for that US must always be different agents." Existing practice (Security Engineer reviews others' work) is now a universal principle.
@@ -181,10 +179,10 @@ See also: `.claude/rules/project/rule-011-eu-ai-act-data-boundary.md` (full comp
 | CLAUDE.md monolith | ~8,000–12,000 tokens |
 | Agent file (free-text, duplicated constraints) | ~2,000–3,000 tokens |
 | Explore agents for file reading | ~60,000–131,000 tokens per session |
-| Parallel agent context (no compress-state) | ~80,000 × N agents wasted |
+| Parallel agent context (uncompressed, no /clear between waves) | ~80,000 × N agents wasted |
 | **Estimated session cost** | **~145,000 avoidable tokens/session** |
 
-### After (v3.0 — oh-my-claudecode enterprise)
+### After (v4.0 — oh-my-claudecode enterprise)
 | Component | Tokens per invocation |
 |---|---|
 | CLAUDE.md (global physics only) | ~1,500 tokens |
@@ -253,7 +251,6 @@ The framework supports **fully local AI inference** via Ollama + LiteLLM. This s
 | `/init-ai-reference` | First run or after major stack change |
 | `/judge US-NNN` | After implementing agent finishes, before DocWriter + QA (~2k tokens) |
 | `/handoff US-NNN` | After US merged to main — appends to ARCHITECTURE_STATE.md |
-| `/compress-state` | After 15+ tool calls, before parallel waves, at phase gates |
 | `/notepad Learnings [entry]` | Capture in-session insights before they're lost |
 | `/reflexion Phase-N` | At phase gate — extract durable rules from session incidents |
 | `/phase-retrospective` | Mandatory at every Phase Gate — cost analysis + SESSION_COSTS.md row |

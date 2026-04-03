@@ -1,7 +1,7 @@
 ---
 name: judge
 description: "Lightweight post-implementation, pre-QA verification. Reads git diff and the US acceptance criteria, checks each criterion against the diff, and returns a pass/fail verdict per criterion. Use after an implementing agent finishes but before spawning DocWriter and QA."
-version: "3.0"
+version: "4.0"
 type: command
 model: claude-haiku-4-5-20251001
 allowed_tools: [bash, read]

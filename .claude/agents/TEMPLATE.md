@@ -1,7 +1,7 @@
 ---
 name: agent-name
 description: "Third-person. What this agent does AND when the Tech Lead should route to it. Include key domain terms. Max 1024 chars."
-version: "3.0"
+version: "4.0"
 type: agent
 model: dynamic
 parallel_safe: true

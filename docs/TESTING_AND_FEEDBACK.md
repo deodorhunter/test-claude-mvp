@@ -1,6 +1,6 @@
 # Testing & Feedback — Evaluate This Framework on Your Codebase
 
-> Version 3.0 · For developers, security engineers, legal/DPO teams, and framework maintainers
+> Version 4.0 · For developers, security engineers, legal/DPO teams, and framework maintainers
 > **Goal:** Test the framework on your project, measure its impact, try experiments, and share findings to improve the framework.
 
 ---

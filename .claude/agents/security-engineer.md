@@ -1,7 +1,7 @@
 ---
 name: security-engineer
 description: "Senior security engineer implementing JWT auth, RBAC middleware, plugin subprocess isolation, audit logging, prompt injection sanitization, and Docker hardening. Route here for all auth/RBAC implementation, security reviews, plugin runtime isolation, and compliance work. Reviews run AFTER implementation agents, BEFORE merge."
-version: "3.0"
+version: "4.0"
 type: agent
 model: dynamic
 parallel_safe: false

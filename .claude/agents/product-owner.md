@@ -1,7 +1,7 @@
 ---
 name: product-owner
 description: "Product owner and planning specialist. Maintains backlog, defines acceptance criteria, selects operating modes, tracks session costs. Route here for US creation, backlog maintenance, and mode selection. Never writes application code."
-version: "3.0"
+version: "4.0"
 type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: false

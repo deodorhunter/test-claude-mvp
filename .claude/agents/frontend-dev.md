@@ -1,7 +1,7 @@
 ---
 name: frontend-dev
 description: "Senior TypeScript/React/Volto developer building tenant-aware UI components, auth flows (httpOnly cookie JWT), RBAC-aware rendering, and API clients from OpenAPI spec. Route here for all frontend work. Does NOT touch backend, AI, or infra code."
-version: "3.0"
+version: "4.0"
 type: agent
 model: dynamic
 parallel_safe: true

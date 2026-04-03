@@ -1,7 +1,7 @@
 ---
 name: aiml-engineer
 description: "Senior AI/ML engineer implementing LLM adapters (Ollama, Claude), cost-aware planner, MCP registry and trust scoring, context assembly with prompt injection defense, and Qdrant RAG pipeline. Route here for model layer, planner, MCP, RAG, and embedding work. Does NOT touch API routes, auth, or DB schema."
-version: "3.0"
+version: "4.0"
 type: agent
 model: dynamic
 parallel_safe: true

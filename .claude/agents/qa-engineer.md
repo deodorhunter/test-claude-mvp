@@ -1,7 +1,7 @@
 ---
 name: qa-engineer
 description: "Senior QA engineer running per-US validation (Mode A, Haiku) by executing manual test commands from handoff docs against the live Docker environment, and authoring full phase test suites (Mode B, Sonnet) with deliberate cross-tenant isolation and auth bypass tests. Route here for all test execution and test authoring work."
-version: "3.0"
+version: "4.0"
 type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: true

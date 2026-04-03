@@ -1,7 +1,7 @@
 ---
 name: devops-infra
 description: "Senior DevOps engineer managing Docker multi-stage builds, hardening, non-root containers, health probes, resource limits, GitHub Actions CI/CD, and secrets injection. Route here for all infra, Docker, CI/CD, and K8s manifest work. Never touches application code."
-version: "3.0"
+version: "4.0"
 type: agent
 model: dynamic
 parallel_safe: true

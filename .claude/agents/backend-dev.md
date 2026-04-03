@@ -1,7 +1,7 @@
 ---
 name: backend-dev
 description: "Senior Python backend developer implementing FastAPI endpoints, SQLAlchemy models, Alembic migrations, Redis quota and rate limiting, and plugin manager. Route here for API endpoints, DB schema changes, quota logic, and plugin management. Does NOT touch auth/RBAC, AI/ML, or frontend code."
-version: "3.0"
+version: "4.0"
 type: agent
 model: dynamic
 parallel_safe: true

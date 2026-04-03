@@ -1,12 +1,12 @@
 ═══════════════════════════════════════════════════════════════
   CONTEXT SIZE MEASUREMENT — OPTIMIZED
-  Date: 2026-04-03 15:20:29
+  Date: 2026-04-03 19:55:47
   Project: /Users/martina/personal-projects/test-claude-mvp
 ═══════════════════════════════════════════════════════════════
 
 ── Auto-loaded instruction files ──────────────────────────────
 
-  CLAUDE.md                               4749 bytes  (~  1187 tokens)
+  CLAUDE.md                               4864 bytes  (~  1216 tokens)
   orchestrator.md                        10930 bytes  (~  2732 tokens)
   product-owner.md                        4911 bytes  (~  1227 tokens)
   Rules (project/)                       12075 bytes  (~  3018 tokens)  [13 files]
@@ -30,13 +30,13 @@
 ── Referenced files (loaded per session) ──────────────────────
 
   workflow.md                              180 bytes  (~    45 tokens)
-  AI_REFERENCE.md                        18821 bytes  (~  4705 tokens)
+  AI_REFERENCE.md                         5901 bytes  (~  1475 tokens)
 
 ── Hooks ──────────────────────────────────────────────────────
 
   Hook scripts (.claude/hooks/)           4404 bytes  (~  1101 tokens)  [2 files]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  TOTAL AUTO-LOADED (all rules):        57388 bytes  (~ 14347 tokens)
-  EFFECTIVE (unconditional only):        52118 bytes  (~ 13029 tokens)
+  TOTAL AUTO-LOADED (all rules):        44583 bytes  (~ 11145 tokens)
+  EFFECTIVE (unconditional only):        39313 bytes  (~  9828 tokens)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
