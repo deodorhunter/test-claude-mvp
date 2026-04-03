@@ -92,7 +92,6 @@ Pre-generated command reference: see `docs/.command-catalog.md` for all 12 comma
 
 | Command | Use case |
 |---|---|
-| `/compress-state` | Before parallel agent waves or after 15+ tool calls; synthesizes session snapshot |
 | `/consistency-check` | Scores agent output against US acceptance criteria; blocks at ≤2 |
 | `/deep-interview` | Extracts testable requirements from fuzzy intent via Socratic questioning |
 | `/handoff` | Appends metrics + summary to ARCHITECTURE_STATE.md after merging a US |
@@ -139,8 +138,6 @@ Copilot has no Phase 2 orchestration equivalent — no agents, no delegations, n
 
 ## Context Management
 
-**Rule reference:** `.claude/rules/project/rule-010-compress-state-before-parallel-waves.md`
-
 Context compression prevents token multiplication when parallel agent waves share a large planning context (80k × 3 agents = 240k wasted tokens).
 
 ### Automated Hook: `auto-compress.sh`
@@ -149,9 +146,9 @@ Registered in `.claude/settings.json`. Fires advisory warnings — never blocks 
 
 | Trigger | Hook Event | Condition | Advisory |
 |---|---|---|---|
-| Tool-call threshold | `PostToolUse` (all tools) | count ≥ `COMPRESS_THRESHOLD` (default: 12) | Run `/compress-state → /clear` |
-| Sub-agent spawn | `PreToolUse` (Agent) | context count ≥ 5 tool calls | Check if ≥2 agents → compress first |
-| Parallel results received | `SubagentStop` (all) | ≥2 sub-agents completed | Compress before next wave |
+| Tool-call threshold | `PostToolUse` (all tools) | count ≥ `COMPRESS_THRESHOLD` (default: 12) | Run `/clear` |
+| Sub-agent spawn | `PreToolUse` (Agent) | context count ≥ 5 tool calls | Check if ≥2 agents → clear first |
+| Parallel results received | `SubagentStop` (all) | ≥2 sub-agents completed | Clear before next wave |
 | Phase Gate keyword | `UserPromptSubmit` | prompt matches `phase gate` / `proceed to phase` | Complete all gate steps |
 
 ### Configuration
@@ -159,31 +156,20 @@ Registered in `.claude/settings.json`. Fires advisory warnings — never blocks 
 ```bash
 # Override compression threshold (default: 12 tool calls)
 export COMPRESS_THRESHOLD=8
-
-# State files are stored per-session in:
-# ${TMPDIR}/claude-compress-state/tool-count-{session_id}
-# ${TMPDIR}/claude-compress-state/subagent-count-{session_id}
 ```
 
-### Manual Fallback (primary mechanism)
+### Manual Fallback
 
 ```bash
-# Step 1: Snapshot current session context
-/compress-state   # writes docs/.temp_context.md
-
-# Step 2: Clear session to free context window
+# Clear session to free context window before next wave
 /clear
-
-# Step 3: Reload snapshot for next wave
-# Read docs/.temp_context.md at start of next prompt
 ```
 
 ### Example Hook Warning Output
 
 ```
-<system_warning>rule-010: Tool-call count has reached 12 (threshold: 12).
-Run /compress-state → /clear before spawning parallel agents to avoid 120k+ token
-waste. Reset: delete /tmp/claude-compress-state/tool-count-{id} or run /clear.
+<system_warning>Tool-call count has reached 12 (threshold: 12).
+Run /clear before spawning parallel agents to avoid 120k+ token waste.
 (auto-compress.sh)</system_warning>
 ```
 

@@ -1,4 +1,4 @@
-.PHONY: up down logs migrate test shell-api shell-postgres verify-docs benchmark-session benchmark-report benchmark-accuracy
+.PHONY: up down logs migrate test shell-api shell-postgres verify-docs benchmark-session benchmark-report benchmark-accuracy up-ai-tools down-ai-tools
 
 COMPOSE = docker compose -f infra/docker-compose.yml --env-file .env
 
@@ -35,3 +35,9 @@ benchmark-report:
 
 benchmark-accuracy:
 	@bash benchmark/report-accuracy.sh
+
+up-ai-tools:
+	docker compose -f infra/docker-compose.ai-tools.yml up -d
+
+down-ai-tools:
+	docker compose -f infra/docker-compose.ai-tools.yml down

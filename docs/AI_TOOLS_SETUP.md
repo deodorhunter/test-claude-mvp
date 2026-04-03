@@ -45,7 +45,8 @@ Use `infra/docker-compose.ai-tools.yml` for sandboxed Serena. This is **required
 
 ```bash
 # Start sandboxed Serena (HTTP/SSE mode, exposed on localhost:9121)
-docker compose -f infra/docker-compose.ai-tools.yml up -d serena
+make up-ai-tools
+# or: docker compose -f infra/docker-compose.ai-tools.yml up -d serena
 ```
 
 For VS Code (HTTP mode), Serena must be configured as a remote SSE server instead of stdio. VS Code MCP HTTP support is experimental — check the MCP extension settings.
@@ -143,7 +144,8 @@ LiteLLM acts as an OpenAI-compatible proxy in front of Ollama, translating Anthr
 
 ```bash
 # Start LiteLLM (from the ai-tools compose)
-docker compose -f infra/docker-compose.ai-tools.yml up -d litellm
+make up-ai-tools
+# or: docker compose -f infra/docker-compose.ai-tools.yml up -d litellm
 
 # Point Claude Code at local models
 export ANTHROPIC_BASE_URL=http://localhost:4000
@@ -185,12 +187,12 @@ Quick decision matrix:
 
 ```bash
 # Start everything
-docker compose -f infra/docker-compose.ai-tools.yml up -d
+make up-ai-tools
 
 # Services started:
-#   serena   → localhost:9121  (HTTP/SSE mode, workspace read-only mount)
-#   ollama   → localhost:11434 (shared with main compose via named volume)
-#   litellm  → localhost:4000  (OpenAI-compatible proxy for Ollama)
+#   serena       → localhost:9121  (HTTP/SSE mode, workspace read-only mount)
+#   ollama-tools → localhost:11435 (local inference, shared model weights volume)
+#   litellm      → localhost:4000  (OpenAI-compatible proxy for Ollama)
 ```
 
 This compose file is separate from `infra/docker-compose.yml` — AI dev tools are not platform services and must not share the application network.

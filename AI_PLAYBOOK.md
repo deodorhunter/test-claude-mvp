@@ -120,7 +120,6 @@ To use a command, type it in the chat (Claude Code supports `/command-name` nota
 |---|---|---|
 | `/init-ai-reference` | Scans the repo once and writes `docs/AI_REFERENCE.md` | When setting up this repo for the first time, or after major stack changes |
 | `/handoff` | Runs `git diff`, parses it, appends summary to `docs/ARCHITECTURE_STATE.md` | After a US is merged, to keep the state file current |
-| `/compress-state` | Summarizes the current chat into `docs/.temp_context.md` and prompts `/clear` | When you've been working in the same session for > 30 min and token usage is climbing |
 
 ### Cognitive Patterns — Decision & Memory Commands
 
@@ -179,7 +178,6 @@ At scale (i.e. 40 projects × 10 developers × 5 tasks/day), the difference betw
 | **Reference exact function/class names** | Prevents Claude searching for the wrong thing |
 | **Specify the acceptance criteria** | Claude stops when done, not when bored |
 | **Use `/clear` after each major task** | Prevents context cross-contamination between tasks |
-| **Use `/compress-state` before a long session** | Keeps the working context lean |
 | **Ask for a plan first, code second** | Catches misunderstandings before tokens are spent on wrong code |
 | **Tell Claude which test to run** | Prevents it inventing test commands |
 
@@ -214,7 +212,7 @@ Start of session
                  → /clear (after phase gate or complex US)
 ```
 
-**Rule of thumb:** If your chat history is longer than 20 messages, run `/compress-state` and then `/clear`. The next session will pick up from `docs/.temp_context.md`.
+**Rule of thumb:** If your chat history is longer than 20 messages, run `/clear` to free the context window before continuing.
 
 ---
 
