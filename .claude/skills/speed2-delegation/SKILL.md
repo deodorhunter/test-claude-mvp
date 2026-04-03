@@ -1,14 +1,15 @@
 ---
 name: speed2-delegation
 description: "Speed 2 orchestration protocol for delegating User Stories to specialist sub-agents. Encodes agent routing, rule injection, context sizing, batching, parallelism, and confidence gating. Load before any delegation decision in Phase 2 or Phase 3."
-version: "2.0"
-type: skill
-trigger: "When the Orchestrator (Tech Lead) delegates any US to a sub-agent, or decides whether to delegate vs. implement directly"
-updated: "2026-03-31"
+metadata:
+  trigger: "When the Orchestrator (Tech Lead) delegates any US to a sub-agent, or decides whether to delegate vs. implement directly"
+  type: skill
+  updated: "2026-03-31"
+  version: "2.0"
 ---
 
 <insight>
-Delegation is an orchestration decision, not a reflex. The correct question is not "which agent handles this?" but "does the coordination overhead of delegation exceed the implementation cost?" For horizontal features (1–3 domains), delegate. For vertical integration slices (≥4 domains simultaneously), implement directly.
+Default: **direct implementation**. Delegation is justified only when the feature is clearly horizontal (1-3 independent domains). For vertical integration slices (4+ tightly coupled domains), direct implementation is 3-5x cheaper (Phase 2d empirical data). The question is not "which agent handles this?" but "does the coordination overhead exceed the implementation cost?"
 </insight>
 
 <why_this_matters>
@@ -51,39 +52,22 @@ Delegating a 5-domain vertical slice generates ≥2 parallel waves, compress/cle
 
 ## S2 — Direct vs. Delegate Decision
 
-| Domain count in single US | Decision | Reason |
+**Default: direct implementation.** Delegate only when clearly justified.
+
+| Domain count | Decision | Reason |
 |---|---|---|
-| 1–3 domains | **Delegate** to specialist agent(s) | Coordination overhead < implementation cost |
-| ≥4 domains simultaneously | **Tech Lead direct** | Coordination overhead > implementation cost |
+| 1-3 domains, independent | **Delegate** to specialist agent(s) | Clear boundaries, no cross-domain coupling |
+| 4+ domains, tightly coupled | **Direct implementation** | Coordination overhead > implementation cost |
 
-*Introduced in Phase 2d retrospective (2026-03-31). Root case: US-020 touched DevOps × 2, Frontend/Node.js, AIML, Backend Dev, DocWriter — 5 domains, ~73k tokens direct vs. ~200–300k estimated for delegation waves.*
+## S3 — Delegation Checklist (4 mandatory items)
 
-## S3 — Agent-Scoped Rule Injection
+Every sub-agent prompt MUST include:
+1. **`<user_story>`** — full content of `docs/backlog/US-NNN.md`
+2. **`<file path="...">`** — raw content of files the agent will modify (Read them first, inject as XML)
+3. **Explicit model** — `claude-haiku-4-5-20251001` (LOW) or `claude-sonnet-4-6` (MEDIUM/HIGH). Never `dynamic`.
+4. **Muzzle constraint** (verbatim): "CRITICAL OUTPUT CONSTRAINT: When finished, return ONLY the word DONE followed by a 1-sentence summary."
 
-Inject ONLY the rules relevant to that agent type as inline `<rules>` XML. Do NOT rely on system-prompt inheritance.
-
-| Agent | Rules to inject |
-|---|---|
-| Backend Dev | 001 (tenant), 002 (migration) |
-| AI/ML Engineer | 001 (tenant), 011 (EU boundary), 012 (MCP trust), 014 (registry opt-in) |
-| Security Engineer | 001 (tenant), 011 (EU boundary), 012 (MCP trust) |
-| DevOps/Infra | 008 (docker fix), 013 (docker COPY syntax) |
-| DocWriter | 005 (no bash -c) |
-| QA Engineer | 005 (no bash -c), 006 (no QA subagents) |
-| Frontend Dev | 001 (tenant) |
-| Critic | none (read-only) |
-
-## S4 — Context Injection Decision
-
-Default: **symbols-only injection**. Full file requires justification.
-
-| Condition | Injection type | Size |
-|---|---|---|
-| Agent will **modify** the file | `<file path="...">full content</file>` | 100% |
-| Agent will **call into / reference** the file | `<symbols path="...">serena overview</symbols>` | ~10% |
-| Agent needs **types/interfaces only** | `<interface path="...">signatures</interface>` | ~5% |
-
-Always run `serena__get_symbols_overview` first. Inject `<file>` only when the file will be edited.
+Use TodoWrite to track delegation checklist completion before spawning.
 
 ## S5 — Batching Protocol
 

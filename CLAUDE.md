@@ -1,6 +1,6 @@
 # CLAUDE.md — Global Physics
 > These rules are **ALWAYS ACTIVE** for every agent, every session, no exceptions.
-> Workflow: see @.claude/agents/orchestrator.md · Planning & US format: see @.claude/agents/product-owner.md
+> Speed 2 workflow: load `.claude/skills/speed2-workflow.md` on demand.
 
 <!-- compaction directive -->
 When compacting, preserve: (1) current phase + US status, (2) all modified file paths, (3) test commands and results, (4) open blockers, (5) agent delegation queue.
@@ -48,14 +48,14 @@ Use `cat file1 file2 file3` in one Bash call rather than three sequential `Read`
 Find patterns by syntax, not text matching. Use AST structural code search and replace (e.g. `ast_grep`) instead of raw `sed`/`awk` when matching syntactic constructs (function signatures, class hierarchies, import patterns). AST search is refactor-safe — it won't match comments or strings that happen to contain the pattern.
 
 **LSP Integration (Serena-First Navigation)**
-Enforce semantic navigation. Before reading any file for structure, use the Language Server:
+When Serena MCP is available, enforce semantic navigation before reading files:
 1. `serena__get_symbols_overview(file)` — signatures only (~200 tokens vs ~2,000 per file)
 2. `serena__find_symbol(name)` — file + line number (~50 tokens)
 3. `serena__read_file(file, start_line, end_line)` — targeted range after locating the symbol
-4. `serena__get_diagnostics(file)` — type errors BEFORE running tests (circuit breaker prevention)
+4. `serena__get_diagnostics(file)` — type errors BEFORE running tests
 5. Full `Read`/`cat` — last resort: only for `<file>` XML injection into sub-agent prompts
 
-Use Hover info, go-to-definition, find references, and project-wide type checking via the Language Server before modifying code. Never navigate by guessing file paths when Serena is available.
+If Serena is not available, fall back to Read/Grep/Glob directly.
 
 **Python REPL**
 Use the persistent Python REPL for complex scripts instead of multiline `bash -c 'python ...'`. REPL preserves state between calls.
@@ -66,24 +66,11 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 <part_3 title="Active Project Rules">
 
-<!-- Unconditional rules: always loaded -->
 @.claude/rules/project/rule-001-tenant-isolation.md
-@.claude/rules/project/rule-003-no-explore-agents-for-file-reading.md
 @.claude/rules/project/rule-004-ai-reference-check-every-session.md
 @.claude/rules/project/rule-007-phase-gate-proceed-means-gate-steps.md
 @.claude/rules/project/rule-009-serena-first-navigation.md
-@.claude/rules/project/rule-010-compress-state-before-parallel-waves.md
 @.claude/rules/project/rule-011-eu-ai-act-data-boundary.md
-@.claude/rules/project/rule-020-phase-gate-auto-proceed.md
-
-<!-- Path-scoped rules: auto-loaded only when working on matching files -->
-<!-- rule-002 (migration): backend/app/db/**, backend/alembic/** -->
-<!-- rule-005 (no bash -c): backend/tests/**, docs/handoffs/** -->
-<!-- rule-006 (no QA subagents): backend/tests/** -->
-<!-- rule-008 (docker fix): infra/**, backend/app/core/config.py, backend/Dockerfile -->
-<!-- rule-012 (MCP trust): ai/mcp/** -->
-<!-- rule-013 (docker COPY no shell ops): infra/**, infra/docker/** -->
-<!-- rule-014 (registry enforcement opt-in): ai/mcp/**, backend/app/** -->
 
 </part_3>
 
@@ -95,8 +82,8 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 |---|---|
 | `docs/AI_REFERENCE.md` | Stack, ports, make targets, test commands — ground truth. Read at every Speed 2 session start. If missing: run `/init-ai-reference` BEFORE anything else. |
 | `docs/backlog/BACKLOG.md` | Current phase and US status |
-| `.claude/agents/orchestrator.md` | Full Speed 2 workflow, delegation, phase gates, agent routing |
-| `.claude/agents/product-owner.md` | Speed 1/2 mode selection, Task Complexity Matrix, US format |
+| `.claude/skills/speed2-workflow.md` | Speed 2 workflow, delegation, phase gates (load on demand) |
+| `.claude/agents/product-owner.md` | Task Complexity Matrix, US format (load when creating US) |
 
 </part_4>
 
@@ -104,9 +91,12 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 <part_5 title="Hard Rules (never break)">
 
-Full constraint list: see `@.claude/agents/orchestrator.md` `<hard_constraints>` section.
-Key invariants: no self-approval (rule 17), no code exfiltration (rule-011), no delegation without acceptance criteria, no bare file paths (always `<file>` XML injection).
+1. **NO SELF-APPROVAL**: Never mark a US done without running the smoke test. Never pass a Phase Gate without completing all gate steps.
+2. **PHASE GATE IS MANDATORY**: When all US in a phase are Done, run Phase Gate immediately. Never present it as optional. (rule-007)
+3. **NO DELEGATION WITHOUT AC**: Every US must have written acceptance criteria before delegation.
+4. **FILE CONTENT INJECTION**: When delegating to sub-agents, inject raw file content via `<file path="...">` XML tags. Never pass bare file paths — sub-agents cannot Read files autonomously.
+5. **EXPLICIT MODEL ASSIGNMENT**: Never delegate with `model: dynamic`. Resolve the model at delegation time: `claude-haiku-4-5-20251001` (LOW) or `claude-sonnet-4-6` (MEDIUM/HIGH).
+6. **EU AI ACT COMPLIANCE**: No code/schema/session data to third-party services. Phase-gate checkpoints mandatory. (rule-011)
+7. **TENANT ISOLATION**: Every DB query on tenant-owned data filtered by `tenant_id` from JWT. (rule-001)
 
 </part_5>
-
-
