@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-008
-trigger: "Before making any fix that requires a Docker image rebuild (make up)"
+description: "Before making any fix that requires a Docker image rebuild (make up)"
 updated: "2026-03-31"
 paths:
   - "infra/**"

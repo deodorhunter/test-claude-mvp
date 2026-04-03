@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-012
-trigger: "When an agent integrates, queries, or registers any MCP server"
+description: "When an agent integrates, queries, or registers any MCP server"
 updated: "2026-03-31"
 paths:
   - "ai/mcp/**"

@@ -1,11 +1,14 @@
 ---
-id: rule-005
-trigger: "When DocWriter writes Manual Test Instructions, or when QA runs integration tests via docker exec"
-updated: "2026-03-31"
+description: "When DocWriter writes Manual Test Instructions, or when QA runs integration tests via docker exec"
 paths:
   - "backend/tests/**"
   - "docs/handoffs/**"
 ---
+
+<metadata>
+  id: rule-005
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 005 — No Multiline Python in bash -c
 

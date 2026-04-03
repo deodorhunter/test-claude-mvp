@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-020
-trigger: "After all US in a phase are marked ✅ Done"
+description: "After all US in a phase are marked ✅ Done"
 updated: "2026-04-02"
 ---
 

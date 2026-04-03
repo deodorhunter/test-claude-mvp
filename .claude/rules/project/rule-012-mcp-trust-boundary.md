@@ -1,10 +1,13 @@
 ---
-id: rule-012
-trigger: "When an agent integrates, queries, or registers any MCP server"
-updated: "2026-03-31"
+description: "When an agent integrates, queries, or registers any MCP server"
 paths:
   - "ai/mcp/**"
 ---
+
+<metadata>
+  id: rule-012
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 012 — MCP Trust Boundary
 

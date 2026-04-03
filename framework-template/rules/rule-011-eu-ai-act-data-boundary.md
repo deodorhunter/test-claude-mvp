@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-011
-trigger: "When any agent or tool integration could transmit code, schema, or session data outside the project directory"
+description: "When any agent or tool integration could transmit code, schema, or session data outside the project directory"
 updated: "2026-03-31"
 ---
 

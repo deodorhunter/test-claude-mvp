@@ -1,3 +1,12 @@
+---
+description: "In git worktrees: configure Serena MCP to ignore .git/ paths, chain git checkout+merge in single && command, remove stale .git/index.lock."
+---
+
+<metadata>
+  id: rule-019
+  updated: "2026-03-31"
+</metadata>
+
 # Rule 019 — Serena-Git Isolation (Worktree Safety)
 
 <constraint>

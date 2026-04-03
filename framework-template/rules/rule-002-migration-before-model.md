@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-002
-trigger: "When an agent modifies backend/app/db/models.py"
+description: "When an agent modifies backend/app/db/models.py"
 updated: "2026-03-31"
 paths:
   - "backend/app/db/**"

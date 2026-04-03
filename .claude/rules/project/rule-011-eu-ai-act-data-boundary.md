@@ -1,8 +1,11 @@
 ---
-id: rule-011
-trigger: "When any agent or tool integration could transmit code, schema, or session data outside the project directory"
-updated: "2026-03-31"
+description: "When any agent or tool integration could transmit code, schema, or session data outside the project directory"
 ---
+
+<metadata>
+  id: rule-011
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 011 — EU AI Act Data Boundary
 

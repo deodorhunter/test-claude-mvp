@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-005
-trigger: "When DocWriter writes Manual Test Instructions, or when QA runs integration tests via docker exec"
+description: "When DocWriter writes Manual Test Instructions, or when QA runs integration tests via docker exec"
 updated: "2026-03-31"
 paths:
   - "backend/tests/**"

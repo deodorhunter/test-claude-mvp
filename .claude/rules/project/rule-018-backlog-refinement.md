@@ -1,8 +1,11 @@
 ---
-id: rule-018
-trigger: "Before sprint planning for any phase"
-updated: "2026-04-02"
+description: "Before sprint planning for any phase"
 ---
+
+<metadata>
+  id: rule-018
+  updated: "2026-04-02"
+</metadata>
 
 # Rule 018 — Pre-Sprint Backlog Refinement
 

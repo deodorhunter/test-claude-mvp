@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-018
-trigger: "Before sprint planning for any phase"
+description: "Before sprint planning for any phase"
 updated: "2026-04-02"
 ---
 

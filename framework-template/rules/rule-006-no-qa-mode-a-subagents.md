@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-006
-trigger: "When the Tech Lead needs to validate a US (Mode A per-US validation)"
+description: "When the Tech Lead needs to validate a US (Mode A per-US validation)"
 updated: "2026-03-31"
 paths:
   - "backend/tests/**"

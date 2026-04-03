@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-010
-trigger: "Before spawning ≥2 parallel agents, after receiving ≥2 parallel results, after 12 tool calls, at Phase Gate opening"
+description: "Before spawning ≥2 parallel agents, after receiving ≥2 parallel results, after 12 tool calls, at Phase Gate opening"
 updated: "2026-04-02"
 ---
 

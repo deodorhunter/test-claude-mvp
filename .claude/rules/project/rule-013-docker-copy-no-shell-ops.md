@@ -1,9 +1,14 @@
 ---
-id: rule-013
-paths: "infra/**, infra/docker/**"
-trigger: "When any agent writes or modifies a Dockerfile"
-updated: "2026-03-31"
+description: "When any agent writes or modifies a Dockerfile"
+paths:
+  - "infra/**"
+  - "infra/docker/**"
 ---
+
+<metadata>
+  id: rule-013
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 013 — Docker COPY No Shell Operators
 

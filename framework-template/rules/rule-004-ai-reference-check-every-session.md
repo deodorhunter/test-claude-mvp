@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-004
-trigger: "At the start of any Speed 2 (Orchestrator Mode) session"
+description: "At the start of any Speed 2 (Orchestrator Mode) session"
 updated: "2026-03-31"
 ---
 

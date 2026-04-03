@@ -2,7 +2,7 @@
 ---
 id: rule-013
 paths: "infra/**, infra/docker/**"
-trigger: "When any agent writes or modifies a Dockerfile"
+description: "When any agent writes or modifies a Dockerfile"
 updated: "2026-03-31"
 ---
 

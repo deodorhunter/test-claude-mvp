@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-009
-trigger: "Before reading any file for structure or symbol location"
+description: "Before reading any file for structure or symbol location"
 updated: "2026-03-31"
 ---
 

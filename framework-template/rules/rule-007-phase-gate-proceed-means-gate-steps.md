@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-007
-trigger: "When user says \"proceed\", \"approved\", or \"continue\" at a phase boundary"
+description: "When user says \"proceed\", \"approved\", or \"continue\" at a phase boundary"
 updated: "2026-03-31"
 ---
 

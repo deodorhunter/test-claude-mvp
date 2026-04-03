@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-001
-trigger: "When an agent writes any SQLAlchemy query or raw SQL on tenant-owned data"
+description: "When an agent writes any SQLAlchemy query or raw SQL on tenant-owned data"
 updated: "2026-03-31"
 ---
 

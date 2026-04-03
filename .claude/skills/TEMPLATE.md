@@ -1,10 +1,11 @@
 ---
 name: skill-name
 description: "One sentence: what this skill teaches and when to apply it."
-version: "1.0"
-type: skill
-trigger: "When [situation that activates this skill]"
-updated: "YYYY-MM-DD"
+metadata:
+  trigger: "When [situation that activates this skill]"
+  type: skill
+  updated: "YYYY-MM-DD"
+  version: "1.0"
 ---
 
 <insight>

@@ -1,11 +1,14 @@
 ---
-id: rule-002
-trigger: "When an agent modifies backend/app/db/models.py"
-updated: "2026-03-31"
+description: "When an agent modifies backend/app/db/models.py"
 paths:
   - "backend/app/db/**"
   - "backend/alembic/**"
 ---
+
+<metadata>
+  id: rule-002
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 002 — Migration Before Model
 

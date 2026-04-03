@@ -1,8 +1,11 @@
 ---
-id: rule-NNN
-trigger: "When an agent [action that triggers this rule]"
-updated: "YYYY-MM-DD"
+description: "When an agent [action that triggers this rule]"
 ---
+
+<metadata>
+  id: rule-NNN
+  updated: "YYYY-MM-DD"
+</metadata>
 
 # Rule NNN — [Title]
 

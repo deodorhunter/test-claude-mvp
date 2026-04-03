@@ -1,8 +1,11 @@
 ---
-id: rule-001
-trigger: "When an agent writes any SQLAlchemy query or raw SQL on tenant-owned data"
-updated: "2026-03-31"
+description: "When an agent writes any SQLAlchemy query or raw SQL on tenant-owned data"
 ---
+
+<metadata>
+  id: rule-001
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 001 — Every DB Query Filtered by tenant_id
 

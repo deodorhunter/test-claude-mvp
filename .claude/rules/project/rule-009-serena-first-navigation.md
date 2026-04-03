@@ -1,8 +1,11 @@
 ---
-id: rule-009
-trigger: "Before reading any file for structure or symbol location"
-updated: "2026-03-31"
+description: "Before reading any file for structure or symbol location"
 ---
+
+<metadata>
+  id: rule-009
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 009 — Serena-First Navigation
 

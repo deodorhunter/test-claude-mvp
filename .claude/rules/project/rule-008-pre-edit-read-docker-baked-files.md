@@ -1,12 +1,15 @@
 ---
-id: rule-008
-trigger: "Before making any fix that requires a Docker image rebuild (make up)"
-updated: "2026-03-31"
+description: "Before making any fix that requires a Docker image rebuild (make up)"
 paths:
   - "infra/**"
   - "backend/app/core/config.py"
   - "backend/Dockerfile"
 ---
+
+<metadata>
+  id: rule-008
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 008 — Read All Files Before Docker Fix
 

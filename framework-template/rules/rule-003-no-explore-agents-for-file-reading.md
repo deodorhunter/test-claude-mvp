@@ -1,7 +1,7 @@
 <!-- framework-template v3.0 | synced: 2026-04-02 -->
 ---
 id: rule-003
-trigger: "When the Tech Lead needs to understand existing code or file contents"
+description: "When the Tech Lead needs to understand existing code or file contents"
 updated: "2026-03-31"
 ---
 

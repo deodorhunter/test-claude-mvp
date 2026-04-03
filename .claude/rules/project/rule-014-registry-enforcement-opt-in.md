@@ -1,9 +1,14 @@
 ---
-id: rule-014
-paths: "ai/mcp/**, backend/app/**"
-trigger: "When any agent adds validation or enforcement logic to an existing registry or manager class that has existing callers"
-updated: "2026-03-31"
+description: "When any agent adds validation or enforcement logic to an existing registry or manager class that has existing callers"
+paths:
+  - "ai/mcp/**"
+  - "backend/app/**"
 ---
+
+<metadata>
+  id: rule-014
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 014 — Registry Enforcement Must Be Opt-In
 

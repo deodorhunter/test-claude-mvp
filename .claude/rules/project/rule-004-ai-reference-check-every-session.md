@@ -1,8 +1,11 @@
 ---
-id: rule-004
-trigger: "At the start of any Speed 2 (Orchestrator Mode) session"
-updated: "2026-03-31"
+description: "At the start of any Speed 2 (Orchestrator Mode) session"
 ---
+
+<metadata>
+  id: rule-004
+  updated: "2026-03-31"
+</metadata>
 
 # Rule 004 — AI_REFERENCE.md Check Every Session
 
