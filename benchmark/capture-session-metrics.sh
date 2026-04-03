@@ -14,12 +14,13 @@ if ! command -v jq &>/dev/null; then
 fi
 
 # --- Locate session JSONL ---
-PROJECT_KEY=$(pwd | sed 's|/|-|g' | sed 's|^-||')
+# Claude Code uses leading - for absolute paths: /Users/... → -Users-...
+PROJECT_KEY=$(pwd | sed 's|/|-|g')
 CLAUDE_PROJECTS_DIR="${HOME}/.claude/projects/${PROJECT_KEY}"
 
 if [[ ! -d "${CLAUDE_PROJECTS_DIR}" ]]; then
-  # Fallback: try without leading slash replacement (some versions omit it)
-  ALT_KEY=$(pwd | sed 's|^/||' | sed 's|/|-|g')
+  # Fallback: strip leading dash (older Claude Code versions)
+  ALT_KEY=$(echo "${PROJECT_KEY}" | sed 's|^-||')
   CLAUDE_PROJECTS_DIR="${HOME}/.claude/projects/${ALT_KEY}"
 fi
 
