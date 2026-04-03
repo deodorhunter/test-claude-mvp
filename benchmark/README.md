@@ -264,7 +264,12 @@ Claude Code writes session logs to `~/.claude/projects/<project-path>/` on the l
 
 ### Drift signal detection
 
-The Budget Cap truncation bug causes tool result content length to drop to 1–41 characters after approximately 15–20 tool uses. The script counts JSONL entries where `toolUseResult` content length is under 100 characters as a proxy for Budget Cap truncation events. A healthy session should show 0 or very few drift signals.
+The Budget Cap truncation bug manifests as a `"truncated": true` flag in Glob and Read tool responses — not as short content length. The script counts two signal types:
+
+1. **Primary:** JSONL entries where any `content` item contains `"truncated": true` (the actual Budget Cap signal from Glob/Read responses)
+2. **Secondary:** Tool result entries where `content` is a plain string shorter than 50 characters (genuine plain-text truncation)
+
+Content length < 100 characters was a false positive: tool metadata objects (`{"filenames":[],...}`) and skill result objects (`{"success":true,...}`) are valid short responses that triggered the old metric. A healthy session shows `drift_signals_count: 0`.
 
 ### Make targets
 
@@ -291,7 +296,7 @@ Captured JSON files are written to `benchmark/session-metrics/` (gitignored, loc
   "cache_read_ratio_pct": 87.3,
   "estimated_cost_usd": 0.42,
   "drift_signals_count": 3,
-  "note": "Cost estimated using Sonnet rates (conservative). Drift signals = tool result entries with content < 100 chars."
+  "note": "Cost estimated using Sonnet rates (conservative). Drift signals = truncated:true flag in Glob/Read responses (primary) + plain-string results <50 chars (secondary)."
 }
 ```
 

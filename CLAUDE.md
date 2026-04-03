@@ -81,6 +81,7 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 | Reference | Purpose |
 |---|---|
 | `docs/AI_REFERENCE.md` | Stack, ports, make targets, test commands — ground truth. Read at every Speed 2 session start. If missing: run `/init-ai-reference` BEFORE anything else. |
+| `docs/ORCHESTRATION_GUIDE.md` | Agent delegation patterns, model routing, anti-patterns — load when planning |
 | `docs/backlog/BACKLOG.md` | Current phase and US status |
 | `.claude/skills/speed2-workflow.md` | Speed 2 workflow, delegation, phase gates (load on demand) |
 | `.claude/agents/product-owner.md` | Task Complexity Matrix, US format (load when creating US) |

@@ -1,6 +1,7 @@
 # Session Cost Log
 > Append-only. Updated after each `/phase-retrospective` (phase gate).
 > Simplified format from v4.0 audit — drop pretense of per-agent token breakdowns.
+> From Phase 3e onwards: Cost column should use `$X.XX` (dollar estimate from `make benchmark-session`) rather than raw token counts. Historical rows unchanged.
 
 | Date | Phase | Session | Agents | Cost | Notes |
 |---|---|---|---|---|---|

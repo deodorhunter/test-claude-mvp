@@ -86,8 +86,14 @@ Include both cost-expert fixes AND Tech Lead's own observations.
 
 Use append-only bash (`echo >>` — NEVER overwrite):
 
+If `make benchmark-session` was run this session, use its `estimated_cost_usd` field for the Cost column (format: `$X.XX`). Otherwise use `~Xk tokens` as fallback.
+
 ```bash
-echo "| $(date +%Y-%m-%d) | Phase-N | [session description] | N agents | ~X input | ~Y output | ~Z total | ~W evitable | [notes] |" >> docs/SESSION_COSTS.md
+# Preferred: use make benchmark-session for dollar estimate
+# Run: make benchmark-session 2>/dev/null && COST=$(jq -r '.estimated_cost_usd' benchmark/session-metrics/$(ls -t benchmark/session-metrics/ | head -1) 2>/dev/null || echo "~unknown")
+# Fallback: use token estimate with ~ prefix when JSONL not available
+
+echo "| $(date +%Y-%m-%d) | Phase-N | [session description] | N agents | [input] | [output] | [total] | \$${COST} | [notes] |" >> docs/SESSION_COSTS.md
 ```
 
 Verify the append with `tail -3 docs/SESSION_COSTS.md`.

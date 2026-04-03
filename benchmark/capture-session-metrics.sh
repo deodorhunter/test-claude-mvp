@@ -87,17 +87,31 @@ ESTIMATED_COST=$(echo "${INPUT_TOKENS} ${OUTPUT_TOKENS} ${CACHE_READ_TOKENS} ${C
 }')
 
 # --- Count drift signals ---
-# Budget Cap proxy: tool result entries where any content[].text length < 100
+# Budget Cap truncation bug manifests as "truncated": true in Glob/Read tool responses.
+# Source: ArkNill claude-code-cache-analysis — the truncated flag is set when the
+# Budget Cap bug corrupts the response before it reaches the tool result.
+# Secondary signal: plain-string tool results shorter than 50 chars (genuine truncation).
+# Content length < 100 chars was a false positive — tool metadata objects (Glob empty
+# results, skill success objects) triggered it despite being valid responses.
 DRIFT_SIGNALS=$(jq -s '
   [ .[]
     | select(.type == "tool_result" or .role == "tool")
-    | .content
-    | if type == "array" then .[]
-      elif type == "string" then {text: .}
-      else empty
-      end
-    | select(type == "object" and .text != null)
-    | select((.text | length) < 100)
+    | (
+        # Primary: truncated: true flag in any content item
+        (.content
+          | if type == "array" then .[]
+            elif type == "object" then .
+            else empty
+            end
+          | select(type == "object" and .truncated == true)
+          | 1
+        ),
+        # Secondary: plain-string content shorter than 50 chars
+        (.content
+          | select(type == "string" and length < 50)
+          | 1
+        )
+      )
   ] | length
 ' "${JSONL_FILE}")
 
@@ -131,7 +145,7 @@ jq -n \
     cache_read_ratio_pct: $cache_read_ratio_pct,
     estimated_cost_usd: $estimated_cost_usd,
     drift_signals_count: $drift_signals_count,
-    note: "Cost estimated using Sonnet rates (conservative). Drift signals = tool result entries with content < 100 chars."
+    note: "Cost estimated using Sonnet rates (conservative). Drift signals = truncated:true flag in Glob/Read responses (primary) + plain-string results <50 chars (secondary)."
   }' > "${OUTPUT_FILE}"
 
 echo "Session metrics captured: cost=\$${ESTIMATED_COST} cache=${CACHE_READ_RATIO}% drift=${DRIFT_SIGNALS} → ${OUTPUT_FILE}"
