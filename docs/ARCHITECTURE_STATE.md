@@ -201,3 +201,10 @@ Three separate Plone-related components with distinct purposes:
 ### US-062 — Plone-MCP Architecture Clarification
 **Date:** 2026-04-03 | **Agent:** Doc Writer | **What was built:** Module docstring in plone_bridge.py clarifying JWT auth (not MCP); "Architecture Note" in plone-mcp README; text diagram in ARCHITECTURE_STATE.md showing 4 Plone touchpoints + data flow; PLUGIN_MANIFEST.md clarifies plone_integration placeholder status.
 
+
+### US-070 — Accuracy Scoring: Structured /judge Output + Trend Log
+
+**Date:** 2026-04-03 | **Agent:** tech-lead | **Status:** PARTIAL — 3 of 4 components implemented (judge.md needs manual update)
+
+**What was built:** Accuracy tracking infrastructure: report-accuracy.sh script, make benchmark-accuracy target, benchmark/README.md documentation, JSON log format spec. Requires manual update to judge.md to enable /judge append-only logging.
+

@@ -12,6 +12,12 @@ related: [CLAUDE.md, .claude/commands/, .claude/agents/]
 
 ---
 
+## Competitive Landscape
+
+See [`docs/COMPETITIVE_ANALYSIS.md`](docs/COMPETITIVE_ANALYSIS.md) for a verified comparison of this framework against oh-my-claudecode (the closest real match to "OpenClaw"), including token-saving techniques, privacy/EU compliance differences, and an honest assessment of where each framework leads.
+
+---
+
 ## The Problem
 
 Most teams adopt AI coding assistants and immediately hit the same wall: the AI is powerful but untraceable. It rewrites files you didn't ask it to touch, burns through your API budget on useless exploration, makes decisions nobody can explain in a code review, and when something breaks you cannot tell whether the bug came from your code or from a hallucinated dependency the AI silently introduced three sessions ago.

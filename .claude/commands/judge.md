@@ -53,3 +53,22 @@ Output EXACTLY this format:
 - PASS → proceed to DocWriter + QA
 - FAIL → re-delegate to [agent name]: [list specific failures]
 </output_format>
+
+<accuracy_logging>
+After printing the verdict table, append one JSON line per US evaluated to `benchmark/accuracy-log.jsonl` using bash.
+Count PASS verdicts as ac_pass, FAIL as ac_fail. UNCLEAR counts toward ac_total but NOT toward ac_pass or ac_fail.
+
+Determine the current phase by grepping `docs/backlog/BACKLOG.md` for the US number to find which phase section it appears in.
+Determine the agent from `docs/backlog/US-NNN.md` frontmatter **Agent:** field.
+
+Command to append (run once per US evaluated, with actual values substituted):
+```bash
+echo '{"date":"'"$(date +%Y-%m-%d)"'","us":"US-NNN","agent":"agent-type","ac_total":N,"ac_pass":N,"ac_fail":N,"verdict":"pass|fail","phase":"Xd"}' >> benchmark/accuracy-log.jsonl
+```
+
+Rules:
+- verdict is "pass" if Overall=PASS, "fail" if Overall=FAIL
+- append-only — never overwrite or delete existing entries
+- `benchmark/accuracy-log.jsonl` is created automatically by `>>` if it does not exist
+- skip logging if US number cannot be determined from arguments
+</accuracy_logging>

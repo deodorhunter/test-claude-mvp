@@ -1,4 +1,4 @@
-.PHONY: up down logs migrate test shell-api shell-postgres verify-docs benchmark-session benchmark-report
+.PHONY: up down logs migrate test shell-api shell-postgres verify-docs benchmark-session benchmark-report benchmark-accuracy
 
 COMPOSE = docker compose -f infra/docker-compose.yml --env-file .env
 
@@ -32,3 +32,6 @@ benchmark-session:
 
 benchmark-report:
 	@bash benchmark/report-session-costs.sh
+
+benchmark-accuracy:
+	@bash benchmark/report-accuracy.sh

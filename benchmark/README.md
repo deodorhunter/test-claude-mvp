@@ -242,6 +242,7 @@ benchmark/
   compare.sh                   — compares baseline vs optimized results
   capture-session-metrics.sh   — extracts token usage from session JSONL
   report-session-costs.sh      — prints cost summary table
+  report-accuracy.sh           — prints per-phase and per-agent accuracy summary
   results/
     baseline.txt               — baseline measurement output
     optimized.txt              — post-optimization measurement output
@@ -301,3 +302,70 @@ Cost is estimated using Sonnet claude-sonnet-4-6 rates as a conservative upper b
 - Cache creation: $3.75 / 1M tokens
 
 Cache read ratio should exceed 90% in healthy sessions. Values below 80% indicate the prompt cache is not warming correctly.
+
+---
+
+## Accuracy Tracking
+
+### What it tracks
+
+Per-User Story acceptance criteria (AC) pass/fail verdicts from `/judge` runs. Enables:
+- Per-phase AC pass rate trending (to detect regressions or improving agent quality)
+- Per-agent-type accuracy scoring (to identify specialists vs generalists)
+- Bottleneck detection (phases or agents with consistently low pass rates)
+- Guidance for when to tighten AC acceptance thresholds or request re-implementation
+
+### How it's populated
+
+Each `/judge US-NNN` command appends one JSON line to `benchmark/accuracy-log.jsonl` with:
+- `date` — YYYY-MM-DD when the judge ran
+- `us` — User Story identifier (e.g., "US-070")
+- `agent` — Agent type that performed the implementation (from US frontmatter)
+- `ac_total` — Total AC count for the US
+- `ac_pass` — Number of PASS verdicts
+- `ac_fail` — Number of FAIL verdicts
+- `verdict` — "pass" (all AC met or unclear) or "fail" (1+ explicit failures)
+- `phase` — Phase ID (e.g., "3d") from `docs/backlog/BACKLOG.md`
+
+UNCLEAR AC count toward `ac_total` but NOT toward `ac_pass` (conservative scoring).
+
+### Make target
+
+```bash
+make benchmark-accuracy
+```
+
+### Data location
+
+`benchmark/accuracy-log.jsonl` (gitignored, append-only). Each line is a valid JSON object. Example:
+
+```json
+{"date":"2026-04-03","us":"US-070","agent":"backend-dev","ac_total":5,"ac_pass":5,"ac_fail":0,"verdict":"pass","phase":"3d"}
+{"date":"2026-04-03","us":"US-071","agent":"frontend-dev","ac_total":4,"ac_pass":3,"ac_fail":1,"verdict":"fail","phase":"3d"}
+```
+
+### Sample Report Output
+
+```
+## Accuracy Report — Phase Summary
+
+| Phase | US Count | ACs Total | ACs Pass | Pass Rate | Bouncebacks |
+|---|---|---|---|---|---|
+| 3c | 8 | 42 | 40 | 95% | 1 |
+| 3d | 12 | 68 | 64 | 94% | 2 |
+
+## Per-Agent Breakdown
+
+| Agent | US Count | Pass Rate | Status |
+|---|---|---|---|
+| backend-dev | 10 | 90% | ✅ OK |
+| frontend-dev | 5 | 80% | ✅ OK |
+| aiml-engineer | 4 | 75% | ⚠️ Below 80% |
+
+## Overall Totals
+
+- **User Stories evaluated:** 20 (18 passed, 2 failed) — 90% pass rate
+- **Acceptance Criteria:** 110 total (104 passed, 6 failed) — 94% pass rate
+
+**Last updated:** 2026-04-03
+```

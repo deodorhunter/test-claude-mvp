@@ -13,7 +13,7 @@ This framework governs how Claude Code agents operate within this repository. It
 - **EU AI Act compliance controls** (data boundary, human oversight, audit trail)
 - **Token economics** (context loading: 60,764 → 32,936 bytes, −46% — see benchmark/results/optimized-v2.txt; anti-pattern avoidance: up to ~145k tokens/session — Explore agents, no compress-state, etc.)
 
-The framework is directly inspired by [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) paradigms, selectively adopting its best cognitive patterns while rejecting infra-level features incompatible with EU enterprise requirements.
+The framework is directly inspired by [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) paradigms, selectively adopting its best cognitive patterns while rejecting infra-level features incompatible with EU enterprise requirements. For a full feature comparison, honest assessment, and token-saving techniques extracted from OMC, see [`docs/COMPETITIVE_ANALYSIS.md`](COMPETITIVE_ANALYSIS.md).
 
 ---
 
