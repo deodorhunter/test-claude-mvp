@@ -140,14 +140,14 @@
 | [US-069](US-069.md) | In-house session cost accuracy + drift detection (parse session JSONL) | Backend Dev | — | high | ✅ Done | make benchmark-session/report |
 | [US-070](US-070.md) | Accuracy scoring: structured /judge output + trend log | Doc Writer | US-069 | medium | ✅ Done | make benchmark-accuracy |
 
-### Phase 3e — Cost & Context Optimization
+### Phase 3e — Cost & Context Optimization ✅ Complete
 
-**Mini-gate 3e:** AI_REFERENCE.md ≤6,000 bytes, SESSION_COSTS.md tracks dollars, drift metric no false positives.
+**Gate 3e:** AI_REFERENCE.md 5,901 bytes ✅, SESSION_COSTS.md dollar tracking ✅, drift=0 ✅, Docker ai-tools standalone ✅
 
 | US | Title | Agent | Dependencies | Priority | Status | Notes |
 |---|---|---|---|---|---|---|
-| [US-071](US-071.md) | Split AI_REFERENCE.md — separate stack reference from orchestration guide | Doc Writer | — | high | 📋 Backlog | ~3,300 tok/session saving |
-| [US-072](US-072.md) | Fix cost tracking — dollar estimates + drift detection recalibration | Backend Dev | US-069 | medium | 📋 Backlog | False positive drift metric; SESSION_COSTS dollar column |
+| [US-071](US-071.md) | Split AI_REFERENCE.md — separate stack reference from orchestration guide | Doc Writer | — | high | ✅ Done | AI_REFERENCE.md 5,901 bytes; ORCHESTRATION_GUIDE.md created |
+| [US-072](US-072.md) | Fix cost tracking — dollar estimates + drift detection recalibration | Backend Dev | US-069 | medium | ✅ Done | SESSION_COSTS dollar guidance; drift=truncated:true |
 
 ---
 

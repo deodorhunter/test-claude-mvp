@@ -39,8 +39,18 @@ This is not necessarily a bug. Human oversight is an explicit design choice (EU 
 
 The open question for Phase 4: can orchestrator compliance checks be automated without adding cost that exceeds the violations they prevent?
 
-#### Benchmark Note (Logged for Phase 3c Gate)
+#### Benchmark Note (Resolved — Phase 3d/3e)
 
-The user asked whether the benchmark suite has been re-run with Framework v3.0 (rule-020 + auto-compress hook + symbol-context guidance active). It has not. US-064 (SWE-Agent evaluation, Phase 3d) addresses the benchmark methodology question. The re-run with current framework, against Phase 3b baselines, remains an open action item for Phase 3d or Phase 4 prep.
+**Closed 2026-04-03.** The benchmark re-run happened in Phase 3d: `make benchmark-session` against the live session JSONL produced the first real cost measurement. Result: $11.41 actual vs ~$78 implied by token estimates — a 7× gap caused by cache read tokens (10× cheaper than raw input). Framework v3.0 with rule-020, auto-compress hook, and symbol-context guidance active throughout. Cache read ratio: 91% (Phase 3d) → 100% (Phase 3e). See Entry 18 for full analysis.
+
+#### Orchestrator Compliance Automation (Open Question Update — Phase 3e)
+
+The Phase 3e gate produced one incident: a Doc Writer agent reported done on US-071 without verifying the numeric AC (`≤6,000 bytes`). The judge caught it. The fix was 3 targeted edits by the Tech Lead.
+
+This is the same class of failure described in Entry 15 — implicit assumption (the agent assumed the byte count was close enough without measuring). The detection layer (Judge) worked correctly. The human caught it and fixed it without re-delegation.
+
+The question of whether orchestrator compliance checks can be automated without exceeding the cost of violations they prevent: Phase 3e provides one data point. The violation cost ~3k tokens; a preventive rule loaded every session would cost ~200 tokens × all sessions ≥ 15 sessions to break even. The rule was discarded at the Phase 3e reflexion gate. The Judge system remains the correct intervention point — not always-loaded rules.
+
+Verdict for Phase 4: no automation needed at this class of violation rate. Revisit if the pattern recurs ≥3 times in Phase 4.
 
 ---
