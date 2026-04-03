@@ -2,6 +2,8 @@
 docs/.temp_context.md
 docs/.session-notes.md
 .claude/settings.local.json
+benchmark/session-metrics/
+benchmark/accuracy-log.jsonl
 
 # Ignore the .git directory, but not the .gitignore file
 .git/

@@ -130,7 +130,9 @@ docker exec ai-platform-ollama ollama pull deepseek-coder-v2:16b
 
 | Model | Size | Best for | Hardware |
 |---|---|---|---|
-| `qwen2.5-coder:7b` | ~4 GB | Fast code completion, refactors | CPU / 8 GB RAM |
+| `qwen3:8b` | ~5.2 GB | **Recommended** — reasoning + tool use + coding | CPU / 8 GB RAM |
+| `qwen3:14b` | ~9.3 GB | Complex multi-step reasoning | GPU, 12 GB VRAM |
+| `qwen2.5-coder:7b` | ~4 GB | Fast code completion, refactors (stable) | CPU / 8 GB RAM |
 | `qwen2.5-coder:32b` | ~20 GB | Complex multi-file reasoning | GPU, 24 GB VRAM |
 | `deepseek-coder-v2:16b` | ~9 GB | Balanced: quality + speed | GPU, 12 GB VRAM |
 | `codestral:22b` | ~13 GB | Strong for Python + TypeScript | GPU, 16 GB VRAM |

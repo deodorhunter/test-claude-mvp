@@ -139,3 +139,65 @@ result = await plone_server.query(input_text)  # → MCPResult(data, source, con
 **Date:** 2026-04-02 | **Agent:** Doc Writer | **What was built:** `/refine-backlog` command + skill, rule-018 (pre-sprint yes-man filter), refinement ceremony operational for Phase 3c+.
 
 | Phase-3c | 2026-04-02 | US-057/058/060 | HOW-TO-ADOPT copy-first, Copilot standalone, template v3.0 synced (12 agents, 20 rules) |
+
+---
+
+## Plone Integration Points (US-062 — 2026-04-03)
+
+Three separate Plone-related components with distinct purposes:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                 Plone Integration Points                      │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ 1. PloneIdentityAdapter  (backend/app/auth/plone_bridge.py) │
+│    Purpose: JWT auth bridge                                  │
+│    Flow: Bearer token ──► Plone /@users/@current             │
+│    → PloneIdentity (username, roles, tenant_id)              │
+│    Layer: Authentication                                     │
+│    NOT an MCP adapter                                        │
+│                                                              │
+│ 2. plone-mcp Node.js server  (infra/plone-mcp/)             │
+│    Purpose: MCP server for content operations                │
+│    Flow: MCP Client ──► plone-mcp:9120 ──► Plone REST API   │
+│    Operations: CRUD, search, workflow, Volto blocks          │
+│    Layer: Content Management (data plane)                    │
+│    NOT related to JWT auth                                   │
+│                                                              │
+│ 3. PloneMCPServer adapter  (ai/mcp/servers/plone.py)        │
+│    Purpose: Python wrapper; registered in MCPRegistry        │
+│    Flow: MCPRegistry ──► PloneMCPServer ──► plone-mcp        │
+│    Trust: Listed in MCP_ALLOWLIST (ai/mcp/registry.py)       │
+│    Layer: MCP integration                                    │
+│                                                              │
+│ 4. plone_integration plugin  (plugins/plone_integration/)    │
+│    Purpose: Placeholder — future Plone content sync plugin   │
+│    Status: NOT YET IMPLEMENTED                               │
+│    Capabilities: [] (empty)                                  │
+│    Description: "Placeholder — not yet implemented"          │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Data flow summary:**
+- User login: PloneIdentityAdapter validates JWT ──► PloneIdentity (auth layer)
+- AI agent needs content: PloneMCPServer routes request ──► plone-mcp ──► Plone REST API (content layer)
+- Future: plone_integration plugin will sync content between Plone and AI Platform (async, scheduled)
+
+**Why three components?**
+- Separation of concerns: authentication (bridge) vs. content operations (MCP) vs. AI orchestration (plugin)
+- Enables independent testing: auth tests mock Plone API; MCP tests mock content responses; plugin tests mock MCP calls
+- Clearer audit trail: each layer logs independently (auth logs, content logs, sync logs)
+
+
+| US-061 | Doc Writer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-03 |
+
+### US-061 — Ollama + Qwen 3.5 Docs + MODEL_COMPARISON.md
+**Date:** 2026-04-03 | **Agent:** Doc Writer | **What was built:** MODEL_COMPARISON.md (11 KB) comparing Claude API vs Copilot vs local Ollama; linked from AI_REFERENCE.md; Ollama Dockerization verified in AI_TOOLS_SETUP.md.
+
+| US-062 | Doc Writer | claude-haiku-4-5-20251001 | N/A | N/A | N/A | N/A | 2026-04-03 |
+
+### US-062 — Plone-MCP Architecture Clarification
+**Date:** 2026-04-03 | **Agent:** Doc Writer | **What was built:** Module docstring in plone_bridge.py clarifying JWT auth (not MCP); "Architecture Note" in plone-mcp README; text diagram in ARCHITECTURE_STATE.md showing 4 Plone touchpoints + data flow; PLUGIN_MANIFEST.md clarifies plone_integration placeholder status.
+

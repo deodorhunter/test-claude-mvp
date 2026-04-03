@@ -2,6 +2,19 @@
 
 A Model Context Protocol (MCP) server for integrating MCP clients with Plone CMS via REST API. Enables content management, search, workflow operations, and Volto blocks management.
 
+## Architecture Note
+
+**This server's role:** MCP operations on Plone content — CRUD, search, workflow, Volto blocks.
+
+**This server is NOT:** Related to JWT authentication. Do not confuse with `backend/app/auth/plone_bridge.py`, which is a separate JWT token validation bridge that verifies Plone-issued Bearer tokens via Plone's REST API.
+
+**Clear distinction:**
+- **plone_bridge.py** (backend/app/auth/) — JWT auth layer; validates tokens; extracts user identity
+- **plone-mcp Node.js server** (infra/plone-mcp/) — Content operations layer; CRUD, search, workflow, blocks
+- **PloneMCPServer Python adapter** (ai/mcp/servers/plone.py) — Registered in MCPRegistry; wraps plone-mcp
+
+See `docs/ARCHITECTURE_STATE.md` "Plone Integration Points" for the full picture.
+
 ## Prerequisites
 
 - **Node.js 18+** - Required to run the server (install: `brew install node` on macOS or from [nodejs.org](https://nodejs.org))

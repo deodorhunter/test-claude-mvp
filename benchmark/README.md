@@ -240,7 +240,64 @@ benchmark/
   measure-agent-injection.sh   — counts per-agent rule injection sizes
   measure-tool-output.sh       — samples Bash tool output sizes
   compare.sh                   — compares baseline vs optimized results
+  capture-session-metrics.sh   — extracts token usage from session JSONL
+  report-session-costs.sh      — prints cost summary table
   results/
     baseline.txt               — baseline measurement output
     optimized.txt              — post-optimization measurement output
+  session-metrics/             — captured session JSON files (gitignored)
+    YYYY-MM-DD-HH-MM.json      — one file per captured session
 ```
+
+---
+
+## Session Cost Capture
+
+### What it measures
+
+Real API token counts extracted from Claude Code session JSONL logs, compared against rough estimates in `docs/SESSION_COSTS.md`. Tracks four token categories (input, output, cache read, cache creation) plus an estimated USD cost and a drift signal count.
+
+### Data source
+
+Claude Code writes session logs to `~/.claude/projects/<project-path>/` on the local machine. The project path key is derived from `pwd` with `/` replaced by `-`. These files never leave the machine — fully EU AI Act (rule-011) compliant.
+
+### Drift signal detection
+
+The Budget Cap truncation bug causes tool result content length to drop to 1–41 characters after approximately 15–20 tool uses. The script counts JSONL entries where `toolUseResult` content length is under 100 characters as a proxy for Budget Cap truncation events. A healthy session should show 0 or very few drift signals.
+
+### Make targets
+
+```bash
+# Capture metrics from the most recent session JSONL
+make benchmark-session
+
+# Print summary table with delta vs SESSION_COSTS.md
+make benchmark-report
+```
+
+### Data location
+
+Captured JSON files are written to `benchmark/session-metrics/` (gitignored, local only). Each file is named `YYYY-MM-DD-HH-MM.json` and contains:
+
+```json
+{
+  "session_date": "YYYY-MM-DD HH:MM",
+  "source_file": "~/.claude/projects/.../session-NNN.jsonl",
+  "input_tokens": 12345,
+  "output_tokens": 4567,
+  "cache_read_tokens": 89012,
+  "cache_creation_tokens": 3456,
+  "cache_read_ratio_pct": 87.3,
+  "estimated_cost_usd": 0.42,
+  "drift_signals_count": 3,
+  "note": "Cost estimated using Sonnet rates (conservative). Drift signals = tool result entries with content < 100 chars."
+}
+```
+
+Cost is estimated using Sonnet claude-sonnet-4-6 rates as a conservative upper bound for mixed-model sessions:
+- Input: $3.00 / 1M tokens
+- Output: $15.00 / 1M tokens
+- Cache read: $0.30 / 1M tokens
+- Cache creation: $3.75 / 1M tokens
+
+Cache read ratio should exceed 90% in healthy sessions. Values below 80% indicate the prompt cache is not warming correctly.

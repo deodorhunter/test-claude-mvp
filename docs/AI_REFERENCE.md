@@ -193,6 +193,10 @@ Agents with `model: dynamic` have their model set by the orchestrator **at deleg
 
 **Decision heuristic:** "Does this change introduce new patterns or touch ≥3 files across different layers?" If yes → Speed 2. If no → Speed 1.
 
+### Model Comparison
+
+See `docs/MODEL_COMPARISON.md` for a detailed comparison of Claude API vs Copilot vs local Ollama setups, including cost, latency, compliance, and use case recommendations.
+
 ### Prompt Templates
 
 **Front-load file locations:** Write "Edit `backend/app/auth/jwt.py` to add refresh token logic" instead of "I need help with the auth module".

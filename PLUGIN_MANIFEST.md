@@ -125,6 +125,39 @@ project_overrides:
 
 ---
 
+## Project-Specific Plugins
+
+Plugins under `plugins/` are **project-specific** (not part of the org golden-example-kit). They are customized per repository and evolve with the project's needs.
+
+### plone_integration Plugin (Current Status)
+
+**Location:** `plugins/plone_integration/`
+
+**Status:** Placeholder — not yet implemented
+
+**Manifest:**
+```yaml
+id: plone_integration
+version: "0.1.0"
+capabilities: []  # empty until implementation
+entrypoint: plugin.py
+description: "Placeholder — not yet implemented"
+```
+
+**Purpose (future):** This plugin will sync content between Plone CMS and the AI Platform's vector database (Qdrant) on a configurable schedule. For example:
+- Poll Plone for new/modified content every 1 hour
+- Index content into Qdrant for RAG retrieval
+- Enable AI agents to answer questions about Plone content
+
+**Architecture context:**
+- Do not confuse with `infra/plone-mcp/` (MCP server for real-time Plone operations)
+- Do not confuse with `backend/app/auth/plone_bridge.py` (JWT auth layer)
+- See `docs/ARCHITECTURE_STATE.md` "Plone Integration Points" for the full picture
+
+**When to implement:** When the project moves from MVP (Phase 3) to scaling (Phase 4+) and needs asynchronous content indexing.
+
+---
+
 ## Rule Promotion Flow
 
 As project rules prove themselves across multiple projects, they graduate to org scope:

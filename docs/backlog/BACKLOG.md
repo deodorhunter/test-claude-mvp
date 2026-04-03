@@ -137,6 +137,8 @@
 | [US-062](US-062.md) | Plone-MCP architecture clarification: rename/doc 3 touchpoints | Doc Writer | — | medium | 📋 Backlog | |
 | [US-063](US-063.md) | OpenClaw competitive analysis + COMPETITIVE_ANALYSIS.md | Doc Writer | — | medium | 📋 Backlog | |
 | [US-064](US-064.md) | SWE-Agent evaluation: go/no-go recommendation for mini-swe-agent | QA Engineer | — | medium | 📋 Backlog | Scoped to evaluation only |
+| [US-069](US-069.md) | In-house session cost accuracy + drift detection (parse session JSONL) | Backend Dev | — | high | 📋 Backlog | gitignore local metrics |
+| [US-070](US-070.md) | Accuracy scoring: structured /judge output + trend log | Doc Writer | US-069 | medium | 📋 Backlog | append-only accuracy-log.jsonl |
 
 ---
 

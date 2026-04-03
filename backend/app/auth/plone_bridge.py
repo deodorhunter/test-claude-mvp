@@ -1,3 +1,22 @@
+"""
+Plone JWT Authentication Bridge
+
+This module handles JWT token validation for Plone CMS integration.
+It does NOT implement MCP (Model Context Protocol) functionality — that is handled separately
+by the plone-mcp Node.js server in infra/plone-mcp/ and its Python adapter in ai/mcp/servers/plone.py.
+
+Purpose:
+  - Validate Plone-issued Bearer tokens via the Plone REST API /@users/@current endpoint
+  - Extract user identity (username, roles) and tenant context from Plone
+  - Return structured PloneIdentity for use in the AI Platform auth layer
+
+Do not confuse this module with:
+  - infra/plone-mcp/ — MCP server for content operations (CRUD, search, workflow on Plone)
+  - ai/mcp/servers/plone.py — Python adapter wrapping plone-mcp for the MCPRegistry
+
+See docs/ARCHITECTURE_STATE.md "Plone Integration Points" for a diagram.
+"""
+
 import logging
 from dataclasses import dataclass
 
