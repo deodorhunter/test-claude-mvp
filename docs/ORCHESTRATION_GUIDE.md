@@ -83,7 +83,7 @@ then add a query helper in backend/app/db/crud.py to filter by user.
 
 1. **Vague prompt without file references** — "Help me fix the API" forces Claude to explore endpoints, models, config files. Wasted ~15k tokens per missing file ref. **Fix:** Name 3–5 exact files upfront.
 
-2. **Missing file context — Read storm** — Delegating without injecting existing code forces agent to `Read` every candidate file. ~3k tokens per unneeded file read (8–10 reads per session typical). **Fix:** Use `cat` + `<file>` XML injection before delegating; use Serena for symbols-only when full code not needed.
+2. **Missing file context — Read storm** — Delegating without injecting existing code used to force agents to `Read` every candidate file. **Fix:** Sub-agents now self-navigate via Serena MCP (`mcp__serena__get_symbols_overview`). Inject `<file>` blocks only for algorithm-level detail.
 
 3. **Wrong mode for complexity** — Asking Sonnet to fix a typo in config (~3× unnecessary cost). **Fix:** Use Task Complexity Matrix; Speed 1 Copilot for single-file work.
 
@@ -94,29 +94,37 @@ then add a query helper in backend/app/db/crud.py to filter by user.
 Pre-generated command reference: see `docs/.command-catalog.md` for all 12 commands + descriptions. This avoids re-generating command metadata during agent delegations (~3k tokens saved per delegation).
 
 
-### File Context Injection (Rules 009 + 010: Symbol-First Navigation)
+### File Context Injection (Rule 009: Serena-First Navigation)
 
-**Critical constraint:** Serena MCP tool calls are NOT available in sub-agent sessions — confirmed 2026-04-04. Sub-agents receive Serena's system instructions but cannot call `mcp__serena__*` functions (Claude Code MCP bridge limitation). The orchestrator is the sole Serena proxy.
+**Sub-agents have Serena MCP** — confirmed working 2026-04-05. Root cause of prior failures was `tools:` allowlist silently blocking MCP tools (GitHub issue #25200). All implementing agents now use `disallowedTools` + inline `mcpServers`. Sub-agents self-navigate via `mcp__serena__get_symbols_overview`.
 
-**Mandatory orchestrator pre-flight for any US touching Python or TypeScript files:**
-1. Identify files the delegated agent will need to read or edit
-2. For each Python/TypeScript file: call `mcp__serena__get_symbols_overview` in the main session
-3. Inject results as `<symbols path="...">` blocks in the delegation prompt
-4. For implementation files needing full content: add `<file path="...">` blocks (targeted Read)
-5. Never write "use Serena to navigate" in sub-agent instructions — the tool is unavailable
+**Orchestrator delegation — what to inject:**
+- `<user_story>` — always
+- `<file>` blocks — **only** for algorithm-level detail or DocWriter (which cannot Read files)
+- Symbol injection (`<symbols>`) — no longer needed; sub-agents call Serena directly
+- Orchestrator Serena calls reserved for **cross-file architectural analysis during planning**
 
 | Approach | Cost | When to use |
 |---|---|---|
-| Symbol overview (`mcp__serena__get_symbols_overview`) | ~200 tokens/file | Interfaces, class/function names — sub-agent doesn't need implementation details |
-| Full Read injection (`<file>` blocks) | ~2000 tokens/file | Implementation changes, algorithm details, full context required |
+| Sub-agent self-navigates via Serena | ~200 tokens/file in sub-agent | Default — all Python/TS structure queries |
+| Full Read injection (`<file>` blocks) | ~2000 tokens/file in orchestrator | Algorithm-level edits, DocWriter (no Read access) |
 
 **Cost comparison (typical 8-file delegation):**
-- ❌ No pre-flight: sub-agent reads 8 files via Read = ~16,000 tokens
-- ✅ Orchestrator pre-flight: symbol overviews × 8 = ~1,600 tokens + targeted reads for 1–2 key files = ~2,500 total
+- ❌ Old (orchestrator pre-flight): symbol overviews × 8 = ~1,600 tokens in orchestrator context
+- ✅ New (sub-agent self-navigates): ~0 tokens in orchestrator context; sub-agent pays ~200 tokens/file at Haiku rates
 
 **Scope:** Python and TypeScript files only. Markdown, YAML, JSON → inject via `<file>` blocks or Grep output.
 
-**Reference:** `.claude/agents/doc-writer.md` includes delegation prompt examples with `<symbols>` blocks.
+**Serena degradation:** If a sub-agent reports Serena unavailable, inject `<file>` blocks for the specific files requested. Do not revert to orchestrator pre-flight as default.
+
+### Speed 1 — Main Session Serena Navigation
+
+When implementing directly (vertical slices, ≥4 domains), use the same Serena-first pattern as sub-agents:
+1. `mcp__serena__get_symbols_overview(file)` — never `ls` or `cat` speculatively
+2. `mcp__serena__find_symbol(name)` → targeted `Read` with line range
+3. `mcp__serena__replace_symbol_body` — preferred over `Edit` for named function/class edits
+
+Token cost: ~200 tokens/file for Serena overview vs ~2,000 for full Read. Rule 1 exploration block is mechanically enforced via `.claude/hooks/block-exploration.sh` in both main session and all sub-agents.
 
 ### Speed 1 with Copilot
 
