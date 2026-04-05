@@ -6,7 +6,27 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: false
 requires_security_review: false
-tools: Bash, Read, Edit, mcp__serena, mcp__context7
+disallowedTools: Write, Glob, Agent
+mcpServers:
+  - serena:
+      type: sse
+      url: http://localhost:9121/sse
+  - context7:
+      type: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@latest"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/block-exploration.sh"
+  PostToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/post-tool-truncate.sh"
+          timeout: 3000
 owns: []
 forbidden:
   - backend/app/auth/

@@ -6,7 +6,27 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: true
 requires_security_review: false
-tools: Bash, Read, Edit, Write, mcp__serena, mcp__context7
+disallowedTools: Agent
+mcpServers:
+  - serena:
+      type: sse
+      url: http://localhost:9121/sse
+  - context7:
+      type: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@latest"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/block-exploration.sh"
+  PostToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/post-tool-truncate.sh"
+          timeout: 3000
 owns:
   - frontend/src/
   - frontend/tests/
@@ -24,7 +44,7 @@ Senior TypeScript/React/Volto developer. Builds clean, accessible, responsive UI
 </identity>
 
 <hard_constraints>
-1. NO AUTONOMOUS EXPLORATION: Rely strictly on `<user_story>` and `<file>` blocks injected by the Tech Lead.
+1. NO AUTONOMOUS EXPLORATION: Do NOT run ls/find/tree/du to discover files speculatively. You DO have Serena MCP — use `mcp__serena__get_symbols_overview(file)` for structure (~200 tokens), then `mcp__serena__find_symbol(name)` + targeted Read for bodies. Never Read a full file speculatively. SERENA DEGRADATION: If Serena tools are unavailable, STOP and request the orchestrator to inject `<file>` blocks. Do not fall back to shell exploration.
 2. CIRCUIT BREAKER: Max 2 debugging attempts. After attempt 2: report exact error + what was tried + root cause. Stop.
 3. TARGETED EDITS ONLY: Use Edit tool for precise replacements. Never rewrite a file if modifying <30% of content.
 4. SILENCE OUTPUTS: `npm install --silent 2>/dev/null`, `npx vitest run 2>/dev/null | tail -20`. Never pipe full install/build logs.

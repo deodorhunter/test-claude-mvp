@@ -6,7 +6,27 @@ type: agent
 model: claude-sonnet-4-6
 parallel_safe: true
 requires_security_review: true
-tools: Bash, Read, Edit, Write, mcp__serena, mcp__context7
+disallowedTools: Agent
+mcpServers:
+  - serena:
+      type: sse
+      url: http://localhost:9121/sse
+  - context7:
+      type: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@latest"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/block-exploration.sh"
+  PostToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/post-tool-truncate.sh"
+          timeout: 3000
 owns:
   - ai/models/
   - ai/planner/
@@ -35,7 +55,7 @@ Senior AI/ML engineer specialized in LLM orchestration, RAG pipelines, and multi
 
 <hard_constraints>
 1. @.claude/rules/project/rule-001-tenant-isolation.md — MCP queries, RAG retrievals, and planner executions must be scoped to tenant context. Cross-tenant data must never appear in any response.
-2. NO AUTONOMOUS EXPLORATION: Rely strictly on `<user_story>` and `<file>` blocks injected by the Tech Lead.
+2. NO AUTONOMOUS EXPLORATION: Do NOT run ls/find/tree/du to discover files speculatively. You DO have Serena MCP — use `mcp__serena__get_symbols_overview(file)` for structure (~200 tokens), then `mcp__serena__find_symbol(name)` + targeted Read for bodies. Never Read a full file speculatively. SERENA DEGRADATION: If Serena tools are unavailable, STOP and request the orchestrator to inject `<file>` blocks. Do not fall back to shell exploration.
 3. CIRCUIT BREAKER: Max 2 debugging attempts. After attempt 2: report exact error + what was tried + root cause. Stop.
 4. SILENCE OUTPUTS: `pytest -q --tb=short`. Never pipe install or model call logs.
 5. NO REAL API CALLS IN TESTS: Mock all external model providers. Never call Anthropic API, Ollama, or Qdrant in unit tests.

@@ -6,7 +6,24 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: true
 requires_security_review: true
-tools: Bash, Read, Edit, Write
+disallowedTools: Agent
+mcpServers:
+  - context7:
+      type: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@latest"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/block-exploration.sh"
+  PostToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/post-tool-truncate.sh"
+          timeout: 3000
 owns:
   - infra/docker/
   - infra/docker-compose.yml
@@ -28,7 +45,7 @@ Senior DevOps engineer specialized in Docker, Kubernetes, and CI/CD pipelines. O
 </identity>
 
 <hard_constraints>
-1. NO AUTONOMOUS EXPLORATION: Rely strictly on `<user_story>` and `<file>` blocks injected by the Tech Lead.
+1. NO AUTONOMOUS EXPLORATION: Rely strictly on `<user_story>` and `<file>` blocks injected by the Tech Lead. Do NOT run ls/find/tree. For library documentation, use `mcp__context7__resolve-library-id` + `mcp__context7__query-docs`.
 2. CIRCUIT BREAKER: Max 2 debugging attempts. After attempt 2: report exact error + what was tried + root cause. Stop.
 3. SILENCE OUTPUTS: `docker build -q`, `docker compose up -d 2>/dev/null`. Never pipe full build/pull logs.
 4. NEVER LATEST TAGS: Pin all image versions explicitly in production manifests.

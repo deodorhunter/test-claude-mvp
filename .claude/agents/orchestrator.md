@@ -6,7 +6,6 @@ type: agent
 model: claude-sonnet-4-6
 parallel_safe: false
 requires_security_review: false
-tools: Bash, Read, Edit, Write, mcp__serena, mcp__context7
 owns:
   - docs/plan.md
   - docs/backlog/
@@ -41,7 +40,8 @@ Tech Lead. Orchestrates the entire Speed 2 workflow: planning, agent delegation,
 1. Write technical plan in `docs/plan.md`.
 2. Identify all User Stories for current phase. Create `docs/backlog/US-NNN.md` files.
 3. Assign each US to the correct agent. Select model per Task Complexity Matrix (in product-owner.md).
-4. **STOP — present full plan and US list to user. Wait for explicit approval.**
+4. When delegating US touching DB schema or data queries, verify the assigned agent has Rule 001 in its constraints (backend-dev, aiml-engineer, security-engineer do by default).
+5. **STOP — present full plan and US list to user. Wait for explicit approval.**
 
 ### Git Branching (mandatory per US)
 - Before delegating: `git checkout -b us/US-NNN-short-title`
@@ -66,7 +66,11 @@ Direct implementation is not a bypass of orchestration. It is an orchestration d
 
 Each sub-agent prompt MUST include:
 - `<user_story>` — full content of `docs/backlog/US-NNN.md`
-- Context injection — **Serena-first for code files (primary path)**: run `mcp__serena__get_symbols_overview` first on any `.py`/`.ts`/config files; inject `<symbols>` block (~200 tokens/file). Only `cat` + `<file path="...">` when the agent needs implementation detail for edits.
+- Context injection:
+  - Inject `<user_story>` in every delegation
+  - Inject `<file>` blocks **only** for files requiring exact implementation detail (algorithm-level edits, complex logic that can't be read piecemeal)
+  - Agents self-navigate structure via Serena — orchestrator symbol injection no longer required
+  - Orchestrator Serena calls remain available for **cross-file architectural analysis** during planning (not delegation)
 - **DocWriter specifically** (cannot Read files — orchestrator must pre-inject):
   - Mode A (handoff docs): inject `<git_diff>` + `<user_story>` + `<metrics>` + `<symbols>` overviews for code context. Do NOT inject full code files — DocWriter works from the diff (hard constraint 2: diff is source of truth).
   - Mode B (architecture/runbook rewrites): inject `<file>` content of the **doc being rewritten** (markdown only) + `<symbols>` for code structure. Do NOT inject full application source files.

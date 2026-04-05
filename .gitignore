@@ -43,3 +43,4 @@ build/
 *.tar.gz
 *.rar
 *.7z
+.claude/subagent-token-log.txt

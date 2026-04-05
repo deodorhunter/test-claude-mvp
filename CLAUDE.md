@@ -12,6 +12,7 @@ When compacting, preserve: (1) current phase + US status, (2) all modified file 
 **Rule 1: NO AUTONOMOUS EXPLORATION**
 Forbidden: `ls`, `find`, `tree`, `glob`, `du` to discover files. Forbidden: `Read` on files not explicitly provided.
 Exception: `Read` at most ONCE for a completely missing critical import dependency.
+Mechanically enforced in main session and all sub-agents via `.claude/hooks/block-exploration.sh` (PreToolUse Bash hook).
 
 **Rule 2: SILENCE VERBOSE OUTPUTS**
 ```bash
@@ -73,9 +74,6 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 <part_3 title="Active Project Rules">
 
-@.claude/rules/project/rule-001-tenant-isolation.md
-@.claude/rules/project/rule-009-serena-first-navigation.md
-@.claude/rules/project/rule-010-orchestrator-serena-preflight.md
 @.claude/rules/project/rule-011-eu-ai-act-data-boundary.md
 
 </part_3>
@@ -98,7 +96,7 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 <part_5 title="Hard Rules (never break)">
 
-1. **FILE CONTENT INJECTION**: When delegating to sub-agents, inject raw file content via `<file path="...">` XML tags. Never pass bare file paths — sub-agents cannot Read files autonomously.
+1. **FILE CONTENT INJECTION**: When delegating to sub-agents, inject raw file content via `<file path="...">` XML tags for files requiring exact implementation detail. For structural navigation, sub-agents self-navigate via Serena MCP (`mcp__serena__get_symbols_overview`). Orchestrator `<file>` injection reserved for algorithm-level edits and DocWriter (which cannot Read files).
 2. **EXPLICIT MODEL ASSIGNMENT**: Never delegate with `model: dynamic`. Resolve the model at delegation time: `claude-haiku-4-5-20251001` (LOW) or `claude-sonnet-4-6` (MEDIUM/HIGH). Agent frontmatter declares typed fallback models — `model: dynamic` is not a valid identifier and silently breaks agent spawning. Speed 2 orchestrators MUST still always override per Task Complexity Matrix; frontmatter defaults are only for non-orchestrated fallback.
 3. **EU AI ACT COMPLIANCE**: No code/schema/session data to third-party services. Phase-gate checkpoints mandatory. (rule-011)
 

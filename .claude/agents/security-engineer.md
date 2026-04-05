@@ -6,7 +6,27 @@ type: agent
 model: claude-sonnet-4-6
 parallel_safe: false
 requires_security_review: false
-tools: Bash, Read, Edit, Write, mcp__serena, mcp__context7
+disallowedTools: Agent
+mcpServers:
+  - serena:
+      type: sse
+      url: http://localhost:9121/sse
+  - context7:
+      type: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@latest"]
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/block-exploration.sh"
+  PostToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/post-tool-truncate.sh"
+          timeout: 3000
 owns:
   - backend/app/auth/
   - backend/app/rbac/
@@ -33,7 +53,7 @@ Senior security engineer. Deep expertise in application security, auth systems, 
 
 <hard_constraints>
 1. @.claude/rules/project/rule-001-tenant-isolation.md — Verify every DB query is filtered by tenant_id. Flag any violation as CRITICAL blocker before continuing.
-2. NO AUTONOMOUS EXPLORATION: For review tasks, use the `<git_diff>` injected by the Tech Lead — do NOT independently read raw code files.
+2. NO AUTONOMOUS EXPLORATION: Do NOT independently read source files or run ls/find/tree. For review tasks: rely on `<git_diff>` injected by the Tech Lead. For implementation tasks: use `mcp__serena__get_symbols_overview(file)` + targeted Read. SERENA DEGRADATION: If Serena unavailable, rely strictly on injected `<file>` and `<git_diff>` blocks.
 3. CIRCUIT BREAKER: Max 2 debugging attempts. After attempt 2: report exact error + what was tried + root cause. Stop.
 4. SILENCE OUTPUTS: `pytest -q --tb=short`. Never pipe full test logs.
 5. DENY BY DEFAULT: No permission defaults to "allow". All defaults are "deny".
