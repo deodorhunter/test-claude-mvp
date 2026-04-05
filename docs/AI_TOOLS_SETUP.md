@@ -18,6 +18,8 @@ Serena is an MCP server that exposes LSP-level intelligence (symbols, definition
 | `get_diagnostics` | ~100 tokens | Check type errors in a file before editing |
 | `read_file` (range) | proportional | Read a targeted line range after locating the symbol |
 
+**Language scope:** Serena is configured for Python and TypeScript in this project (`.serena/project.yml`). Markdown, YAML, JSON, and Dockerfile files return errors — use Read/Grep for those.
+
 ### Prerequisites
 
 ```bash
@@ -216,3 +218,36 @@ ANTHROPIC_BASE_URL=http://localhost:4000  # Point Claude Code at LiteLLM
 | Context7 | `.vscode/mcp.json` (done) | `claude mcp add context7 --env CONTEXT7_API_KEY=... -- npx ...` |
 | Ollama | Runs in Docker via `make up` | Same |
 | LiteLLM | `infra/docker-compose.ai-tools.yml` | `ANTHROPIC_BASE_URL=http://localhost:4000` |
+
+---
+
+## 6. MCP Configuration & Sub-Agent Inheritance
+
+### Project-level MCP config
+
+`.mcp.json` at the repo root registers two MCP servers for all Claude Code sessions on this project:
+
+| Server | Transport | Endpoint | Scope |
+|---|---|---|---|
+| context7 | stdio (npx) | mcp.context7.com (cloud) | Library documentation |
+| serena | SSE | http://localhost:9121/sse | Python + TypeScript LSP |
+
+Claude Code loads `.mcp.json` for the main session. Sub-agents spawned via the Agent tool should inherit project-level MCP — but SSE connections (Serena) require the Serena Docker service to be running at localhost:9121. If Serena Docker is not running, `mcp__serena__*` tools are unavailable. stdio connections (context7) are spawned as a new process on demand.
+
+**Pre-session check:** Run `make up-ai-tools` before any session that uses Serena or local Ollama via LiteLLM.
+
+### Sub-agent Serena availability
+
+Sub-agent access to Serena via SSE is under verification (see `docs/devlog/entry-19.md`). The `tools` field in agent frontmatter restricts which MCP tools each agent can call — agents without `mcp__serena` in their `tools` list are blocked regardless of Docker state. Agents with `mcp__serena` in `tools` (aiml-engineer, backend-dev, security-engineer, frontend-dev) should have access when Serena Docker is running.
+
+If sub-agent SSE access is confirmed unavailable (Claude Code limitation), the governance fallback is: orchestrator (main session) calls Serena pre-delegation and injects `<symbols>` blocks into the delegation prompt. See `docs/ORCHESTRATION_GUIDE.md` → File Context Injection section.
+
+### Serena language scope
+
+`.serena/project.yml` configures active LSP languages. Current config: Python + TypeScript. This covers:
+- `backend/` — FastAPI, SQLAlchemy, Alembic (Python)
+- `frontend/` — Volto React components (TypeScript/TSX)
+
+Non-supported file types (markdown, YAML, JSON, Dockerfile): use Read/Grep directly.
+
+**Docker note:** The Serena Docker image (`ghcr.io/oraios/serena:latest`) must include Node.js/tsserver for TypeScript support. If TypeScript LSP fails to start, use `project.local.yml` to override with `languages: [python]` locally while keeping the shared `project.yml` configuration for CI/documentation purposes.

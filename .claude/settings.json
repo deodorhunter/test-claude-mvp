@@ -23,5 +23,12 @@
         ]
       }
     ]
-  }
+  },
+  "commands": [
+    {
+      "name": "deliberate",
+      "description": "Run RALPLAN deliberation for HIGH-complexity US before delegation. Loads .claude/skills/ralplan-deliberation.md.",
+      "prompt": "Load and follow the deliberation skill at .claude/skills/ralplan-deliberation.md for the current HIGH-complexity User Story."
+    }
+  ]
 }

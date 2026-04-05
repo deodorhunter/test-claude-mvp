@@ -1,5 +1,5 @@
 ═══════════════════════════════════════════════════════════════
-  CONTEXT SIZE MEASUREMENT — OPTIMIZED
+  CONTEXT SIZE MEASUREMENT — OPTIMIZED-V4
   Date: 2026-04-03 19:55:47
   Project: /Users/martina/personal-projects/test-claude-mvp
 ═══════════════════════════════════════════════════════════════

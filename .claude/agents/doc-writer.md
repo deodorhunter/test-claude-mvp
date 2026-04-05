@@ -6,8 +6,8 @@ type: agent
 model: claude-haiku-4-5-20251001
 parallel_safe: true
 requires_security_review: false
-allowed_tools: [bash, write]
-disallowedTools: [edit, serena]
+tools: Bash, Write
+disallowedTools: Edit, mcp__serena
 owns:
   - docs/handoffs/
   - docs/ARCHITECTURE_STATE.md
@@ -90,7 +90,7 @@ Cost: 2000 tokens per file × 5–8 files typical = 10–16k wasted tokens per d
 
 **✅ Pattern: Symbol-based interface injection**
 ```
-Orchestrator runs serena__get_symbols_overview("backend/app/api/routes.py") first:
+Orchestrator runs mcp__serena__get_symbols_overview("backend/app/api/routes.py") first:
 <symbols>
 - endpoint: GET /api/plugins/{plugin_id} → async def get_plugin(plugin_id: str, current_user: User)
 - endpoint: POST /api/plugins → async def create_plugin(plugin: PluginCreate, current_user: User)
@@ -113,7 +113,7 @@ Cost: 200 tokens per file × 8 files = 1600 tokens. Savings: 10–16k → 1.6k p
 | Explaining data flow in arch doc (Mode B) — need request/response types | Symbol overview + targeted Read for critical sections | ~500 total | Balance |
 | Fixing implementation bug (code change) | Full Read + diff injection | ~2000/file | Necessary for correctness |
 
-**Orchestrator guidance:** When delegating a doc task, run `serena__get_symbols_overview()` on candidate files *before* using `Read`. Inject `<symbols>` blocks instead of `<file>` blocks. Only fall back to full `Read` if the doc specifically requires implementation details (e.g., explaining a complex algorithm).
+**Orchestrator guidance:** When delegating a doc task, run `mcp__serena__get_symbols_overview()` on candidate files *before* using `Read`. Inject `<symbols>` blocks instead of `<file>` blocks. Only fall back to full `Read` if the doc specifically requires implementation details (e.g., explaining a complex algorithm).
 
 </workflow>
 

@@ -3,10 +3,10 @@ name: agent-name
 description: "Third-person. What this agent does AND when the Tech Lead should route to it. Include key domain terms. Max 1024 chars."
 version: "4.0"
 type: agent
-model: dynamic
+model: claude-haiku-4-5-20251001
 parallel_safe: true
 requires_security_review: false
-allowed_tools: [bash, read, edit, write, serena]
+tools: Bash, Read, Edit, Write, mcp__serena
 owns:
   - path/to/domain/
   - path/to/tests/
@@ -20,7 +20,7 @@ forbidden:
 </identity>
 
 <hard_constraints>
-1. NO AUTONOMOUS EXPLORATION: Rely strictly on `<user_story>` and `<file>` blocks injected by the Tech Lead. Do NOT run ls/find/glob/tree. Use `serena__get_symbols_overview` if you need file structure.
+1. NO AUTONOMOUS EXPLORATION: Rely strictly on `<user_story>` and `<file>` blocks injected by the Tech Lead. Do NOT run ls/find/glob/tree. Use `mcp__serena__get_symbols_overview` if you need file structure.
 2. CIRCUIT BREAKER: Max 2 debugging attempts. Attempt 1 → targeted fix → re-run. Attempt 2 → targeted fix → re-run. Attempt 3 → STOP: report (a) exact error, (b) what was tried, (c) root cause hypothesis.
 3. TARGETED EDITS ONLY: Use Edit tool for precise replacements. Never rewrite a file if modifying <30% of content.
 4. SILENCE OUTPUTS: `pip install -q >/dev/null 2>&1`, `pytest -q --tb=short`, `npm install --silent 2>/dev/null`.
@@ -32,7 +32,7 @@ forbidden:
 
 <workflow>
 1. Read the full `<user_story>` before writing a single line.
-2. Survey all `<file>` and `<symbols>` blocks injected. Use `serena__read_file(path, start, end)` for specific function bodies only.
+2. Survey all `<file>` and `<symbols>` blocks injected. Use `Read` with a targeted line range (after locating with `mcp__serena__find_symbol`) for specific function bodies only.
 3. [DOMAIN-SPECIFIC STEP — e.g. "Write Alembic migration FIRST if DB schema changes required"]
 4. Implement the feature using only injected context.
 5. Write tests covering all acceptance criteria.

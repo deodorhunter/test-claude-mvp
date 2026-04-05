@@ -14,11 +14,11 @@
 | debugger | `claude-haiku-4-5-20251001` | LOW | Never — debugging is LOW |
 | product-owner | `claude-haiku-4-5-20251001` | LOW | Never — backlog work is LOW |
 | orchestrator | `claude-sonnet-4-6` | MEDIUM | Never — coordination requires MEDIUM thinking |
-| aiml-engineer | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
-| backend-dev | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
-| dev-ops | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
-| frontend-dev | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
-| security-engineer | `dynamic` | Per-US | Orchestrator sets per Task Complexity Matrix |
+| aiml-engineer | `claude-sonnet-4-6` | MEDIUM/HIGH default | Promote to Opus for codebase-wide AI refactors only |
+| backend-dev | `claude-haiku-4-5-20251001` | LOW default | Promote to Sonnet for new abstractions, auth, complex logic |
+| dev-ops | `claude-haiku-4-5-20251001` | LOW default | Promote to Sonnet for multi-service orchestration changes |
+| frontend-dev | `claude-haiku-4-5-20251001` | LOW default | Promote to Sonnet for architectural UI decisions |
+| security-engineer | `claude-sonnet-4-6` | HIGH default | Never demote — security always warrants Sonnet minimum |
 
 ### Task Complexity Matrix (Source of Truth)
 
@@ -30,15 +30,20 @@
 | MEDIUM/HIGH → Sonnet | New abstractions, complex business logic, security impl, core architecture, auth/RBAC, full test suite (QA Mode B) | `claude-sonnet-4-6` | **Yes** — prepend `ultrathink` to agent system prompt |
 | FULL-CODEBASE → Opus | Phase Gate security review >200K context, multi-phase dependency analysis | `claude-opus-4-6` | Yes |
 
-### Dynamic Agents Explained
+### Typed Fallbacks + Orchestrator Override
 
-Agents with `model: dynamic` have their model set by the orchestrator **at delegation time**. The orchestrator reads the US complexity (via Task Complexity Matrix) and injects the appropriate model into the agent's system prompt. This enables cost optimization: a backend-dev agent handles both simple config changes (Haiku) and complex distributed tracing (Sonnet) without code changes.
+Specialist agents declare typed fallback models in their frontmatter. These are safe defaults for non-orchestrated (ad-hoc Speed 1) spawning. In Speed 2, the orchestrator ALWAYS overrides via the Agent tool's `model` parameter per the Task Complexity Matrix — the frontmatter value is ignored when an override is provided.
+
+**Speed 2 orchestrators must never skip the explicit override step.** Frontmatter defaults exist for fallback safety only, not as a substitute for Task Complexity Matrix decisions. The Agent tool's `model` parameter always takes precedence over frontmatter.
+
+Previous pattern used `model: dynamic` as a sentinel value. This was replaced because `dynamic` is not a recognized Claude Code model identifier — it silently breaks agent spawning when no orchestrator override is provided (e.g. ad-hoc tests, Speed 1 direct invocations).
 
 ### Limitations & Constraints
 
 - **No `smallFastModel` global setting:** Claude Code does not support a configuration key for "prefer Haiku everywhere". Model routing is per-agent via frontmatter only.
 - **GitHub Models API:** GitHub Models has no Claude Code adapter. Model routing is not available when using GitHub Models as the underlying provider.
 - **GitHub Copilot:** Copilot's model selection is tied to the user's subscription tier, not per-task. Individual agents cannot override the tier. Use Claude Code for per-US model control.
+- **`model: dynamic` is invalid:** Claude Code does not recognize `dynamic` as a model name. Agents with this value fail at spawn time when no orchestrator override is provided. All specialist agents now use typed fallback defaults (see table above).
 
 ## Orchestration Patterns
 
@@ -88,43 +93,30 @@ then add a query helper in backend/app/db/crud.py to filter by user.
 
 Pre-generated command reference: see `docs/.command-catalog.md` for all 12 commands + descriptions. This avoids re-generating command metadata during agent delegations (~3k tokens saved per delegation).
 
-**Quick reference (full catalog in `.command-catalog.md`):**
 
-| Command | Use case |
-|---|---|
-| `/consistency-check` | Scores agent output against US acceptance criteria; blocks at ≤2 |
-| `/deep-interview` | Extracts testable requirements from fuzzy intent via Socratic questioning |
-| `/handoff` | Appends metrics + summary to ARCHITECTURE_STATE.md after merging a US |
-| `/init-ai-reference` | Scans repo, writes AI_REFERENCE.md; run when stack changes |
-| `/judge` | Post-implementation pre-QA: checks git diff against US acceptance criteria |
-| `/learn` | Distills hard-won session insight into reusable note in .session-notes.md |
-| `/notepad` | Appends timestamped entry to .session-notes.md (Learnings/Decisions/Issues) |
-| `/phase-retrospective` | End-of-phase report; appends cost row to SESSION_COSTS.md |
-| `/refine-backlog` | Pre-sprint yes-man filter on all Backlog US; produces verdicts |
-| `/reflexion` | Phase-gate ritual: extracts 1–3 durable rules into .claude/rules/project/ |
-| `/review-session` | End-of-session quality audit (audience, EU AI Act, links, ADAPT) |
+### File Context Injection (Rules 009 + 010: Symbol-First Navigation)
 
-### File Context Injection (Rule-009: Symbol-First Navigation)
+**Critical constraint:** Serena MCP tool calls are NOT available in sub-agent sessions — confirmed 2026-04-04. Sub-agents receive Serena's system instructions but cannot call `mcp__serena__*` functions (Claude Code MCP bridge limitation). The orchestrator is the sole Serena proxy.
 
-**Principle:** For documentation-only tasks (no code changes), use Serena symbol overviews instead of full file reads. Reduces bloat, improves token efficiency.
+**Mandatory orchestrator pre-flight for any US touching Python or TypeScript files:**
+1. Identify files the delegated agent will need to read or edit
+2. For each Python/TypeScript file: call `mcp__serena__get_symbols_overview` in the main session
+3. Inject results as `<symbols path="...">` blocks in the delegation prompt
+4. For implementation files needing full content: add `<file path="...">` blocks (targeted Read)
+5. Never write "use Serena to navigate" in sub-agent instructions — the tool is unavailable
 
 | Approach | Cost | When to use |
 |---|---|---|
-| Symbol overview (`serena__get_symbols_overview`) | ~200 tokens/file | Writing handoff docs, mode B architecture summaries, reference context |
-| Full Read injection (`<file>` blocks) | ~2000 tokens/file | Code changes, implementation details, algorithm explanation required |
+| Symbol overview (`mcp__serena__get_symbols_overview`) | ~200 tokens/file | Interfaces, class/function names — sub-agent doesn't need implementation details |
+| Full Read injection (`<file>` blocks) | ~2000 tokens/file | Implementation changes, algorithm details, full context required |
 
-**Cost comparison (typical 8-file doc task):**
-- ❌ Anti-pattern: Full Read × 8 files = ~16,000 tokens wasted (10–15k per doc phase)
-- ✅ Pattern: Symbol overview × 8 files = ~1,600 tokens + targeted reads for 1–2 critical sections = ~2,500 total
+**Cost comparison (typical 8-file delegation):**
+- ❌ No pre-flight: sub-agent reads 8 files via Read = ~16,000 tokens
+- ✅ Orchestrator pre-flight: symbol overviews × 8 = ~1,600 tokens + targeted reads for 1–2 key files = ~2,500 total
 
-**Orchestrator checklist before delegating a doc task:**
-1. Identify files referenced (API routes, models, configs, etc.)
-2. For each file: "Does the doc need implementation details or just interfaces?" → Yes/implementation: full Read | No/interfaces only: symbol overview
-3. Inject `<symbols>` blocks for 6–8 overview files
-4. Inject `<file>` blocks for 1–2 critical sections (if needed)
-5. Expected savings per doc task: ~10–12k tokens
+**Scope:** Python and TypeScript files only. Markdown, YAML, JSON → inject via `<file>` blocks or Grep output.
 
-**Reference:** `.claude/agents/doc-writer.md` includes detailed pattern examples.
+**Reference:** `.claude/agents/doc-writer.md` includes delegation prompt examples with `<symbols>` blocks.
 
 ### Speed 1 with Copilot
 
@@ -133,46 +125,3 @@ Attach all relevant files explicitly in the Copilot sidebar. Keep edits surgical
 Reference `.github/copilot-instructions.md` for project-specific context (tenant isolation, no exploration, no hallucinations).
 
 Copilot has no Phase 2 orchestration equivalent — no agents, no delegations, no hand-off docs. For complex features requiring planning or cross-domain coordination, switch to Speed 2 (CLI mode).
-
----
-
-## Context Management
-
-Context compression prevents token multiplication when parallel agent waves share a large planning context (80k × 3 agents = 240k wasted tokens).
-
-### Automated Hook: `auto-compress.sh`
-
-Registered in `.claude/settings.json`. Fires advisory warnings — never blocks session flow.
-
-| Trigger | Hook Event | Condition | Advisory |
-|---|---|---|---|
-| Tool-call threshold | `PostToolUse` (all tools) | count ≥ `COMPRESS_THRESHOLD` (default: 12) | Run `/clear` |
-| Sub-agent spawn | `PreToolUse` (Agent) | context count ≥ 5 tool calls | Check if ≥2 agents → clear first |
-| Parallel results received | `SubagentStop` (all) | ≥2 sub-agents completed | Clear before next wave |
-| Phase Gate keyword | `UserPromptSubmit` | prompt matches `phase gate` / `proceed to phase` | Complete all gate steps |
-
-### Configuration
-
-```bash
-# Override compression threshold (default: 12 tool calls)
-export COMPRESS_THRESHOLD=8
-```
-
-### Manual Fallback
-
-```bash
-# Clear session to free context window before next wave
-/clear
-```
-
-### Example Hook Warning Output
-
-```
-<system_warning>Tool-call count has reached 12 (threshold: 12).
-Run /clear before spawning parallel agents to avoid 120k+ token waste.
-(auto-compress.sh)</system_warning>
-```
-
-### Copilot Compatibility
-
-Not applicable. Copilot Chat is stateless per conversation — no compression mechanism exists or is needed.

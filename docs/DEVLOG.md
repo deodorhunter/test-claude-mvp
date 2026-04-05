@@ -55,3 +55,4 @@ Individual entries are in [`docs/devlog/`](devlog/).
 |---|---|---|
 | [Entry 17](devlog/entry-17.md) | YAML Frontmatter Schema Compliance | Schema-invisible metadata is invisible governance |
 | [Entry 18](devlog/entry-18.md) | Phase 3 Complete: The First Real Cost Benchmark | $11 vs $78 — what the session JSONL actually shows |
+| [Entry 19](devlog/entry-19.md) | Post-Restart MCP Enforcement Tests | model: dynamic breaks agents; Serena unreachable in sub-agents |

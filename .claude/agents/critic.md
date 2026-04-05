@@ -7,8 +7,8 @@ model: claude-haiku-4-5-20251001
 parallel_safe: true
 requires_security_review: false
 evidence_required: true
-allowed_tools: [read]
-disallowedTools: [bash, edit, write, serena]
+tools: Read
+disallowedTools: Bash, Edit, Write, mcp__serena
 owns: []
 forbidden:
   - backend/

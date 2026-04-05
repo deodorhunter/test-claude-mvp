@@ -14,7 +14,9 @@ class ModelResponse:
 
 class ModelAdapter(ABC):
     @abstractmethod
-    async def generate(self, prompt: str, context: str = "") -> ModelResponse: ...
+    async def generate(
+        self, prompt: str, context: str = ""
+    ) -> ModelResponse: ...
 
 
 class ModelError(Exception):

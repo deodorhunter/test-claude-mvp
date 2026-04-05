@@ -62,7 +62,7 @@ services:
     image: ollama/ollama:latest
     container_name: ai-platform-ollama
     ports:
-      - "11434:11434"
+      - "11435:11434" # Shifted host port to avoid conflict with Native Mac Ollama
     volumes:
       - ollama_data:/root/.ollama
     networks:

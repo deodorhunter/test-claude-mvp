@@ -139,3 +139,23 @@ PLONE_MCP_URL — plone-mcp endpoint
 ## IDE & LSP Settings
 
 **Serena config:** `infra/serena_config.json` (rule-019) — ignored: `.git/`, `node_modules/`, `__pycache__/`, `.venv/`. Prevents index.lock contention during worktree merges.
+
+## MCP Servers
+
+| Server | Transport | Endpoint | Scope | Status |
+|---|---|---|---|---|
+| context7 | stdio (npx) | mcp.context7.com (cloud) | Library docs | ✅ Verified |
+| serena | SSE | http://localhost:9121/sse | Python + TypeScript LSP | ✅ Main session; sub-agent: pending verification |
+
+Config file: `.mcp.json` at project root (project-level — loaded for all Claude Code sessions).  
+Serena requires: `make up-ai-tools` (Docker). Python and TypeScript files only (`.serena/project.yml`).  
+context7: `CONTEXT7_API_KEY` in env (optional for free tier). Receives library names + query strings only — never source code or schema (rule-011).  
+Sub-agent SSE access: pending verification after model:dynamic fix — see `docs/devlog/entry-19.md`.
+
+## Persistent Memory
+
+Location: `~/.claude/projects/-Users-martina-personal-projects-test-claude-mvp/memory/`  
+Index: `MEMORY.md` (auto-loaded each session; 150-line limit).  
+Types: `user`, `feedback`, `project`, `reference`.  
+Not committed to repo. Managed automatically by Claude Code across sessions.  
+Current entries: 15 active as of 2026-04-04 (incidents, feedback rules, MVP initiative, infrastructure).

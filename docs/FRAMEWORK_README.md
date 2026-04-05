@@ -54,6 +54,39 @@ CLAUDE.md                    ← Global physics only (~120 lines, down from 450)
 
 ---
 
+## Persistent Memory System
+
+Claude Code maintains a file-based memory system for this project at:
+`~/.claude/projects/-Users-martina-personal-projects-test-claude-mvp/memory/`
+
+This directory is **not inside the repo** — it lives in Claude Code's personal workspace, keyed by project path. It persists across sessions and is loaded automatically.
+
+### What is stored
+
+| Type | Purpose | Examples |
+|---|---|---|
+| `user` | Role, background, preferences | expertise level, coding background |
+| `feedback` | Behavioral corrections + confirmations | "never skip phase gate", "no QA sub-agents for Mode A" |
+| `project` | Ongoing initiatives, decisions, deadlines | MVP phase status, incident postmortems |
+| `reference` | Pointers to external resources | Linear board, Grafana dashboard |
+
+### How it works
+
+- `MEMORY.md` — index file, loaded every session (150-line limit; one-line entry per memory file)
+- Individual `.md` files — full memory bodies with YAML frontmatter (`name`, `description`, `type`)
+- Claude writes proactively for durable, non-obvious facts; reads when context suggests prior knowledge applies
+- Stale memories are updated or removed — never blindly trusted over current file state
+
+### What NOT to store
+
+Code patterns, file paths, or project architecture (derivable from codebase). Git history (`git log` is authoritative). In-progress task state (use Tasks instead). Anything already in CLAUDE.md.
+
+### Current state
+
+15 active entries covering incidents, behavioral feedback rules, MVP initiative status, and infrastructure configuration (as of 2026-04-04).
+
+---
+
 ## Three-Format Architecture: Rule vs Skill vs Command
 
 The framework uses three distinct formats for governance knowledge. Choosing the wrong one creates rule bloat, silent failures, or wasted tokens. The decision criterion is the **token cost model**, not the importance of the constraint.

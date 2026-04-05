@@ -49,13 +49,20 @@ Find patterns by syntax, not text matching. Use AST structural code search and r
 
 **LSP Integration (Serena-First Navigation)**
 When Serena MCP is available, enforce semantic navigation before reading files:
-1. `serena__get_symbols_overview(file)` — signatures only (~200 tokens vs ~2,000 per file)
-2. `serena__find_symbol(name)` — file + line number (~50 tokens)
-3. `serena__read_file(file, start_line, end_line)` — targeted range after locating the symbol
-4. `serena__get_diagnostics(file)` — type errors BEFORE running tests
-5. Full `Read`/`cat` — last resort: only for `<file>` XML injection into sub-agent prompts
+1. `mcp__serena__get_symbols_overview(file)` — signatures only (~200 tokens vs ~2,000 per file)
+2. `mcp__serena__find_symbol(name)` — file + line number (~50 tokens)
+3. `mcp__serena__replace_symbol_body` — preferred method for editing a named symbol in-place
+4. Full `Read`/`cat` — last resort: only for `<file>` XML injection into sub-agent prompts
+   - `read_file` is disabled in `--context claude-code`; use `Read` + line range after `find_symbol`
+   - `get_diagnostics` does not exist in Serena; use `get_errors` tool instead
 
 If Serena is not available, fall back to Read/Grep/Glob directly.
+
+**Context7 for Library Documentation**
+Before writing code that depends on a specific external library or API:
+1. `mcp__context7__resolve-library-id` — map library name to its Context7 ID
+2. `mcp__context7__query-docs` — fetch current docs for that library
+⚠️ Do NOT pass source code, schema, or file paths to Context7 queries (rule-011).
 
 **Python REPL**
 Use the persistent Python REPL for complex scripts instead of multiline `bash -c 'python ...'`. REPL preserves state between calls.
@@ -67,9 +74,8 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 <part_3 title="Active Project Rules">
 
 @.claude/rules/project/rule-001-tenant-isolation.md
-@.claude/rules/project/rule-004-ai-reference-check-every-session.md
-@.claude/rules/project/rule-007-phase-gate-proceed-means-gate-steps.md
 @.claude/rules/project/rule-009-serena-first-navigation.md
+@.claude/rules/project/rule-010-orchestrator-serena-preflight.md
 @.claude/rules/project/rule-011-eu-ai-act-data-boundary.md
 
 </part_3>
@@ -92,12 +98,11 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 <part_5 title="Hard Rules (never break)">
 
-1. **NO SELF-APPROVAL**: Never mark a US done without running the smoke test. Never pass a Phase Gate without completing all gate steps.
-2. **PHASE GATE IS MANDATORY**: When all US in a phase are Done, run Phase Gate immediately. Never present it as optional. (rule-007)
-3. **NO DELEGATION WITHOUT AC**: Every US must have written acceptance criteria before delegation.
-4. **FILE CONTENT INJECTION**: When delegating to sub-agents, inject raw file content via `<file path="...">` XML tags. Never pass bare file paths — sub-agents cannot Read files autonomously.
-5. **EXPLICIT MODEL ASSIGNMENT**: Never delegate with `model: dynamic`. Resolve the model at delegation time: `claude-haiku-4-5-20251001` (LOW) or `claude-sonnet-4-6` (MEDIUM/HIGH).
-6. **EU AI ACT COMPLIANCE**: No code/schema/session data to third-party services. Phase-gate checkpoints mandatory. (rule-011)
-7. **TENANT ISOLATION**: Every DB query on tenant-owned data filtered by `tenant_id` from JWT. (rule-001)
+1. **FILE CONTENT INJECTION**: When delegating to sub-agents, inject raw file content via `<file path="...">` XML tags. Never pass bare file paths — sub-agents cannot Read files autonomously.
+2. **EXPLICIT MODEL ASSIGNMENT**: Never delegate with `model: dynamic`. Resolve the model at delegation time: `claude-haiku-4-5-20251001` (LOW) or `claude-sonnet-4-6` (MEDIUM/HIGH). Agent frontmatter declares typed fallback models — `model: dynamic` is not a valid identifier and silently breaks agent spawning. Speed 2 orchestrators MUST still always override per Task Complexity Matrix; frontmatter defaults are only for non-orchestrated fallback.
+3. **EU AI ACT COMPLIANCE**: No code/schema/session data to third-party services. Phase-gate checkpoints mandatory. (rule-011)
 
 </part_5>
+
+TOOL CALLING FORMAT: You MUST format all tool calls using strict Anthropic XML. Never use JSON. Format exactly like this:
+<invoke><tool_name>Bash</tool_name><parameters><command>echo test</command></parameters></invoke>

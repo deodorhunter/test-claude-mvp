@@ -62,3 +62,21 @@ A second improvement came from the benchmark data: this session's JSONL spans bo
 **Fix applied:** Added step 6 to the Phase Gate workflow in `.claude/skills/speed2-workflow.md` — after gate approval, run `/clear` to start the next phase as a new session. Each phase now has its own JSONL for clean per-phase cost attribution via `make benchmark-session`. No ambiguity, no subtraction arithmetic.
 
 ---
+
+#### Governance Enforcement Tests — 2026-04-04 (Same Failure Class, Confirmed Again)
+
+A session of targeted governance tests confirmed entry-15's thesis from a different angle: not just that the orchestrator makes implicit assumptions, but that those assumptions are **structurally invisible** until you try to spawn an agent in isolation.
+
+**`model: dynamic` breaks non-orchestrated spawning.** Seven agent files had this value. In Speed 2 the orchestrator always passes an explicit model override — so the frontmatter value was never exercised and the failure was invisible. The moment a test tried to spawn an agent directly (without Speed 2 orchestration), it failed silently at the model lookup step. The fix: typed fallback defaults in every agent file. Speed 2 orchestrators still override per Task Complexity Matrix; the fallback is only ever exercised for ad-hoc or Speed 1 use.
+
+This is exactly the DevOps incident from Phase 3c described above — `model: dynamic` rejected at runtime — now reproduced as a systematic test and fixed at the source (frontmatter) rather than only at the orchestrator delegation layer. The root cause in Phase 3c was: "orchestrator left the model unresolved." The root cause in the 2026-04-04 audit: "no one ever tested what happens when the orchestrator isn't present."
+
+**Serena is not available in sub-agents.** MCP server descriptions are injected into sub-agent system prompts, but the tool RPC bridge is not passed to Agent-spawned sessions. Confirmed via test 4: aiml-engineer received Serena instructions in its system-reminder but returned "No such tool available" when calling `mcp__serena__get_symbols_overview`. This is a Claude Code limitation, not a config error.
+
+The governance fix (rule-010) makes the orchestrator the Serena proxy: before delegating any US touching Python or TypeScript, the orchestrator calls Serena in main session and injects `<symbols>` blocks into the delegation prompt. This restores the token savings (~200 tokens/file vs ~2,000) while working within the platform constraint.
+
+**TypeScript added to Serena.** `.serena/project.yml` had `languages: [python]` only. Added `typescript`. The Serena Docker image includes bundled TypeScript 5.9.3 (Node.js pre-installed). The only obstacle was that the workspace is mounted read-only in Docker, so Serena couldn't create `.serena/cache/typescript/` — fixed by creating the directory locally before restart. TypeScript LSP started in 3.07s. Verification of TypeScript symbols in main session is pending session restart (current session has the old Python-only Serena state cached).
+
+The pattern across all three findings is the same: **the failure mode is invisible until you test the non-happy path.** Speed 2 hides `model: dynamic`. Production use hides Serena's sub-agent gap. The `languages: [python]` omission was invisible because no TypeScript work had been delegated yet. The framework needs periodic enforcement tests — not just rules and checklists, but actual agent spawns in controlled conditions.
+
+---

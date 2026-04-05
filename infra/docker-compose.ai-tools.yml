@@ -23,6 +23,7 @@ services:
     image: ghcr.io/oraios/serena:latest
     pull_policy: always
     command:
+      - serena
       - start-mcp-server
       - --context
       - ide
@@ -34,18 +35,11 @@ services:
       - 0.0.0.0
       - --port
       - "9121"
-      - --config
-      - /serena_config.json
     volumes:
       # Mount workspace read-only — Serena reads but never writes code
       - type: bind
         source: ..
         target: /workspace
-        read_only: true
-      # rule-019: ignore .git/ and heavy dirs to prevent index.lock contention
-      - type: bind
-        source: ./serena_config.json
-        target: /serena_config.json
         read_only: true
     ports:
       - "127.0.0.1:9121:9121"  # localhost only — never expose to network
@@ -53,7 +47,8 @@ services:
       - ai-tools-internal
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9121/health"]
+      # SSE streams indefinitely — check port reachability instead
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost', 9121)); s.close()"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -66,13 +61,16 @@ services:
     pull_policy: always
     command:
       - --model
-      - ollama/${OLLAMA_MODEL:-qwen2.5-coder:7b}
+      - ollama/${OLLAMA_MODEL:-qwen2.5-coder:1.5b}
       - --port
       - "4000"
       - --host
       - 0.0.0.0
+      - --drop_params
     environment:
-      OLLAMA_API_BASE: http://ollama-tools:11434
+      # OLLAMA_API_BASE: http://ollama-tools:11434
+      # host.docker.internal routes traffic OUT of Docker and into the Native Mac app
+      OLLAMA_API_BASE: http://host.docker.internal:11434
     ports:
       - "127.0.0.1:4000:4000"  # localhost only
     networks:
@@ -109,8 +107,10 @@ services:
 
 volumes:
   # Shared with infra/docker-compose.yml — model weights downloaded once
+  # Volume is created with project prefix "infra_" by docker compose
   ollama_data:
     external: true
+    name: infra_ollama_data
 
 networks:
   ai-tools-internal:
