@@ -193,9 +193,7 @@
 ## Residual Risks & Follow-up Actions from Phase 3b
 
 **To Apply (before Phase 4 QA):**
-1. Monitor US-056 auto-compress.sh hook in live parallel waves — verify SubagentStop matcher regex (".*") doesn't silently no-op at runtime. First validation opportunity: Phase 3c Wave 1.
-2. Verify US-066 Serena `--config /serena_config.json` flag against `ghcr.io/serena:latest` image specification. Currently unverified; risk: config flag unsupported in deployed image. Action: test in docker compose before Phase 4 deployment.
-3. Consider Critic agent pre-implementation review for future high-complexity US (prevents scope creep like Wave 1 stub files). Implement as optional gate in Phase 4+ workflows.
+1. Consider Critic agent pre-implementation review for future high-complexity US (prevents scope creep like Wave 1 stub files). Implement as optional gate in Phase 4+ workflows.
 
 ---
 
@@ -216,6 +214,6 @@ Issues aperti da risolvere prima o durante Phase 2:
 ## Come usare questo backlog
 
 - **Tech Lead**: aggiorna lo stato di ogni US qui e nel file individuale quando deleghi o ricevi completion
-- **Agenti**: non modificano questo file — scrivono in `docs/progress/US-NNN-done.md` e `docs/handoffs/US-NNN-handoff.md`
+- **Agenti**: non modificano questo file
 - **Utente**: questo file è il punto di riferimento per la visibilità sul progresso
 - **Git**: ogni modifica di stato è un commit separato → storia versionabile

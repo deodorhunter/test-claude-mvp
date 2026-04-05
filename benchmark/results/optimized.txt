@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════════
+  CONTEXT SIZE MEASUREMENT — OPTIMIZED
+  Date: 2026-04-05 12:57:22
+  Project: /Users/martina/personal-projects/test-claude-mvp
+═══════════════════════════════════════════════════════════════
+
+── Auto-loaded instruction files ──────────────────────────────
+
+  CLAUDE.md                               5403 bytes  (~  1350 tokens)
+  orchestrator.md                         9371 bytes  (~  2342 tokens)
+  product-owner.md                        4908 bytes  (~  1227 tokens)
+  Rules (project/)                       14716 bytes  (~  3679 tokens)  [15 files]
+  Rules README                            1318 bytes  (~   329 tokens)
+
+── Path-scoped rules (loaded on demand) ───────────────────────
+
+  rule-002-migration-before-model.md       669 bytes  (~   167 tokens)  [conditional]
+  rule-005-docwriter-no-multiline-bash.md      818 bytes  (~   204 tokens)  [conditional]
+  rule-008-pre-edit-read-docker-baked-files.md      735 bytes  (~   183 tokens)  [conditional]
+  rule-012-mcp-trust-boundary.md          1282 bytes  (~   320 tokens)  [conditional]
+  rule-013-docker-copy-no-shell-ops.md      742 bytes  (~   185 tokens)  [conditional]
+  rule-014-registry-enforcement-opt-in.md     1024 bytes  (~   256 tokens)  [conditional]
+  SUBTOTAL (conditional)                  5270 bytes  (~  1317 tokens)
+
+── Skills (loaded on demand) ──────────────────────────────────
+
+  skill: backlog-refinement               3831 bytes  (~   957 tokens)  [on-demand]
+  skill: speed2-delegation                5453 bytes  (~  1363 tokens)  [on-demand]
+
+── Referenced files (loaded per session) ──────────────────────
+
+  workflow.md                              180 bytes  (~    45 tokens)
+  AI_REFERENCE.md                         7074 bytes  (~  1768 tokens)
+
+── Hooks ──────────────────────────────────────────────────────
+
+  Hook scripts (.claude/hooks/)           5593 bytes  (~  1398 tokens)  [4 files]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TOTAL AUTO-LOADED (all rules):        48563 bytes  (~ 12140 tokens)
+  EFFECTIVE (unconditional only):        43293 bytes  (~ 10823 tokens)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

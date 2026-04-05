@@ -18,6 +18,8 @@ Every implementing agent had a line like `tools: Bash, Read, Edit, Write, mcp__s
 
 The agents were receiving the MCP system instructions but had no RPC bridge, because the allowlist had effectively disqualified all MCP tools before the session started.
 
+Kudos to [this random internet stranger](https://github.com/anthropics/claude-code/issues/25200#issuecomment-4136643091)!
+
 ### The fix and the gate test
 
 The previous session formed this hypothesis and updated `debugger.md` as a canary: replace `tools:` with `disallowedTools: Write, Glob, Agent` and add inline `mcpServers` definitions. A denylist passes all tools through by default — including MCP — while still blocking specific ones. The `mcpServers` block establishes the RPC connection at agent spawn time.
