@@ -37,7 +37,7 @@ GitHub added agent support to Copilot Chat (late 2024), but Copilot agents are *
 
 | Requirement | Claude Code | Copilot Chat agents |
 |---|---|---|
-| Enforce tool restrictions per agent (e.g., backend-dev cannot touch `backend/app/auth/`) | ✅ Executable: agent receives scoped tool list | ❌ Personas only — no `allowed_tools` enforcement |
+| Enforce tool restrictions per agent (e.g., backend-dev cannot touch `backend/app/auth/`) | ✅ Executable: agent receives scoped tool list | ❌ Personas only — no `allowed-tools` enforcement |
 | Parallel multi-agent coordination with context clearing | ✅ Orchestrator manages waves + `/compress-state` | ❌ Single chat surface — no wave coordination |
 | Prevent agent self-approval + enforcement chain (implement → judge → QA) | ✅ Orchestrator routes; hard gates | ❌ Agent can approve own work — no checkpoints |
 | Hard-coded constraints in agent prompt (tenant isolation, circuit breaker) | ✅ Non-negotiable per agent | ❌ Soft guidance — agent can override |

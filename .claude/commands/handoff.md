@@ -1,14 +1,8 @@
 ---
 name: handoff
 description: "Runs git diff on the current or specified branch, parses the diff without reading raw source files, and appends a metrics row and 3-line summary to docs/ARCHITECTURE_STATE.md using append-only echo >>. Use after merging a User Story to keep the architecture state current."
-version: "3.0"
-type: command
-model: claude-haiku-4-5-20251001
-allowed_tools: [bash]
-destructive: false
-output: docs/ARCHITECTURE_STATE.md
-trigger: "/handoff US-NNN"
-parallel_safe: true
+model: haiku
+allowed-tools: [bash]
 ---
 
 <identity>

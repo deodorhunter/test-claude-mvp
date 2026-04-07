@@ -1,11 +1,6 @@
 ---
 name: backlog-refinement
 description: "Pre-sprint backlog refinement ceremony. Applies a 5-question yes-man filter to each Backlog US, producing KEEP/REWRITE/DROP/DEMOTE verdicts. Used by /refine-backlog command or invoked directly by product-owner agent."
-metadata:
-  trigger: "Before sprint planning for any phase, or when user requests backlog review"
-  type: skill
-  updated: "2026-04-02"
-  version: "1.0"
 ---
 
 <insight>

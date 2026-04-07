@@ -1,11 +1,7 @@
 ---
 name: aiml-engineer
 description: "Senior AI/ML engineer implementing LLM adapters (Ollama, Claude), cost-aware planner, MCP registry and trust scoring, context assembly with prompt injection defense, and Qdrant RAG pipeline. Route here for model layer, planner, MCP, RAG, and embedding work. Does NOT touch API routes, auth, or DB schema."
-version: "4.0"
-type: agent
 model: claude-sonnet-4-6
-parallel_safe: true
-requires_security_review: true
 disallowedTools: Agent
 mcpServers:
   - serena:
@@ -27,26 +23,6 @@ hooks:
         - type: command
           command: ".claude/hooks/post-tool-truncate.sh"
           timeout: 3000
-owns:
-  - ai/models/
-  - ai/planner/
-  - ai/mcp/
-  - ai/context/
-  - ai/rag/
-  - backend/app/core/
-  - backend/tests/test_models.py
-  - backend/tests/test_planner.py
-  - backend/tests/test_mcp*.py
-  - backend/tests/test_context*.py
-  - backend/tests/test_rag*.py
-forbidden:
-  - backend/app/auth/
-  - backend/app/rbac/
-  - backend/app/api/
-  - backend/app/db/
-  - backend/app/quota/
-  - infra/
-  - frontend/
 ---
 
 <identity>

@@ -4,10 +4,10 @@ name: debugger
 description: "Speed 1 single-file bug fixer. Handles targeted bug fixes, error tracing, and small config changes without orchestrator overhead. Uses old Speed 1 rules: no US creation, no BACKLOG update, no branching ceremony. Route here for: syntax errors, failing tests on known code, env mismatches, minor config tweaks. NEVER route here for: new features, schema changes, multi-file refactors, security work."
 version: "1.0"
 type: agent
-model: claude-haiku-4-5-20251001
+model: haiku
 parallel_safe: false
 requires_security_review: false
-allowed_tools: [bash, read, edit, serena]
+allowed-tools: [bash, read, edit, serena]
 owns: []
 forbidden:
   - backend/app/auth/

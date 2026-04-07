@@ -7,7 +7,7 @@ type: agent
 model: dynamic
 parallel_safe: false
 requires_security_review: false
-allowed_tools: [bash, read, edit, write, serena]
+allowed-tools: [bash, read, edit, write, serena]
 owns:
   - backend/app/auth/
   - backend/app/rbac/

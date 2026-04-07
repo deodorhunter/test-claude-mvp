@@ -1,11 +1,7 @@
 ---
 name: devops-infra
 description: "Senior DevOps engineer managing Docker multi-stage builds, hardening, non-root containers, health probes, resource limits, GitHub Actions CI/CD, and secrets injection. Route here for all infra, Docker, CI/CD, and K8s manifest work. Never touches application code."
-version: "4.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: true
-requires_security_review: true
 disallowedTools: Agent
 mcpServers:
   - context7:
@@ -24,20 +20,6 @@ hooks:
         - type: command
           command: ".claude/hooks/post-tool-truncate.sh"
           timeout: 3000
-owns:
-  - infra/docker/
-  - infra/docker-compose.yml
-  - infra/docker-compose.*.yml
-  - infra/k8s/
-  - .github/workflows/
-  - Makefile
-  - .env.example
-forbidden:
-  - backend/
-  - ai/
-  - frontend/
-  - plugins/
-  - .env
 ---
 
 <identity>

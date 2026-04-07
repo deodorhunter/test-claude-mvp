@@ -1,22 +1,8 @@
 ---
 name: critic
 description: "Plan and design challenge agent. Reads a proposed US plan or architecture decision and returns a structured objection list before any implementing agent is spawned. Route here for MEDIUM/HIGH complexity US BEFORE delegation. Never implements code — only validates plans."
-version: "4.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: true
-requires_security_review: false
-evidence_required: true
-tools: Read
-disallowedTools: Bash, Edit, Write, mcp__serena
-owns: []
-forbidden:
-  - backend/
-  - ai/
-  - infra/
-  - frontend/
-  - docs/
-  - .claude/
+disallowedTools: Bash, Edit, Write
 ---
 
 <identity>

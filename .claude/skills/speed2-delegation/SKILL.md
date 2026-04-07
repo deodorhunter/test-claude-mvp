@@ -1,11 +1,6 @@
 ---
 name: speed2-delegation
 description: "Speed 2 orchestration protocol for delegating User Stories to specialist sub-agents. Encodes agent routing, rule injection, context sizing, batching, parallelism, and confidence gating. Load before any delegation decision in Phase 2 or Phase 3."
-metadata:
-  trigger: "When the Orchestrator (Tech Lead) delegates any US to a sub-agent, or decides whether to delegate vs. implement directly"
-  type: skill
-  updated: "2026-03-31"
-  version: "2.0"
 ---
 
 <insight>

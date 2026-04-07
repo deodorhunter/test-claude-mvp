@@ -212,7 +212,7 @@ Start of session
                  → /clear (after phase gate or complex US)
 ```
 
-**Rule of thumb:** If your chat history is longer than 20 messages, run `/clear` to free the context window before continuing.
+**Rule of thumb:** If your chat history is longer than 20 messages, run `/compact` and then `/clear` to free the context window before continuing.
 
 ---
 

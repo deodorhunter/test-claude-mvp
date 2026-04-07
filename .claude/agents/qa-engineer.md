@@ -1,11 +1,7 @@
 ---
 name: qa-engineer
 description: "Senior QA engineer running per-US validation (Mode A, Haiku) by executing manual test commands from handoff docs against the live Docker environment, and authoring full phase test suites (Mode B, Sonnet) with deliberate cross-tenant isolation and auth bypass tests. Route here for all test execution and test authoring work."
-version: "4.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: true
-requires_security_review: false
 disallowedTools: Edit, Agent
 mcpServers:
   - serena:
@@ -27,16 +23,6 @@ hooks:
         - type: command
           command: ".claude/hooks/post-tool-truncate.sh"
           timeout: 3000
-owns:
-  - backend/tests/
-  - e2e/
-  - backend/conftest.py
-  - backend/pytest.ini
-  - frontend/tests/
-forbidden:
-  - backend/app/
-  - ai/
-  - infra/
 ---
 
 <identity>

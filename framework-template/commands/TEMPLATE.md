@@ -3,7 +3,7 @@ name: command-name
 description: "One sentence: what this command does and when to invoke it."
 version: "1.0"
 type: command
-model: claude-haiku-4-5-20251001
+model: haiku
 destructive: false
 output: "[where output goes, e.g., docs/file.md (append-only)]"
 speed: 1

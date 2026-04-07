@@ -36,14 +36,10 @@ Specialist agents declare typed fallback models in their frontmatter. These are 
 
 **Speed 2 orchestrators must never skip the explicit override step.** Frontmatter defaults exist for fallback safety only, not as a substitute for Task Complexity Matrix decisions. The Agent tool's `model` parameter always takes precedence over frontmatter.
 
-Previous pattern used `model: dynamic` as a sentinel value. This was replaced because `dynamic` is not a recognized Claude Code model identifier — it silently breaks agent spawning when no orchestrator override is provided (e.g. ad-hoc tests, Speed 1 direct invocations).
-
 ### Limitations & Constraints
 
-- **No `smallFastModel` global setting:** Claude Code does not support a configuration key for "prefer Haiku everywhere". Model routing is per-agent via frontmatter only.
 - **GitHub Models API:** GitHub Models has no Claude Code adapter. Model routing is not available when using GitHub Models as the underlying provider.
 - **GitHub Copilot:** Copilot's model selection is tied to the user's subscription tier, not per-task. Individual agents cannot override the tier. Use Claude Code for per-US model control.
-- **`model: dynamic` is invalid:** Claude Code does not recognize `dynamic` as a model name. Agents with this value fail at spawn time when no orchestrator override is provided. All specialist agents now use typed fallback defaults (see table above).
 
 ## Orchestration Patterns
 

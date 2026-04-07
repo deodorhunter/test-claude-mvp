@@ -1,11 +1,6 @@
 ---
 name: speed2-workflow
 description: "Speed 2 orchestration workflow: session bootstrap, planning, delegation, post-US verification, and phase gates. Load when starting a Speed 2 (multi-US, multi-agent) session."
-metadata:
-  trigger: "When starting a Speed 2 session, planning a new phase, or delegating User Stories to sub-agents"
-  type: skill
-  updated: "2026-04-03"
-  version: "4.0"
 ---
 
 # Speed 2 Workflow

@@ -150,7 +150,7 @@ PLONE_MCP_URL — plone-mcp endpoint
 Config file: `.mcp.json` at project root (project-level — loaded for all Claude Code sessions).  
 Serena requires: `make up-ai-tools` (Docker). Python and TypeScript files only (`.serena/project.yml`).  
 context7: `CONTEXT7_API_KEY` in env (optional for free tier). Receives library names + query strings only — never source code or schema (rule-011).  
-Sub-agent SSE access: pending verification after model:dynamic fix — see `docs/devlog/entry-19.md`.
+
 
 ## Persistent Memory
 

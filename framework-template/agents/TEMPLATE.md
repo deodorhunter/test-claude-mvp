@@ -3,7 +3,7 @@ name: agent-name
 description: "Third-person. What this agent does AND when the Tech Lead should route to it. Include key domain terms. Max 1024 chars."
 version: "4.0"
 type: agent
-model: claude-haiku-4-5-20251001
+model: haiku
 parallel_safe: true
 requires_security_review: false
 disallowedTools: Agent

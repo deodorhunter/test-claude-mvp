@@ -44,20 +44,19 @@ This is consistent with Anthropic's tokenizer for Claude models.
 
 ## Optimization Strategies
 
-### S1: Output Truncation Hook (PostToolUse) — ~10% savings
+### S1: Verbose Command Reminder Hook (PostToolUse) — savings unverified
 
 **Problem:** `pip install`, `docker build`, `alembic upgrade`, `npm install` outputs flood 500-5000 tokens into context. Only the exit code and last few lines matter.
 
-**Solution:** A `PostToolUse` hook (`.claude/hooks/post-tool-truncate.sh`) that intercepts Bash tool results and truncates known noisy patterns to the last 5-10 lines with a summary header.
+**Approach:** A `PostToolUse` hook (`.claude/hooks/post-tool-truncate.sh`) that inspects the Bash tool *input* (the command string). When it detects a known noisy command pattern without quiet flags (e.g. `pip install` without `-q`), it emits a reminder comment instructing the agent to rerun with suppression flags (`-q`, `>/dev/null 2>&1`, etc.).
+
+**Limitation:** Claude Code's `PostToolUse` hooks cannot intercept or modify tool output — the hook operates on tool input metadata only. Actual output suppression depends on the agent following the reminder on its next invocation. Token savings are not directly measurable via this hook and have not been benchmarked.
 
 **Inspired by:** oh-my-claudecode's `PostToolUse` verifier hook and `PreCompact` context guard.
 
 **Verification:**
 ```bash
-# Before hook: run a docker build, count output lines
-docker build -q . 2>&1 | wc -l   # typically 50-200 lines
-
-# After hook: same command through Claude, output should be ≤10 lines
+# Confirm the hook fires and emits a reminder on noisy commands:
 ./benchmark/measure-tool-output.sh
 ```
 
@@ -144,7 +143,7 @@ These patterns from [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-clau
 
 | Pattern | OMC Source | Our Implementation | Impact |
 |---|---|---|---|
-| **Output truncation hooks** | `PostToolUse` verifier + `PreCompact` guard | `.claude/hooks/post-tool-truncate.sh` (S1) | ~10% token savings |
+| **Verbose command reminder hook** | `PostToolUse` verifier + `PreCompact` guard | `.claude/hooks/post-tool-truncate.sh` (S1) | Reminder only — savings unverified |
 | **Smart model routing** | Model right-sizing (Haiku/Sonnet/Opus) | Task Complexity Matrix in `product-owner.md` | 30-50% cost savings |
 | **Bounded iteration** | Fix loops bounded by max attempts | Rule 4: Circuit Breaker (max 2 attempts) | Prevents runaway consumption |
 | **Evidence-driven verification** | `trace` lane for evidence collection | Smoke tests + QA Mode A in orchestrator | Quality gate |

@@ -1,13 +1,7 @@
 ---
 name: phase-retrospective
 description: "Produces the mandatory end-of-phase retrospective report: incidents, rules extracted, cost analysis, and actionables. Appends one row to docs/SESSION_COSTS.md. Run automatically at every Phase Gate (Phase 4, step 6). Never skip."
-version: "1.0.0"
 model: claude-sonnet-4-6
-destructive: false
-output: docs/SESSION_COSTS.md (append-only)
-speed: 2
-trigger: "/phase-retrospective"
-parallel_safe: false
 ---
 
 # Command: /phase-retrospective

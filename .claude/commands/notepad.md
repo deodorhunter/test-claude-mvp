@@ -1,14 +1,8 @@
 ---
 name: notepad
 description: "Lightweight in-session institutional memory. Appends timestamped entries to docs/.session-notes.md under four categories: Learnings, Decisions, Issues, Problems. Inspired by oh-my-claudecode's notepad wisdom system. Gitignored — operational state only."
-version: "1.0.0"
-type: command
-model: claude-haiku-4-5-20251001
-allowed_tools: [bash, write]
-destructive: false
-output: docs/.session-notes.md
-trigger: "/notepad [category] [entry]"
-parallel_safe: true
+model: haiku
+allowed-tools: [bash, write]
 ---
 
 <identity>

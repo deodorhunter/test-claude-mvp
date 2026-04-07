@@ -1,14 +1,7 @@
 ---
 name: init-ai-reference
 description: "Scans the repository once using a single find command, reads up to 5 config files, and writes docs/AI_REFERENCE.md as the permanent stack reference. Use when setting up this repo for the first time, when AI_REFERENCE.md is missing, or after a major stack change."
-version: "4.0"
-type: command
-model: claude-haiku-4-5-20251001
-allowed_tools: [bash, write]
-destructive: false
-output: docs/AI_REFERENCE.md
-trigger: "/init-ai-reference"
-parallel_safe: true
+model: haiku
 ---
 
 <identity>

@@ -1,11 +1,7 @@
 ---
 name: security-engineer
 description: "Senior security engineer implementing JWT auth, RBAC middleware, plugin subprocess isolation, audit logging, prompt injection sanitization, and Docker hardening. Route here for all auth/RBAC implementation, security reviews, plugin runtime isolation, and compliance work. Reviews run AFTER implementation agents, BEFORE merge."
-version: "4.0"
-type: agent
 model: claude-sonnet-4-6
-parallel_safe: false
-requires_security_review: false
 disallowedTools: Agent
 mcpServers:
   - serena:
@@ -27,24 +23,6 @@ hooks:
         - type: command
           command: ".claude/hooks/post-tool-truncate.sh"
           timeout: 3000
-owns:
-  - backend/app/auth/
-  - backend/app/rbac/
-  - backend/app/audit/
-  - backend/app/api/v1/auth.py
-  - backend/app/plugins/runtime.py
-  - ai/context/sanitizer.py
-  - backend/tests/
-  - infra/docker/
-forbidden:
-  - backend/app/api/v1/
-  - backend/app/db/
-  - backend/app/quota/
-  - backend/app/plugins/manager.py
-  - ai/models/
-  - ai/mcp/
-  - ai/rag/
-  - frontend/
 ---
 
 <identity>

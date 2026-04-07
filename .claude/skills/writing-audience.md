@@ -1,11 +1,6 @@
 ---
 name: writing-audience
 description: "Audience-aware writing registers for documentation. Load before writing any human-facing doc (Mode B, README, onboarding). Encodes Hart's Rules as actionable constraints per audience type."
-metadata:
-  trigger: "When doc-writer begins Mode B (human-facing documentation), or when writing README, onboarding, or evaluation-facing content"
-  type: skill
-  updated: "2026-03-31"
-  version: "1.0"
 ---
 
 <insight>

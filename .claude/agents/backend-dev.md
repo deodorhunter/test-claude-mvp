@@ -1,11 +1,7 @@
 ---
 name: backend-dev
 description: "Senior Python backend developer implementing FastAPI endpoints, SQLAlchemy models, Alembic migrations, Redis quota and rate limiting, and plugin manager. Route here for API endpoints, DB schema changes, quota logic, and plugin management. Does NOT touch auth/RBAC, AI/ML, or frontend code."
-version: "4.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: true
-requires_security_review: false
 disallowedTools: Agent
 mcpServers:
   - serena:
@@ -27,23 +23,6 @@ hooks:
         - type: command
           command: ".claude/hooks/post-tool-truncate.sh"
           timeout: 3000
-owns:
-  - backend/app/api/v1/
-  - backend/app/db/
-  - backend/app/quota/
-  - backend/app/plugins/manager.py
-  - backend/app/config.py
-  - backend/app/main.py
-  - backend/alembic/
-  - backend/tests/
-forbidden:
-  - backend/app/auth/
-  - backend/app/rbac/
-  - backend/app/audit/
-  - backend/app/core/
-  - ai/
-  - infra/
-  - frontend/
 ---
 
 <identity>

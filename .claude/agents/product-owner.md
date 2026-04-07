@@ -1,21 +1,8 @@
 ---
 name: product-owner
 description: "Product owner and planning specialist. Maintains backlog, defines acceptance criteria, selects operating modes, tracks session costs. Route here for US creation, backlog maintenance, and mode selection. Never writes application code."
-version: "4.0"
-type: reference
 model: claude-haiku-4-5-20251001
-parallel_safe: false
-requires_security_review: false
-tools: Read, Write
 disallowedTools: Bash, Edit, mcp__serena
-owns:
-  - docs/backlog/
-  - docs/SESSION_COSTS.md
-forbidden:
-  - backend/
-  - ai/
-  - infra/
-  - frontend/
 ---
 
 <identity>
@@ -87,7 +74,7 @@ ultrathink guidance: For MEDIUM/HIGH tasks delegated to Sonnet, prepend `ultrath
 
 ### Pre-Sprint Refinement
 
-Before selecting work for a sprint, run `/refine-backlog` (or load `.claude/skills/backlog-refinement/SKILL.md` directly) on all 📋 Backlog US in the target phase. This is an Agile ceremony, not a gate — it produces a KEEP/REWRITE/DROP/DEMOTE verdict table for human review. No US status changes without human approval. See rule-018.
+Before selecting work for a sprint, run `/refine-backlog` (or load `.claude/skills/backlog-refinement/SKILL.md` directly) on all 📋 Backlog US in the target phase. This is an Agile ceremony, not a gate — it produces a KEEP/REWRITE/SPLIT/DROP/DEMOTE verdict table for human review. No US status changes without human approval. See rule-018.
 
 ### Session Cost Row Format
 

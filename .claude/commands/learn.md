@@ -1,14 +1,7 @@
 ---
 name: learn
 description: "Distills a hard-won insight from the current session into a reusable note. Quality gate: only non-googleable, context-specific, painful-to-rediscover insights pass. Routes to expertise notes (how-it-works) or workflow notes (what-to-do-when). Appends to docs/.session-notes.md via /notepad."
-version: "1.0"
-type: command
-model: claude-haiku-4-5-20251001
-destructive: false
-output: "docs/.session-notes.md (append via /notepad)"
-speed: 1
-trigger: "/learn [insight]"
-parallel_safe: true
+model: haiku
 ---
 
 # Command: /learn

@@ -7,7 +7,7 @@ type: agent
 model: claude-sonnet-4-6
 parallel_safe: false
 requires_security_review: false
-allowed_tools: [bash, read, edit, write, serena]
+allowed-tools: [bash, read, edit, write, serena]
 owns:
   - docs/plan.md
   - docs/backlog/

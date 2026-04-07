@@ -1,29 +1,8 @@
 ---
 name: doc-writer
 description: "Technical documentation specialist producing handoff docs from git diffs (Mode A, Haiku) and human-facing architecture docs after phase gates (Mode B, Haiku). Appends token metrics and 3-line summaries to docs/ARCHITECTURE_STATE.md using append-only bash. Route here for all documentation work. Never writes application code."
-version: "4.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: true
-requires_security_review: false
-tools: Bash, Write
-disallowedTools: Edit, mcp__serena
-owns:
-  - docs/handoffs/
-  - docs/ARCHITECTURE_STATE.md
-  - docs/architecture/
-  - docs/runbooks/
-  - docs/testing/
-forbidden:
-  - docs/mvp-spec.md
-  - docs/plan.md
-  - docs/backlog/
-  - CLAUDE.md
-  - .claude/
-  - backend/
-  - ai/
-  - infra/
-  - frontend/
+disallowedTools: Edit
 ---
 
 <identity>

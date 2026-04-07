@@ -1,14 +1,8 @@
 ---
 name: review-session
 description: "End-of-session quality checklist. Audits audience register, EU AI Act coverage, benchmark accuracy, citation confidence scores, internal link validity, and ADAPT marker completeness across all human-facing docs modified this session."
-version: "1.0"
-type: command
-model: claude-haiku-4-5-20251001
-allowed_tools: [bash, read]
-destructive: false
-trigger: "/review-session"
-parallel_safe: false
-updated: "2026-03-31"
+model: haiku
+allowed-tools: [bash, read]
 ---
 
 <identity>

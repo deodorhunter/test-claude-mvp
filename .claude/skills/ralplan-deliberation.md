@@ -1,11 +1,6 @@
 ---
 name: ralplan-deliberation
 description: "Structured deliberation record for HIGH complexity US. Produces a Deliberation Record (DR) that documents the reasoning behind the plan before any implementing agent is spawned. Applies only to HIGH tasks — MEDIUM tasks use ultrathink only."
-metadata:
-  trigger: "Orchestrator invokes before delegating HIGH complexity US"
-  type: skill
-  updated: "2026-03-31"
-  version: "1.0"
 ---
 
 <insight>

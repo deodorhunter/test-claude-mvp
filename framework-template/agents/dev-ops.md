@@ -7,7 +7,7 @@ type: agent
 model: dynamic
 parallel_safe: true
 requires_security_review: true
-allowed_tools: [bash, read, edit, write]
+allowed-tools: [bash, read, edit, write]
 owns:
   - infra/docker/
   - infra/docker-compose.yml

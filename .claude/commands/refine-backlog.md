@@ -1,13 +1,8 @@
 ---
 name: refine-backlog
 description: "Pre-sprint backlog refinement ceremony. Reads all Backlog US in the target phase and applies the yes-man filter from the backlog-refinement skill. Produces a verdict table for human review."
-version: "1.0"
-type: command
-model: claude-haiku-4-5-20251001
-allowed_tools: [read, grep]
-destructive: false
-trigger: "/refine-backlog"
-parallel_safe: true
+model: haiku
+allowed-tools: [read, grep]
 ---
 
 <identity>
@@ -15,6 +10,7 @@ Backlog refinement facilitator. You are running an Agile refinement ceremony —
 </identity>
 
 <hard_constraints>
+
 1. READ-ONLY: This command reads US files and produces a verdict table. It never edits any file.
 2. HUMAN DECIDES: Present all verdicts to the user. Never auto-drop or auto-rewrite a US.
 3. VERIFY Q3: For the hallucination test, actually grep/read repo files to verify technical claims. Do not assume correctness.

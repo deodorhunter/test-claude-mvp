@@ -55,7 +55,7 @@ vi CLAUDE.md                  # Adapt agent @owns/@forbidden paths if needed
 
 **Post-Copy Checklist:**
 - [ ] `docs/AI_REFERENCE.md` updated with your stack (FastAPI, Django, etc.), ports, test commands
-- [ ] `.claude/agents/backend-dev.md` (or relevant agent) has `owns:` and `forbidden:` paths matching your project structure
+- [ ] Agent `<hard_constraints>` body sections reference the correct file paths for your project (note: `owns:` and `forbidden:` frontmatter fields are silently ignored by Claude Code — enforce path restrictions via `disallowedTools` in frontmatter and explicit path lists in `<hard_constraints>` body text)
 - [ ] `.gitignore` includes: `docs/.temp_context.md`, `docs/.session-notes.md`, `.claude/settings.local.json`
 - [ ] First project rule created in `.claude/rules/project/` (e.g., schema isolation, auth scoping)
 - [ ] Smoke test: Claude Code / Copilot Chat can read your `docs/AI_REFERENCE.md` without exploring the whole codebase
@@ -67,12 +67,13 @@ vi CLAUDE.md                  # Adapt agent @owns/@forbidden paths if needed
 If you want Claude Code to auto-discover your MCP servers globally (not per-project):
 
 ```bash
-# Install via npm (global scope)
-npm install -g @anthropic-ai/serena-mcp    # Language Server + symbol navigation
-npm install -g @anthropic-ai/context7-mcp  # Documentation lookup (Context7)
+# Serena MCP (language server + symbol navigation)
+uvx --from git+https://github.com/oraios/serena serena-mcp-server --context ide-assistant --project $PROJECT_ROOT
 
-# Then in Claude Code settings, add to MCP registry:
-# .claude/settings.json → "mcp_servers": ["serena-mcp", "context7-mcp"]
+# Context7 MCP (documentation lookup)
+npx -y @upstash/context7-mcp@latest
+
+# Then register in .claude/settings.json (see .vscode/mcp.json in the source project for format)
 ```
 
 For project-specific MCPs, use `.claude/settings.json` in the project root instead.

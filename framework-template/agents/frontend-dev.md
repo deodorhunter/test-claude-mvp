@@ -7,7 +7,7 @@ type: agent
 model: dynamic
 parallel_safe: true
 requires_security_review: false
-allowed_tools: [bash, read, edit, write, serena]
+allowed-tools: [bash, read, edit, write, serena]
 owns:
   - frontend/src/
   - frontend/tests/

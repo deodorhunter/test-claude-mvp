@@ -1,14 +1,7 @@
 ---
 name: reflexion
 description: "Phase-gate ritual that extracts 1-3 durable rules from the completed phase's session history and saves them as discrete files in .claude/rules/project/. Run once per phase gate, never per-US. Each saved rule must pass the survival test: would knowing it have prevented at least one circuit-breaker trigger or QA bounce-back?"
-version: "1.0.0"
-model: claude-haiku-4-5-20251001
-destructive: false
-output: .claude/rules/project/rule-NNN-*.md  # 0-3 new files per run
-speed: 2
-trigger: "/reflexion"
-parallel_safe: true
-cadence: "once per phase gate — NOT after every US"
+model: haiku
 ---
 
 # Command: /reflexion

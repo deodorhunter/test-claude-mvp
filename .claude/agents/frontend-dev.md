@@ -1,11 +1,7 @@
 ---
 name: frontend-dev
 description: "Senior TypeScript/React/Volto developer building tenant-aware UI components, auth flows (httpOnly cookie JWT), RBAC-aware rendering, and API clients from OpenAPI spec. Route here for all frontend work. Does NOT touch backend, AI, or infra code."
-version: "4.0"
-type: agent
 model: claude-haiku-4-5-20251001
-parallel_safe: true
-requires_security_review: false
 disallowedTools: Agent
 mcpServers:
   - serena:
@@ -27,16 +23,6 @@ hooks:
         - type: command
           command: ".claude/hooks/post-tool-truncate.sh"
           timeout: 3000
-owns:
-  - frontend/src/
-  - frontend/tests/
-  - frontend/package.json
-  - frontend/tsconfig.json
-forbidden:
-  - backend/
-  - ai/
-  - infra/
-  - plugins/
 ---
 
 <identity>

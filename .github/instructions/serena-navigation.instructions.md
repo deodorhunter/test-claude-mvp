@@ -13,13 +13,13 @@ Use Serena tools in this order before reading any file for structure:
 1. `mcp_oraios_serena_get_symbols_overview` — list all symbols (classes, functions, variables) in a file with signatures only. Use before opening a file. ~200 tokens vs ~2,000 for a full file read.
 2. `mcp_oraios_serena_find_symbol` — find a specific function/class by name across the whole project. Returns file path + line number. Use instead of asking the user to search.
 3. `mcp_oraios_serena_read_file` — read a specific line range once you know where the symbol is. Never read a whole file when you only need one function.
-4. `mcp_oraios_serena_get_diagnostics` — check for type errors in a file before touching it. Avoids breaking changes that only surface after editing.
+4. `get_errors` tool (VS Code) — check for type errors in a file before touching it. (`mcp_oraios_serena_get_diagnostics` does not exist in Serena.)
 
 ## Rules
 
 - Never read an entire file to find a function. Use `find_symbol` first.
 - Never guess import paths or class structures. Use `get_symbols_overview`.
-- If you need to check whether a change is type-safe before proposing it, use `get_diagnostics`.
+- If you need to check whether a change is type-safe before proposing it, use the `get_errors` tool.
 - Full file reads (`#file:path`) are appropriate only when you need to understand the *entire* file context for an edit spanning more than one function.
 
 ## Context7 for library documentation

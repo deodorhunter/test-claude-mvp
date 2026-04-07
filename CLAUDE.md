@@ -1,4 +1,3 @@
-# CLAUDE.md — Global Physics
 > These rules are **ALWAYS ACTIVE** for every agent, every session, no exceptions.
 > Speed 2 workflow: load `.claude/skills/speed2-workflow.md` on demand.
 
@@ -34,10 +33,7 @@ Attempt 1 → ONE targeted fix → re-run
 Attempt 2 → ONE targeted fix → re-run
 Attempt 3 → STOP. Report: (a) exact error (≤10 lines), (b) what was tried, (c) root cause hypothesis.
 ```
-Docker-specific: never `pip install` inside a running container. Update `pyproject.toml`, tell user to rebuild.
 
-**Rule 5: BULK READING OVER SERIAL READING**
-Use `cat file1 file2 file3` in one Bash call rather than three sequential `Read` calls.
 
 </part_1>
 
@@ -53,7 +49,7 @@ When Serena MCP is available, enforce semantic navigation before reading files:
 1. `mcp__serena__get_symbols_overview(file)` — signatures only (~200 tokens vs ~2,000 per file)
 2. `mcp__serena__find_symbol(name)` — file + line number (~50 tokens)
 3. `mcp__serena__replace_symbol_body` — preferred method for editing a named symbol in-place
-4. Full `Read`/`cat` — last resort: only for `<file>` XML injection into sub-agent prompts
+4. Full `Read`/`Glob`/`Grep` — last resort: only for `<file>` XML injection into sub-agent prompts
    - `read_file` is disabled in `--context claude-code`; use `Read` + line range after `find_symbol`
    - `get_diagnostics` does not exist in Serena; use `get_errors` tool instead
 
@@ -98,9 +94,6 @@ Use the persistent Python REPL for complex scripts instead of multiline `bash -c
 
 1. **FILE CONTENT INJECTION**: When delegating to sub-agents, inject raw file content via `<file path="...">` XML tags for files requiring exact implementation detail. For structural navigation, sub-agents self-navigate via Serena MCP (`mcp__serena__get_symbols_overview`). Orchestrator `<file>` injection reserved for algorithm-level edits and DocWriter (which cannot Read files).
 2. **EXPLICIT MODEL ASSIGNMENT**: Never delegate with `model: dynamic`. Resolve the model at delegation time: `claude-haiku-4-5-20251001` (LOW) or `claude-sonnet-4-6` (MEDIUM/HIGH). Agent frontmatter declares typed fallback models — `model: dynamic` is not a valid identifier and silently breaks agent spawning. Speed 2 orchestrators MUST still always override per Task Complexity Matrix; frontmatter defaults are only for non-orchestrated fallback.
-3. **EU AI ACT COMPLIANCE**: No code/schema/session data to third-party services. Phase-gate checkpoints mandatory. (rule-011)
+3. **EU AI ACT COMPLIANCE**: No code/schema/session data to third-party services. Phase-gate checkpoints mandatory.
 
 </part_5>
-
-TOOL CALLING FORMAT: You MUST format all tool calls using strict Anthropic XML. Never use JSON. Format exactly like this:
-<invoke><tool_name>Bash</tool_name><parameters><command>echo test</command></parameters></invoke>

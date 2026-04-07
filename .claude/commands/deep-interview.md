@@ -1,14 +1,7 @@
 ---
 name: deep-interview
 description: "Socratic discovery command. Extracts precise, testable requirements from fuzzy user intent through targeted one-question-per-round questions. Stops when acceptance criteria can be written without ambiguity. Persists discoveries via /notepad."
-version: "1.0"
-type: command
 model: claude-sonnet-4-6
-destructive: false
-output: "docs/.session-notes.md (via /notepad)"
-speed: 1
-trigger: "/deep-interview"
-parallel_safe: false
 ---
 
 # Command: /deep-interview
