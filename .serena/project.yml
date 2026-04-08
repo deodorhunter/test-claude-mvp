@@ -132,7 +132,10 @@ default_modes:
 
 # initial prompt for the project. It will always be given to the LLM upon activating the project
 # (contrary to the memories, which are loaded on demand).
-initial_prompt: ""
+initial_prompt: |
+  Project: test-claude-mvp (AI orchestration platform, multi-tenant, EU AI Act compliant).
+  Before proceeding: call list_memories to find relevant memories (architecture/*, testing/*, governance/*).
+  Read the onboarding memory for project structure. Use get_symbols_overview before reading full files.
 
 # time budget (seconds) per tool call for the retrieval of additional symbol information
 # such as docstrings or parameter information.

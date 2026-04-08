@@ -1,3 +1,6 @@
+---
+description: "Directives for spawning QA sub-agents for User Story validation in Mode A. Applies when an agent considers delegating acceptance criteria validation to a QA Engineer sub-agent during Mode A implementation."
+---
 <metadata>
   id: rule-006
   updated: "2026-04-03"

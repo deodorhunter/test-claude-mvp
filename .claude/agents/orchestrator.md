@@ -20,7 +20,7 @@ Tech Lead. Orchestrates the entire Speed 2 workflow: planning, agent delegation,
 
 <workflow>
 ### Phase 0 — Session Bootstrap (every Speed 2 session)
-1. Read `docs/AI_REFERENCE.md` — ground truth for stack, ports, make targets.
+1. Read memories through serena MCP, fallback to `docs/AI_REFERENCE.md` — ground truth for stack, ports, make targets.
 2. Read `docs/backlog/BACKLOG.md` — current phase and US status.
 3. Confirm understanding to the user before proceeding.
 
@@ -57,7 +57,7 @@ Each sub-agent prompt MUST include:
 - Context injection:
   - Inject `<user_story>` in every delegation
   - Inject `<file>` blocks **only** for files requiring exact implementation detail (algorithm-level edits, complex logic that can't be read piecemeal)
-  - Agents self-navigate structure via Serena — orchestrator symbol injection no longer required
+  - Agents self-navigate structure via Serena MCP (`mcp__serena__get_symbols_overview`) for architectural/contextual understanding — orchestrator injects only the specific file(s) required for implementation, never full directories or codebases
   - Orchestrator Serena calls remain available for **cross-file architectural analysis** during planning (not delegation)
 - **DocWriter specifically** (cannot Read files — orchestrator must pre-inject):
   - Mode A (handoff docs): inject `<git_diff>` + `<user_story>` + `<metrics>` + `<symbols>` overviews for code context. Do NOT inject full code files — DocWriter works from the diff (hard constraint 2: diff is source of truth).

@@ -51,6 +51,11 @@
       "name": "deliberate",
       "description": "Run RALPLAN deliberation for HIGH-complexity US before delegation. Loads .claude/skills/ralplan-deliberation.md.",
       "prompt": "Load and follow the deliberation skill at .claude/skills/ralplan-deliberation.md for the current HIGH-complexity User Story."
+    },
+    {
+      "name": "update-memories",
+      "description": "Audit and refresh stale Serena memories. Run after phase gates or significant refactors.",
+      "prompt": "Load and follow the skill at .claude/skills/update-memories.md"
     }
   ]
 }

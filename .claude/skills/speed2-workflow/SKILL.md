@@ -11,7 +11,7 @@ description: "Speed 2 orchestration workflow: session bootstrap, planning, deleg
 
 ## Session Bootstrap
 
-1. Read `docs/AI_REFERENCE.md` — ground truth for stack, ports, make targets.
+1. Call `mcp__serena__list_memories` → read `suggested_commands` + `architecture/*`. Fall back to `docs/AI_REFERENCE.md` only for env vars, health endpoints (rule-004).
 2. Read `docs/backlog/BACKLOG.md` — current phase and US status.
 3. Confirm understanding to the user before proceeding.
 

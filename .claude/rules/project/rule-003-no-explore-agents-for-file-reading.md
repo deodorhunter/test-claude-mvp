@@ -1,3 +1,6 @@
+---
+description: "Directives for exploration in main session and subagents. Applies to any agent action that attempts to read, scan, summarize, or explore files in the codebase."
+---
 <metadata>
   id: rule-003
   updated: "2026-04-03"
@@ -6,7 +9,7 @@
 # Rule 003 — No Explore Agents for File Reading
 
 <constraint>
-NEVER spawn a sub-agent solely to read, scan, or summarize files. Use Read, Grep, or Glob tools directly.
+NEVER spawn a sub-agent solely to read, scan, or summarize files. Use Serena MCP tools if available, fallback to Read, Grep, or Glob tools directly.
 </constraint>
 
 <why>

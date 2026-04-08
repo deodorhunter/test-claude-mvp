@@ -41,6 +41,12 @@ services:
         source: ..
         target: /workspace
         read_only: true
+      # Overlay .serena/ as read-write so Serena can persist memories
+      # All code paths remain read-only; only .serena/memories/ is writable
+      - type: bind
+        source: ../.serena
+        target: /workspace/.serena
+        read_only: false
     ports:
       - "127.0.0.1:9121:9121"  # localhost only — never expose to network
     networks:

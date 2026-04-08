@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════════
+  CONTEXT SIZE MEASUREMENT — BASELINE
+  Date: 2026-04-07 13:19:37
+  Project: /Users/martina/personal-projects/test-claude-mvp
+═══════════════════════════════════════════════════════════════
+
+── Auto-loaded instruction files ──────────────────────────────
+
+  CLAUDE.md                               4903 bytes  (~  1225 tokens)
+  orchestrator.md                         9044 bytes  (~  2261 tokens)
+  product-owner.md                        4704 bytes  (~  1176 tokens)
+  Rules (project/)                       14716 bytes  (~  3679 tokens)  [15 files]
+  Rules README                         MISSING
+
+── Path-scoped rules (loaded on demand) ───────────────────────
+
+  rule-002-migration-before-model.md       669 bytes  (~   167 tokens)  [conditional]
+  rule-005-docwriter-no-multiline-bash.md      818 bytes  (~   204 tokens)  [conditional]
+  rule-008-pre-edit-read-docker-baked-files.md      735 bytes  (~   183 tokens)  [conditional]
+  rule-012-mcp-trust-boundary.md          1282 bytes  (~   320 tokens)  [conditional]
+  rule-013-docker-copy-no-shell-ops.md      742 bytes  (~   185 tokens)  [conditional]
+  rule-014-registry-enforcement-opt-in.md     1024 bytes  (~   256 tokens)  [conditional]
+  SUBTOTAL (conditional)                  5270 bytes  (~  1317 tokens)
+
+── Skills (loaded on demand) ──────────────────────────────────
+
+  skill: backlog-refinement               3678 bytes  (~   919 tokens)  [on-demand]
+  skill: speed2-delegation                5254 bytes  (~  1313 tokens)  [on-demand]
+
+── Referenced files (loaded per session) ──────────────────────
+
+  workflow.md                          MISSING
+  AI_REFERENCE.md                         6973 bytes  (~  1743 tokens)
+
+── Hooks ──────────────────────────────────────────────────────
+
+  Hook scripts (.claude/hooks/)           5593 bytes  (~  1398 tokens)  [4 files]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TOTAL AUTO-LOADED (all rules):        45933 bytes  (~ 11483 tokens)
+  EFFECTIVE (unconditional only):        40663 bytes  (~ 10165 tokens)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
