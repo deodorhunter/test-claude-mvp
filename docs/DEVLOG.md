@@ -49,10 +49,14 @@ Individual entries are in [`docs/devlog/`](devlog/).
 | [Entry 15](devlog/entry-15.md) | The Orchestrator Is Not Exempt | The orchestrator violates the same rules it enforces |
 | [Entry 16](devlog/entry-16.md) | The Governance Paradox: Framework v4.0 Simplification | Too many rules = no rules followed; reduce to what gets followed |
 
-### Operations (Entry 17+)
+### Deep dives and polishing (Entry 17+)
 
 | # | Title | Theme |
 |---|---|---|
 | [Entry 17](devlog/entry-17.md) | YAML Frontmatter Schema Compliance | Schema-invisible metadata is invisible governance |
 | [Entry 18](devlog/entry-18.md) | Phase 3 Complete: The First Real Cost Benchmark | $11 vs $78 — what the session JSONL actually shows |
 | [Entry 19](devlog/entry-19.md) | Post-Restart MCP Enforcement Tests | model: dynamic breaks agents; Serena unreachable in sub-agents |
+| [Entry 20](devlog/entry-20.md) | The subagents tools AllowList problem | Misconfigured frontmatters matter |
+| [Entry 21](devlog/entry-21.md) | Memory Doesn't Save Tokens Without Rules | A tale of tying out Serena memory and fighting Claude memories plus my own instructions that I forgot about, but *THESE* it didn't. Official entry in the ["fuck charts"](https://www.reddit.com/r/ClaudeCode/comments/1s99wz4/boris_the_creator_of_claude_code_reponds_on_ccs/) |
+| [Entry 22](devlog/entry-22.md) | Machine-First Notation: From Memory to Format | How do LLMs actually get trained and how do they read information? With **tokens**: tokenization of machine first governance files to exploit LLMs lateral read and save context tokens |
+| [Entry 23](devlog/entry-23.md) | Giving memory to Claude - The Daemon, the Bridge, and the Persistence of Memory | The goal for this session was straightforward: add `codebase-memory-mcp` (CBM) to the project stack to give sub-agents cross-session, persistent architectural context |

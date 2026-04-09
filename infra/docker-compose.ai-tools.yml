@@ -1,24 +1,9 @@
 # AI Tools — Dev Tooling Stack
-# Serena (code navigation) + Ollama (local inference) + LiteLLM (Anthropic-compatible proxy)
-#
-# SEPARATE from infra/docker-compose.yml — AI dev tools are not platform services.
-# Start with: docker compose -f infra/docker-compose.ai-tools.yml up -d
-#
-# Prerequisites:
-#   - infra/docker-compose.yml must be running (provides ollama_data volume + ai-platform network)
-#   - OLLAMA_MODEL env var set (default: qwen2.5-coder:7b)
-#   - CONTEXT7_API_KEY env var set for Context7 MCP (optional — tool works without it but rate-limited)
-
+# Serena (code navigation) + Ollama (local inference) + LiteLLM (Anthropic proxy) + CBM
 version: "3.9"
 
 services:
 
-  # ── Serena MCP (HTTP/SSE mode) ───────────────────────────────────────────────
-  # Exposes LSP-level code navigation (get_symbols_overview, find_symbol, get_diagnostics)
-  # over HTTP/SSE instead of stdio. Required for Docker isolation.
-  #
-  # VS Code: configure as remote MCP server pointing to http://localhost:9121/sse
-  # Claude Code: claude mcp add serena --transport http --url http://localhost:9121/sse
   serena:
     image: ghcr.io/oraios/serena:latest
     pull_policy: always
@@ -36,32 +21,25 @@ services:
       - --port
       - "9121"
     volumes:
-      # Mount workspace read-only — Serena reads but never writes code
       - type: bind
         source: ..
         target: /workspace
         read_only: true
-      # Overlay .serena/ as read-write so Serena can persist memories
-      # All code paths remain read-only; only .serena/memories/ is writable
       - type: bind
         source: ../.serena
         target: /workspace/.serena
         read_only: false
     ports:
-      - "127.0.0.1:9121:9121"  # localhost only — never expose to network
+      - "127.0.0.1:9121:9121"
     networks:
       - ai-tools-internal
     restart: unless-stopped
     healthcheck:
-      # SSE streams indefinitely — check port reachability instead
       test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost', 9121)); s.close()"]
       interval: 30s
       timeout: 5s
       retries: 3
 
-  # ── LiteLLM Proxy ─────────────────────────────────────────────────────────────
-  # Translates Anthropic-format API calls to Ollama's OpenAI-compatible API.
-  # Claude Code connects here when ANTHROPIC_BASE_URL=http://localhost:4000
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
     pull_policy: always
@@ -74,11 +52,9 @@ services:
       - 0.0.0.0
       - --drop_params
     environment:
-      # OLLAMA_API_BASE: http://ollama-tools:11434
-      # host.docker.internal routes traffic OUT of Docker and into the Native Mac app
       OLLAMA_API_BASE: http://host.docker.internal:11434
     ports:
-      - "127.0.0.1:4000:4000"  # localhost only
+      - "127.0.0.1:4000:4000"
     networks:
       - ai-tools-internal
     depends_on:
@@ -90,18 +66,13 @@ services:
       timeout: 5s
       retries: 3
 
-  # ── Ollama (dev-tools alias) ──────────────────────────────────────────────────
-  # Re-uses the ollama_data volume from the main compose stack so model weights
-  # are not downloaded twice.
-  # If ai-platform-ollama (from docker-compose.yml) is already running on
-  # port 11434, remove this service and point litellm at ai-platform-ollama directly.
   ollama-tools:
     image: ollama/ollama:latest
-    pull_policy: always
+    pull_policy: never # Ollama should be managed/updated by the user, not auto-pulled
     volumes:
       - ollama_data:/root/.ollama
     ports:
-      - "127.0.0.1:11435:11434"  # offset port to avoid conflict with main compose
+      - "127.0.0.1:11435:11434"
     networks:
       - ai-tools-internal
     restart: unless-stopped
@@ -111,12 +82,35 @@ services:
       timeout: 5s
       retries: 3
 
+  codebase-memory-mcp:
+    container_name: codebase-memory-mcp
+    image: cbm-image
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.cbm
+    command: ["--ui=true", "--port=9749"]
+    environment:
+      - CBM_CACHE_DIR=/root/.cache/codebase-memory-mcp
+    # CRITICAL: Keeps the stdio server alive to serve the UI 24/7
+    stdin_open: true 
+    tty: true        
+    ports:
+      - "127.0.0.1:9749:9750" # Host 9749 routes to the internal socat bridge on 9750
+    volumes:
+      - type: bind
+        source: ..
+        target: /workspace
+        read_only: true
+      - cbm_cache:/root/.cache/codebase-memory-mcp
+    networks:
+      - ai-tools-internal
+    restart: unless-stopped
+
 volumes:
-  # Shared with infra/docker-compose.yml — model weights downloaded once
-  # Volume is created with project prefix "infra_" by docker compose
   ollama_data:
     external: true
     name: infra_ollama_data
+  cbm_cache: # Let Docker Compose manage the isolated SQLite volume
 
 networks:
   ai-tools-internal:

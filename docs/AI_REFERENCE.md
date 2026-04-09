@@ -11,7 +11,7 @@ up:compose-up-d-build | down:compose-down | logs:compose-logs-f | migrate:exec-a
 core:backend/app/main.py,backend/app/config.py,backend/app/db/models.py | migrations:backend/alembic/versions/ | auth:backend/app/auth/ | routes:backend/app/api/ | infra:infra/docker-compose.yml,.env.example,infra/docker/Dockerfile.backend | ai:ai/,ai/planner/planner.py,ai/models/,ai/mcp/registry.py,ai/mcp/servers/plone.py | mcp-node:infra/plone-mcp/src/index.ts | plugins:plugins/
 
 ## ENV
-DATABASE_URL(pg+asyncpg://) | REDIS_URL | SECRET_KEY(JWT) | PLONE_BASE_URL | QDRANT_URL | CORS_ORIGINS(JSON-arr) | ENVIRONMENT(dev|prod) | ACCESS_TOKEN_EXPIRE_MINUTES[60] | REFRESH_TOKEN_EXPIRE_DAYS[7] | AI_MODE(demo|prod) | OLLAMA_URL | OLLAMA_MODEL | ANTHROPIC_BASE_URL[LiteLLM:localhost:4000] | CONTEXT7_API_KEY | POSTGRES_DB | POSTGRES_USER | POSTGRES_PASSWORD | PLONE_USERNAME | PLONE_PASSWORD | PLONE_MCP_URL
+DATABASE_URL(pg+asyncpg://) | REDIS_URL | SECRET_KEY(JWT) | PLONE_BASE_URL | QDRANT_URL | CORS_ORIGINS(JSON-arr) | ENVIRONMENT(dev|prod) | ACCESS_TOKEN_EXPIRE_MINUTES[60] | REFRESH_TOKEN_EXPIRE_DAYS[7] | AI_MODE(demo|prod) | OLLAMA_URL | OLLAMA_MODEL | ANTHROPIC_BASE_URL[LiteLLM:localhost:4000] | CONTEXT7_API_KEY | NAVIGATION_BACKEND[serena](serena|cbm|both,.claude/settings.json,docs/NAVIGATION_BACKENDS.md) | POSTGRES_DB | POSTGRES_USER | POSTGRES_PASSWORD | PLONE_USERNAME | PLONE_PASSWORD | PLONE_MCP_URL
 
 ## MOUNTS
 ../plugins/→/app/plugins/ | ../ai/→/app/ai/ | backend/→/app/ | vols:postgres_data,redis_data,qdrant_data,ollama_data

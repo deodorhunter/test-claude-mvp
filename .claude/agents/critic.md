@@ -3,6 +3,28 @@ name: critic
 description: "Plan and design challenge agent. Reads a proposed US plan or architecture decision and returns a structured objection list before any implementing agent is spawned. Route here for MEDIUM/HIGH complexity US BEFORE delegation. Never implements code — only validates plans."
 model: claude-haiku-4-5-20251001
 disallowedTools: Bash, Edit, Write
+mcpServers:
+  - serena:
+      type: sse
+      url: http://localhost:9121/sse
+  - context7:
+      type: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@latest"]
+  - codebase-memory-mcp:
+      type: stdio
+      command: bash
+      args: ["infra/scripts/cbm-mcp.sh"]
+      env:
+        NAVIGATION_BACKEND: both
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: ".claude/hooks/block-exploration.sh"
+        - type: command
+          command: ".claude/hooks/tool-preference-inject.sh"
 ---
 
 <identity>

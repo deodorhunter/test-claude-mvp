@@ -66,7 +66,7 @@ Read the last rule number so you can continue the sequence. Do NOT read all exis
 <step_4>
 **Write Rule Files**
 
-For each surviving candidate (maximum 3 per phase gate), write a new file to `.claude/rules/project/` following the format in `.claude/rules/TEMPLATE.md` (minimal frontmatter: id, trigger, updated; XML body: `<constraint>`, `<why>`, `<pattern>`).
+For each surviving candidate (maximum 3 per phase gate), write a new file to `.claude/rules/project/` following the format documented in Anthropic Docs (minimal frontmatter: id, trigger, updated; XML body: `<constraint>`, `<why>`, `<pattern>`).
 </step_4>
 
 <step_5>

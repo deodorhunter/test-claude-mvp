@@ -344,7 +344,7 @@ Next framework release includes refinement
 
 1. **Run baseline:** `bash benchmark/measure-framework-impact.sh`
 2. **Implement 1 US:** With framework, measure metrics
-3. **Try 1 experiment:** Pick one from Section 3
+3. **Try 1 experiment:** Optionally, pick one from Section 3
 4. **Fill feedback template:** Developer or security or legal (pick one)
 5. **Submit PR or Discussion:** Share findings with maintainers
 

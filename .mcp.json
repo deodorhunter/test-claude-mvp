@@ -12,6 +12,14 @@
     "serena": {
       "type": "sse",
       "url": "http://localhost:9121/sse"
+    },
+    "codebase-memory-mcp": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["infra/scripts/cbm-mcp.sh"],
+      "env": {
+        "NAVIGATION_BACKEND": "cbm"
+      }
     }
   }
 }

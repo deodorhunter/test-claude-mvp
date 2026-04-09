@@ -147,7 +147,7 @@ Five reusable Claude Code commands that implement decision-making and insight ca
 Trigger: On `make up && make migrate && make test` passes
 Action: Run /reflexion Phase-N automatically
 Output: Proposed rules written, awaiting Tech Lead approval in CLAUDE.md
-Estimated savings: 30 min orchestrator time per phase gate
+Estimated savings: 5 min orchestrator time per phase gate
 ```
 
 **`/learn`** (Post-Phase-Gate Bulk Capture)

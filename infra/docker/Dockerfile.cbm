@@ -1,0 +1,29 @@
+# ── Single Stage: Runtime ─────────────────────────────────────────────────────
+FROM ubuntu:24.04
+
+# Install requirements for downloading, extracting, and port forwarding
+RUN apt-get update -q && \
+    apt-get install -y --no-install-recommends \
+        curl ca-certificates tar socat dpkg && \
+    rm -rf /var/lib/apt/lists/*
+
+# The entrypoint script now handles downloading the latest version on EVERY boot,
+# then launches the socat bridge, and finally executes the binary.
+RUN echo '#!/bin/bash\n\
+echo "Checking for latest CBM release..."\n\
+ARCH=$(dpkg --print-architecture)\n\
+curl -fsSL "https://github.com/DeusData/codebase-memory-mcp/releases/latest/download/codebase-memory-mcp-ui-linux-${ARCH}.tar.gz" | tar xz -C /usr/local/bin\n\
+chmod 755 /usr/local/bin/codebase-memory-mcp\n\
+\n\
+echo "Starting socat bridge..."\n\
+socat TCP-LISTEN:9750,fork,bind=0.0.0.0 TCP:127.0.0.1:9749 &\n\
+\n\
+echo "Starting CBM Daemon..."\n\
+exec /usr/local/bin/codebase-memory-mcp "$@"\n' > /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 9750
+
+WORKDIR /workspace
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

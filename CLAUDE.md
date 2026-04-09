@@ -40,16 +40,12 @@ Attempt 3 → STOP. Report: (a) exact error (≤10 lines), (b) what was tried, (
 
 **AST-SEARCH** — ast_grep over sed/awk for fn/class/import patterns; refactor-safe.
 
-**SERENA-FIRST** (when available) — semantic nav before file reads:
-0. `mcp__serena__list_memories` → read relevant memories for project context BEFORE navigating code
-1. `mcp__serena__get_symbols_overview(file)` — signatures only (~200 tokens vs ~2,000 per file)
-2. `mcp__serena__find_symbol(name)` — file + line number (~50 tokens)
-3. `mcp__serena__replace_symbol_body` — preferred method for editing a named symbol in-place
-4. Full `Read`/`Glob`/`Grep` — last resort: only for `<file>` XML injection into sub-agent prompts
-   - `read_file` is disabled in `--context claude-code`; use `Read` + line range after `find_symbol`
-   - `get_diagnostics` does not exist in Serena; use `get_errors` tool instead
-
-If Serena is not available, fall back to Read/Grep/Glob directly.
+**NAVIGATION-BACKEND** (active backend + dispatch injected by hook at every prompt — follow strictly):
+- `serena` (default): `list_memories` → `get_symbols_overview` → `find_symbol` → `replace_symbol_body`→ `Grep` → `Read`
+- `cbm`: `cbm__search_codebase` → `cbm__get_symbol` → `Grep` → `Read` | editing: `serena__replace_symbol_body` only
+- `both` (strict): cbm for ALL search/memory/analysis; serena ONLY for `replace_symbol_body` + `get_errors`
+Fallback (no backend injected): serena if available, else Read/Grep/Glob.
+⚠️ `tool-routing-guard.sh` fires on every MCP call — wrong-backend tool triggers redirect message.
 
 **CONTEXT7** — before using external lib/API:
 1. `mcp__context7__resolve-library-id` — map library name to its Context7 ID

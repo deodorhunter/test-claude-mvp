@@ -11,12 +11,20 @@ mcpServers:
       type: stdio
       command: npx
       args: ["-y", "@upstash/context7-mcp@latest"]
+  - codebase-memory-mcp:
+      type: stdio
+      command: bash
+      args: ["infra/scripts/cbm-mcp.sh"]
+      env:
+        NAVIGATION_BACKEND: both
 hooks:
   PreToolUse:
     - matcher: "Bash"
       hooks:
         - type: command
           command: ".claude/hooks/block-exploration.sh"
+        - type: command
+          command: ".claude/hooks/tool-preference-inject.sh"
   PostToolUse:
     - matcher: "Bash"
       hooks:

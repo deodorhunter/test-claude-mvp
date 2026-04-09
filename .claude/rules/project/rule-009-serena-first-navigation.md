@@ -1,34 +1,41 @@
 ---
-description: "Serena-first navigation in both main session and sub-agents"
+description: "Navigation backend selection: Serena-first (default) or CBM, controlled by NAVIGATION_BACKEND in .claude/settings.json"
 ---
 
 <metadata>
   id: rule-009
-  updated: "2026-04-05"
+  updated: "2026-04-08"
 </metadata>
 
-# Rule 009 — Serena-First Navigation
+# Rule 009 — Navigation Backend
 
 <constraint>
-Before reading any file for structure, use Serena: `get_symbols_overview` (~200 tokens) → `find_symbol` (~50 tokens) → targeted `read_file` range. Full `Read`/`cat` ONLY for `<file>` XML injection into DocWriter or algorithm-level detail.
+Active navigation backend is set in `.claude/settings.json` → `mcpServers.codebase-memory-mcp.env.NAVIGATION_BACKEND` (values: `serena` | `cbm` | `both`, default: `serena`). The active dispatch table is injected by `tool-preference-inject.sh` at every prompt. Follow it strictly.
 
-Scope: Python and TypeScript files only (`.serena/project.yml`). Markdown, YAML, JSON, Dockerfile → use Read/Grep directly.
+**Backend: `serena` (default)**
+Before reading any file for structure: `get_symbols_overview` (~200 tokens) → `find_symbol` (~50 tokens) → targeted `read_file` range. Full `Read`/`cat` ONLY for `<file>` XML injection into DocWriter or algorithm-level detail.
 
-Sub-agents: Serena IS available in sub-agents when agent frontmatter uses `disallowedTools` (not `tools:` allowlist) and includes inline `mcpServers` definition. All implementing agents have this configured. If Serena is unavailable in a sub-agent, it must STOP and request orchestrator to inject `<file>` blocks — never fall back to shell exploration.
+**Backend: `cbm`**
+Use `mcp__codebase-memory-mcp__*` for all search, navigation, and cross-session queries. Serena permitted only for `replace_symbol_body` and `get_errors`.
 
-Orchestrator: Serena calls are for cross-file architectural analysis during planning only. Sub-agents self-navigate — orchestrator symbol injection is no longer required for delegation.
+**Backend: `both`**
+Strict dispatch — CBM for search/memory/analysis; Serena only for `replace_symbol_body` + `get_errors`. Never use same tool type from both backends for the same task.
 
-Scope: Speed 1 (main session direct implementation + debugger agent) AND Speed 2 (all implementing sub-agents via mcpServers field).
+Scope (Serena): Python and TypeScript files only. Markdown, YAML, JSON, Dockerfile → use Read/Grep directly.
+
+Sub-agents: Serena IS available in sub-agents when agent frontmatter uses `disallowedTools` + inline `mcpServers`. If Serena unavailable in sub-agent, STOP and request orchestrator `<file>` injection.
 </constraint>
 
 <why>
-Full-file reads cost ~2,000 tokens each. Serena overviews give the same structural info at 10% cost. Root cause of prior sub-agent Serena failure: `tools:` allowlist silently blocked MCP tools (confirmed 2026-04-05, GitHub issue #25200). Fix: `disallowedTools` + inline `mcpServers`.
+Full-file reads cost ~2,000 tokens each; Serena overviews give same info at 10% cost. CBM adds persistent, auto-updated cross-session indexing (no manual `update-memories` flush needed). Tool confusion when both MCPs active is prevented by `tool-routing-guard.sh` PreToolUse hook + strict dispatch table in CLAUDE.md.
 </why>
 
 <pattern>
-✅ Sub-agent: `mcp__serena__get_symbols_overview(file)` → targeted Read range (direct — no orchestrator pre-flight needed)
-✅ Main session: `mcp__serena__get_symbols_overview(file)` → cross-file architectural analysis
-✅ Orchestrator delegation: inject `<file>` only for algorithm-level detail or DocWriter
-❌ `Read(whole_file)` when Serena symbol overview suffices
-❌ Sub-agent falling back to `ls`/`find` when Serena unavailable — STOP and escalate instead
+✅ Check injected dispatch table at prompt start (from tool-preference-inject.sh)
+✅ backend=serena: `get_symbols_overview` → `find_symbol` → targeted Read
+✅ backend=cbm: `cbm__search_codebase` → targeted Read
+✅ backend=both: cbm for search, serena for editing only
+❌ `Read(whole_file)` when MCP overview suffices
+❌ Mixing backends for the same task type (wastes tokens, confuses indexing)
+❌ Sub-agent falling back to `ls`/`find` when MCP unavailable — STOP and escalate
 </pattern>
